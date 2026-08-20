@@ -327,48 +327,111 @@ function searchOnboardUsers(){const b=document.getElementById('onboardResults');
 
 function makeBaseName(name){let base=name.trim().replace(/\s+/g,'');base=base.replace(/[^a-zA-Z0-9\u1000-\u109F]/g,'');return base||'User'}
 async function register(){
+  if(firebaseInitPromise) await firebaseInitPromise;
   if(!db){alert('ခဏစောင့်ပါ');return}
+
+  /*
+    Account must be saved to Firebase, not only localStorage.
+    This makes the same Account ID + Password usable from another
+    browser/phone/location.
+  */
+  if(!fbReady || !firebaseDB){
+    alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
+    return;
+  }
+
   const n=prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
   if(n===null)return;
   const name=n.trim();
   if(!name){alert('အမည်ထည့်ပါ');return}
+
   const p=prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
   if(p===null)return;
   if(p.length<6){alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ');return}
+
   const base=makeBaseName(name);
   let num=1001,id='';
   do{id=base+num;num++;}while(db.users[id]);
-  db.users[id]={id:id,name:name,accountName:name,bio:'',dob:'',gender:'',photos:[],photoLimit:4,lat:null,lng:null,password:p};
-  await save();
-  me=id;
-  try{localStorage.setItem('my_social_logged_in',id)}catch(e){}
-  alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: '+id+'\nဒီ ID နဲ့ Password ကိုသုံးပြီး နောက်တစ်ခါ ဝင်နိုင်ပါတယ်။');
-  enter();
+
+  const user={
+    id:id,name:name,accountName:name,bio:'',dob:'',gender:'',
+    photos:[],photoLimit:4,lat:null,lng:null,password:p
+  };
+
+  try{
+    /*
+      Save the account directly under appData/users/{id}.
+      Do not claim registration succeeded until Firebase confirms it.
+    */
+    await firebaseDB.ref('appData/users/'+id).set(user);
+    const verify=await firebaseDB.ref('appData/users/'+id).once('value');
+    if(!verify.exists())throw new Error('Firebase account verification failed');
+
+    db.users[id]=user;
+    localSave();
+    me=id;
+    try{localStorage.setItem('my_social_logged_in',id)}catch(e){}
+    alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: '+id+'\nဒီ ID နဲ့ Password ကို ဘယ် Browser/ဖုန်းကမဆို ဝင်နိုင်ပါတယ်။');
+    enter();
+    setStatus('✅ '+id+' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
+  }catch(e){
+    console.error('Register:',e);
+    alert('❌ အကောင့်ဖွင့်မရပါ။ Firebase Database Rules / Internet ကိုစစ်ပါ။');
+  }
 }
+
 async function login(){
   if(firebaseInitPromise) await firebaseInitPromise;
   if(!db){alert('ခဏစောင့်ပါ');return}
-  if(!fbReady){alert('⚠️ Server မချိတ်နိုင်သေးပါ။ Internet/Firebase Database Rules ကိုစစ်ပါ။');return}
-  var id=String(val('loginId')).trim();
+
+  var id=String(val('loginId')).trim().replace(/\s+/g,'');
   var p=String(val('loginPassword'));
+
   if(!id){alert('Account ID ထည့်ပါ');return}
   if(!p){alert('Password ထည့်ပါ');return}
-  id=id.replace(/\s+/g,'');
+
   var u=null;
-  try{
-    /* Always check Firebase directly so a new phone/browser gets the latest account. */
-    var snap=await firebaseDB.ref('appData/users/'+id).once('value');
-    if(snap.exists()) u=normalize({users:(function(){var o={};o[id]=snap.val();return o})()}).users[id];
-  }catch(e){console.warn('Remote account lookup failed',e)}
+  var remoteError=null;
+
+  /*
+    Always read the account from Firebase first.
+    localStorage is only a fallback for temporary network problems;
+    it is NOT used as the main account store.
+  */
+  if(firebaseDB){
+    try{
+      var snap=await firebaseDB.ref('appData/users/'+id).once('value');
+      if(snap.exists())u=snap.val();
+    }catch(e){
+      remoteError=e;
+      console.warn('Remote account lookup failed',e);
+    }
+  }
+
   if(!u && db.users)u=db.users[id];
-  if(!u){alert('ဒီ Account ID မတွေ့ပါ။ အကောင့်ကို ဖွင့်ထားပြီးသားဆိုရင် Firebase Server data မရသေးတာ ဖြစ်နိုင်ပါတယ်။');return}
-  if(u.password && String(u.password)!==p){alert('Password မမှန်ပါ');return}
+
+  if(!u){
+    if(remoteError){
+      alert('❌ Server မှ Account ကို စစ်မရသေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်စမ်းပါ။');
+    }else{
+      alert('ဒီ Account ID မတွေ့ပါ။');
+    }
+    return;
+  }
+
+  if(u.password && String(u.password)!==p){
+    alert('Password မမှန်ပါ');
+    return;
+  }
+
   db.users[id]=u;
+  localSave();
   me=id;
   try{localStorage.setItem('my_social_logged_in',id)}catch(e){}
   enter();
-  setStatus('✅ '+id+' ဝင်ထားပါပြီ — ဒီ Account ကို Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်');
+  setStatus('✅ '+id+' ဝင်ထားပါပြီ — Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်');
 }
+
 function logout(){stopPresence();try{localStorage.removeItem('my_social_logged_in')}catch(e){}me=null;chatWith=null;document.getElementById('nav').classList.add('hidden');document.getElementById('head').textContent='Guest';closeMenu();show('login')}
 
 function toggleMenu(){const d=document.getElementById('menuDrawer'),o=document.getElementById('menuOverlay');d&&d.classList.toggle('open');o&&o.classList.toggle('open');}
