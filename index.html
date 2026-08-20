@@ -94,9 +94,8 @@ input,textarea,select{background:#fff;color:#222;border:1px solid #ddd}
 <section id="onboarding" class="screen">
 <div class="onboard">
 <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန်" oninput="searchOnboardUsers()"></div>
-<div class="location-center"><h2>📍 တည်နေရာ</h2><p class="small">တည်နေရာဖွင့်လိုက်တာနဲ့ လက်ရှိအသုံးပြုနေသူများကို မြေပုံပေါ်မှာ ကြည့်နိုင်ပါတယ်။</p><button class="btn green" onclick="locateAndShowMap()">📍 တည်နေရာဖွင့်မည်</button><div id="locationStatus" class="status"></div></div>
-<div id="locationMap" style="height:360px;border-radius:16px;overflow:hidden;margin-top:14px;border:1px solid #ddd;background:#eee"></div>
-<div id="onboardResults"></div>
+<div class="location-center"><div class="location-icon">📍</div><h2>တည်နေရာဖြင့် ရှာရန်</h2><p class="small">သင့်အနီးအနားမှာ လက်ရှိအသုံးပြုနေသူများကို ရှာနိုင်ပါတယ်။</p><button class="btn green" onclick="locate()">📍 တည်နေရာဖွင့်မည်</button><div id="onboardResults"></div></div>
+
 </div>
 </section>
 <section id="home" class="screen">
@@ -182,14 +181,14 @@ input,textarea,select{background:#fff;color:#222;border:1px solid #ddd}
 </div>
 </section>
 <section id="friends" class="screen"><div class="card"><h3>🔎 အကောင့်ရှာရန်</h3><input id="userSearch" placeholder="အမည် သို့မဟုတ် ID နဲ့ရှာပါ" oninput="searchUsers()"><div id="searchResults"></div></div><div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div></section>
-<section id="chat" class="screen"><div class="card"><h3 id="ctitle">💬 Chat</h3><div id="chatbox" class="chat"></div><div style="display:flex;gap:8px;align-items:center"><input id="msg" style="flex:1" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()"><button class="btn" style="white-space:nowrap" onclick="send()">ပို့မည်</button><button class="btn" style="white-space:nowrap;background:#f5b400;color:#fff" onclick="openChatLocation()">📍</button></div></div></section>
+<section id="chat" class="screen"><div class="card"><h3 id="ctitle">💬 Chat</h3><div id="chatbox" class="chat"></div><input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()"><button class="btn" onclick="send()">ပို့မည်</button></div></section>
 <section id="inbox" class="screen">
 <div class="card"><h3>💬 Inbox</h3><div id="inboxList"></div></div>
 <div class="card"><h3>📨 Friend Requests</h3><div id="inboxRequests"></div></div>
 </section>
 <section id="groups" class="screen"><div id="groupCreateCard" class="card"><h3>👥 Group တည်ထောင်ရန်</h3><input id="gname" placeholder="Group အမည်"><button class="btn gold" onclick="createGroup()">ဖန်တီးမည်</button><p class="small">Level 1 = member 20 ယောက်အထိ။</p></div><div class="card"><div id="glist"></div></div></section><section id="groupDetail" class="screen"><div class="card"><button class="btn" onclick="show('groups')">← My Groups</button><div id="groupDetailBox"></div></div></section>
 <section id="admin" class="screen"><div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div></section>
-<div id="chatLocationModal" class="photo-choice-backdrop" onclick="if(event.target===this)closeChatLocation()"><div class="photo-choice" style="border-radius:18px;max-width:520px;align-items:stretch"><h3>📍 တည်နေရာပို့ရန်</h3><div id="chatLocationMap" style="height:300px;border-radius:14px;overflow:hidden;background:#eee"></div><p id="chatLocationStatus" class="small"></p><div style="display:flex;gap:8px;margin-top:10px"><button class="choice-btn" style="flex:1" onclick="sendCurrentLocation()">📍 တည်နေရာပို့မည်</button><button class="choice-btn cancel" style="flex:1" onclick="closeChatLocation()">ပိတ်မည်</button></div></div></div><div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center"><div class="photo-choice" style="border-radius:18px;max-width:520px"><h3>📷 ကင်မရာ</h3><video id="cameraVideo" autoplay playsinline muted style="width:100%;max-height:55vh;object-fit:cover;border-radius:12px;background:#000"></video><div style="display:flex;gap:8px;margin-top:10px"><button class="choice-btn camera" style="flex:1" onclick="takeCameraPhoto()">📸 ပုံရိုက်မည်</button><button class="choice-btn cancel" style="flex:1" onclick="closeCamera()">ပိတ်မည်</button></div><p id="cameraStatus" class="small"></p></div></div><div id="photoChoiceBackdrop" class="photo-choice-backdrop" onclick="if(event.target===this)closePhotoChoice()"><div class="photo-choice"><h3>📷 ဓာတ်ပုံရွေးရန်</h3><button class="choice-btn camera" onclick="openCamera()">📷 ကင်မရာဖွင့်ပြီး ပုံရိုက်မည်</button><button class="choice-btn" onclick="openGallery()">🖼️ ဖုန်းဓာတ်ပုံဖိုင်ထဲမှ ရွေးမည်</button><button class="choice-btn cancel" onclick="closePhotoChoice()">မလုပ်တော့ပါ</button></div></div><div id="nav" class="nav hidden">
+<div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center"><div class="photo-choice" style="border-radius:18px;max-width:520px"><h3>📷 ကင်မရာ</h3><video id="cameraVideo" autoplay playsinline muted style="width:100%;max-height:55vh;object-fit:cover;border-radius:12px;background:#000"></video><div style="display:flex;gap:8px;margin-top:10px"><button class="choice-btn camera" style="flex:1" onclick="takeCameraPhoto()">📸 ပုံရိုက်မည်</button><button class="choice-btn cancel" style="flex:1" onclick="closeCamera()">ပိတ်မည်</button></div><p id="cameraStatus" class="small"></p></div></div><div id="photoChoiceBackdrop" class="photo-choice-backdrop" onclick="if(event.target===this)closePhotoChoice()"><div class="photo-choice"><h3>📷 ဓာတ်ပုံရွေးရန်</h3><button class="choice-btn camera" onclick="openCamera()">📷 ကင်မရာဖွင့်ပြီး ပုံရိုက်မည်</button><button class="choice-btn" onclick="openGallery()">🖼️ ဖုန်းဓာတ်ပုံဖိုင်ထဲမှ ရွေးမည်</button><button class="choice-btn cancel" onclick="closePhotoChoice()">မလုပ်တော့ပါ</button></div></div><div id="nav" class="nav hidden">
 <button id="navLocation" onclick="navGo('onboarding')"><span style="font-size:24px">📍</span><span>Location</span></button>
 <button id="navHome" onclick="navGo('home')"><span style="font-size:24px">⌂</span><span>Home</span></button>
 <button id="navFriends" onclick="navGo('friends')"><span style="font-size:24px">♧</span><span>Friends</span></button>
@@ -197,8 +196,6 @@ input,textarea,select{background:#fff;color:#222;border:1px solid #ddd}
 <button id="navProfile" onclick="navGo('profile')"><span style="font-size:24px">♙</span><span>Profile</span></button>
 <button id="navSetting" onclick="navGo('settings')"><span style="font-size:24px">⚙️</span><span>Setting</span></button>
 </div></div>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -208,7 +205,7 @@ const firebaseConfig={apiKey:'AIzaSyBMtwQBUCHm0kzum4L-TM87jEBnqageybU',authDomai
 firebase.initializeApp(firebaseConfig);
 const firebaseAuth=firebase.auth();
 const firebaseDB=firebase.database();
-const KEY='my_social_chat_v1';const NEARBY_RADIUS_KM=5;let me=null,chatWith=null,db=null,fbReady=false,remoteTimer=null,presenceRef=null,locationWatchId=null;
+const KEY='my_social_chat_v1';const NEARBY_RADIUS_KM=5;let me=null,chatWith=null,db=null,fbReady=false,remoteTimer=null,presenceRef=null,locationWatchId=null,firebaseInitPromise=null;
 const DEFAULT={users:{U10001:{id:'U10001',name:'မောင်မောင်',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10002:{id:'U10002',name:'လှလှ',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10003:{id:'U10003',name:'Aung',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'}},req:[],friends:[],messages:{},groups:[]};
 function clone(){return JSON.parse(JSON.stringify(DEFAULT))}
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
@@ -257,7 +254,7 @@ function restoreLogin(){
   return false;
 }
 restoreLogin();
-initFirebase();
+firebaseInitPromise=initFirebase();
 function navGo(id){
   show(id);
   closeMenu();
@@ -300,7 +297,9 @@ function searchOnboardUsers(){const b=document.getElementById('onboardResults');
 
 function makeBaseName(name){let base=name.trim().replace(/\s+/g,'');base=base.replace(/[^a-zA-Z0-9\u1000-\u109F]/g,'');return base||'User'}
 async function register(){
+  if(firebaseInitPromise) await firebaseInitPromise;
   if(!db){alert('ခဏစောင့်ပါ');return}
+  if(!fbReady){alert('Internet/Firebase မချိတ်နိုင်သေးပါ။ အင်တာနက်ဖွင့်ပြီး ပြန်စမ်းပါ။');return}
   const n=prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
   if(n===null)return;
   const name=n.trim();
@@ -319,19 +318,22 @@ async function register(){
   enter();
 }
 async function login(){
+  if(firebaseInitPromise) await firebaseInitPromise;
   if(!db){alert('ခဏစောင့်ပါ');return}
+  if(!fbReady){alert('Internet/Firebase မချိတ်နိုင်သေးပါ။ အင်တာနက်ဖွင့်ပြီး ပြန်စမ်းပါ။');return}
   const id=document.getElementById('loginId').value.trim();
   const p=document.getElementById('loginPassword').value;
   if(!id){alert('Account ID ထည့်ပါ');return}
   if(!p){alert('Password ထည့်ပါ');return}
   const u=db.users[id];
-  if(!u){alert('ဒီ Account ID မတွေ့ပါ');return}
+  if(!u){alert('ဒီ Account ID မတွေ့ပါ — Firebase မှာ အကောင့်မရှိပါ။');return}
   if(u.password && u.password!==p){alert('Password မမှန်ပါ');return}
   me=id;
   try{localStorage.setItem('my_social_logged_in',id)}catch(e){}
   enter();
   setStatus('✅ '+id+' ဝင်ထားပါပြီ');
 }
+
 function logout(){stopPresence();try{localStorage.removeItem('my_social_logged_in')}catch(e){}me=null;chatWith=null;document.getElementById('nav').classList.add('hidden');document.getElementById('head').textContent='Guest';closeMenu();show('login')}
 
 function toggleMenu(){const d=document.getElementById('menuDrawer'),o=document.getElementById('menuOverlay');d?.classList.toggle('open');o?.classList.toggle('open');}
@@ -457,50 +459,6 @@ function distanceKm(lat1,lng1,lat2,lng2){const R=6371,rad=Math.PI/180,dLat=(lat2
 async function nearby(){const onboardingActive=document.getElementById('onboarding')?.classList.contains('active');const b=onboardingActive?document.getElementById('onboardResults'):document.getElementById('near');if(!b||!me||!fbReady){if(b)b.innerHTML='<div class="small">Firebase Online ဖြစ်မှ အနီးနား User တွေကို ပြပါမယ်</div>';return}b.innerHTML='<div class="small">အနီးနားမှာ သုံးနေသူတွေ ရှာနေပါတယ်...</div>';try{const my=db.users[me];if(!my||typeof my.lat!=='number'||typeof my.lng!=='number'){b.innerHTML='<div class="small">📍 Location ဖွင့်ပေးပါ။ Location မရသေးလို့ အနီးနား User မပြနိုင်ပါ။</div>';return}const snap=await firebaseDB.ref('presence').once('value');const presence=snap.val()||{};const users=[];Object.keys(presence).forEach(id=>{if(id===me)return;const u=presence[id];if(u&&u.online===true&&typeof u.lat==='number'&&typeof u.lng==='number'){const km=distanceKm(my.lat,my.lng,u.lat,u.lng);if(km<=NEARBY_RADIUS_KM)users.push({id,km,u})}});users.sort((a,b)=>a.km-b.km);if(!users.length){b.innerHTML='<div class="small">အနီးနားမှာ ဒီ APK ကို လက်ရှိအသုံးပြုနေသူ မရှိပါ။</div>';return}b.innerHTML='';users.forEach(x=>{const u=db.users[x.id]||x.u;let d=document.createElement('div');d.className='list';const f=db.friends.some(z=>(z.a===me&&z.b===x.id)||(z.a===x.id&&z.b===me)),q=db.req.some(r=>r.f===me&&r.t===x.id);d.innerHTML='<b>'+esc(u.name||x.u.name||x.id)+'</b><div class="small">ID: '+esc(x.id)+' • '+(x.km<1?(x.km*1000).toFixed(0)+' m':x.km.toFixed(1)+' km')+'</div>'+(f?'<span>✅ Friend</span>':q?'<span>📨 Request ပို့ထားပြီး</span>':'<button class="btn" onclick="requestFriend(\''+x.id+'\')">Add Friend</button>');b.appendChild(d)})}catch(e){console.error(e);b.innerHTML='<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။ Internet/Firebase Rules စစ်ပါ။</div>'}}
 function startPresence(){if(!fbReady||!me)return;try{if(presenceRef)presenceRef.onDisconnect().remove();presenceRef=firebaseDB.ref('presence/'+me);presenceRef.onDisconnect().remove();const u=db.users[me]||{};presenceRef.update({id:me,name:u.name||me,online:true,lastSeen:firebase.database.ServerValue.TIMESTAMP});if(locationWatchId!==null)navigator.geolocation.clearWatch(locationWatchId);if(!navigator.geolocation){alert('ဒီဖုန်းမှာ Location မရပါ');return}locationWatchId=navigator.geolocation.watchPosition(async p=>{db.users[me].lat=p.coords.latitude;db.users[me].lng=p.coords.longitude;localSave();await presenceRef.update({id:me,name:db.users[me].name||me,online:true,lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy||null,lastSeen:firebase.database.ServerValue.TIMESTAMP});nearby()},()=>{const b=document.getElementById('near');if(b)b.innerHTML='<div class="small">📍 Location permission မပေးထားသေးပါ။ ဖုန်း Settings မှာ Location ခွင့်ပြုပါ။</div>'},{enableHighAccuracy:true,maximumAge:10000,timeout:15000});nearby()}catch(e){console.error(e);alert('Presence/Location စတင်မရပါ')}}
 function stopPresence(){try{if(locationWatchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(locationWatchId)}catch(e){}locationWatchId=null;if(presenceRef){presenceRef.remove().catch(()=>{});presenceRef=null}}
-let locationMap=null,locationMarker=null,chatLocationMap=null,chatLocationMarker=null,pendingLocation=null;
-function setLocationStatus(t){const el=document.getElementById('locationStatus');if(el)el.textContent=t}
-function initMap(containerId,lat,lng,zoom){
-  if(typeof L==='undefined')return null;
-  const map=L.map(containerId).setView([lat,lng],zoom||15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-  return map;
-}
-function showMyMap(lat,lng){
-  const el=document.getElementById('locationMap');if(!el)return;
-  if(!locationMap){locationMap=initMap('locationMap',lat,lng,15)}else locationMap.setView([lat,lng],15);
-  if(!locationMap)return;
-  if(locationMarker)locationMarker.setLatLng([lat,lng]);else locationMarker=L.marker([lat,lng]).addTo(locationMap).bindPopup('📍 သင့်တည်နေရာ').openPopup();
-  setTimeout(()=>locationMap.invalidateSize(),100);
-}
-async function locateAndShowMap(){
-  if(!me){alert('အရင် Account ဝင်ပါ');return}
-  if(!navigator.geolocation){alert('ဒီဖုန်းမှာ Location မရပါ');return}
-  setLocationStatus('📍 Location ရယူနေပါတယ်...');
-  navigator.geolocation.getCurrentPosition(async p=>{
-    const lat=p.coords.latitude,lng=p.coords.longitude;
-    db.users[me].lat=lat;db.users[me].lng=lng;localSave();
-    showMyMap(lat,lng);setLocationStatus('✅ တည်နေရာရပါပြီ');
-    try{if(fbReady)await firebaseDB.ref('presence/'+me).update({id:me,name:db.users[me].name||me,online:true,lat,lng,accuracy:p.coords.accuracy||null,lastSeen:firebase.database.ServerValue.TIMESTAMP})}catch(e){}
-    try{await nearby()}catch(e){}
-  },()=>setLocationStatus('⚠️ Location Permission မပေးထားသေးပါ'),{enableHighAccuracy:true,maximumAge:0,timeout:15000});
-}
-function openChatLocation(){
-  if(!chatWith){alert('အရင် Friend တစ်ယောက်ကို Chat ဖွင့်ပါ');return}
-  document.getElementById('chatLocationModal').style.display='flex';
-  const u=db.users[me]||{}; const lat=typeof u.lat==='number'?u.lat:null,lng=typeof u.lng==='number'?u.lng:null;
-  const st=document.getElementById('chatLocationStatus');
-  if(lat!==null&&lng!==null){pendingLocation={lat,lng};setTimeout(()=>showChatMap(lat,lng),80);if(st)st.textContent='လက်ရှိသိမ်းထားသောတည်နေရာကို ပြထားပါတယ်။'}
-  else {if(st)st.textContent='📍 တည်နေရာရယူနေပါတယ်...';navigator.geolocation?.getCurrentPosition(p=>{pendingLocation={lat:p.coords.latitude,lng:p.coords.longitude};showChatMap(p.coords.latitude,p.coords.longitude);if(st)st.textContent='တည်နေရာရပါပြီ။ ပို့နိုင်ပါပြီ။'},()=>{if(st)st.textContent='⚠️ Location Permission မပေးထားသေးပါ'},{enableHighAccuracy:true,maximumAge:0,timeout:15000})}
-}
-function showChatMap(lat,lng){if(!chatLocationMap)chatLocationMap=initMap('chatLocationMap',lat,lng,16);else chatLocationMap.setView([lat,lng],16);if(!chatLocationMap)return;if(chatLocationMarker)chatLocationMarker.setLatLng([lat,lng]);else chatLocationMarker=L.marker([lat,lng]).addTo(chatLocationMap).bindPopup('📍 ဒီနေရာကို ပို့မည်').openPopup();setTimeout(()=>chatLocationMap.invalidateSize(),100)}
-function closeChatLocation(){document.getElementById('chatLocationModal').style.display='none'}
-function sendCurrentLocation(){
-  if(!chatWith||!pendingLocation)return;
-  const key=ck();if(!db.messages[key])db.messages[key]=[];
-  db.messages[key].push({f:me,type:'location',lat:pendingLocation.lat,lng:pendingLocation.lng,seen:false,time:Date.now()});
-  save();closeChatLocation();renderChat();pendingLocation=null;
-}
-function openLocationInMap(lat,lng){window.open('https://www.openstreetmap.org/?mlat='+encodeURIComponent(lat)+'&mlon='+encodeURIComponent(lng)+'#map=17/'+encodeURIComponent(lat)+'/'+encodeURIComponent(lng),'_blank')}
 function locate(){if(!me){alert('အရင် Account ဝင်ပါ');return}if(!navigator.geolocation){alert('ဒီဖုန်းမှာ Location မရပါ');return}navigator.geolocation.getCurrentPosition(async p=>{db.users[me].lat=p.coords.latitude;db.users[me].lng=p.coords.longitude;localSave();if(fbReady){await firebaseDB.ref('presence/'+me).update({id:me,name:db.users[me].name||me,online:true,lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy||null,lastSeen:firebase.database.ServerValue.TIMESTAMP});}startPresence();await nearby();},()=>alert('Location permission မပေးပါ'),{enableHighAccuracy:true,maximumAge:0,timeout:15000})}
 function requestFriend(id){if(!db.req.some(r=>r.f===me&&r.t===id)&&!db.friends.some(x=>(x.a===me&&x.b===id)||(x.a===id&&x.b===me))){db.req.push({f:me,t:id});save();refresh();alert('Friend request ပို့ပြီးပါပြီ')}}
 function searchUsers(){
@@ -554,7 +512,7 @@ function accept(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));if(!db.friend
 function decline(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));save();refresh()}
 function openChat(id){chatWith=id;document.getElementById('ctitle').textContent='💬 '+db.users[id].name;show('chat')}
 function ck(){return [me,chatWith].sort().join('_')}
-function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');if(m.type==='location'){d.innerHTML='<div style="font-size:18px">📍 <b>တည်နေရာ</b></div><div class="small">'+Number(m.lat).toFixed(6)+', '+Number(m.lng).toFixed(6)+'</div><button class="btn" style="margin-top:6px;padding:7px 10px" onclick="openLocationInMap('+Number(m.lat)+','+Number(m.lng)+')">မြေပုံမှာကြည့်မည်</button>'}else d.textContent=m.t;let s=document.createElement('div');s.className='seen';s.textContent=m.f===me?(m.seen?'✓✓ Seen':'✓ Delivered'):'';d.appendChild(s);if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
+function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');d.textContent=m.t;let s=document.createElement('div');s.className='seen';s.textContent = m.f === me ? (m.seen ? '✓✓ Seen' : '✓ Delivered') : '';d.appendChild(s);if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
 function send(){if(!chatWith){alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ');return}let i=document.getElementById('msg'),t=i.value.trim();if(!t)return;if(!db.messages[ck()])db.messages[ck()]=[];db.messages[ck()].push({f:me,t,seen:false,time:Date.now()});i.value='';save();renderChat()}
 function createGroup(){
   let n=document.getElementById('gname').value.trim();
