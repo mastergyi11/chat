@@ -79,7 +79,17 @@ input,textarea,select{background:#fff;color:#222;border:1px solid #ddd}
 .settings-list{box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .settings-logout{background:#f4b400;color:#3a2a00}
 /* Keep authentication screen unchanged from the approved Bee-style design. */
-button,input,select,textarea{touch-action:manipulation}button{cursor:pointer;-webkit-tap-highlight-color:transparent}</style></head><body><div class="app"><header><button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button><div id="pageTitle" class="page-title"></div><div class="header-spacer"></div><b>💬 My Social Chat</b><span id="head">Guest</span></header>
+button,input,select,textarea{touch-action:manipulation}button{cursor:pointer;-webkit-tap-highlight-color:transparent}</style>
+<style>
+.friend-user-card{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee}
+.friend-avatar{width:58px;height:58px;border-radius:50%;overflow:hidden;background:#eee;display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+.friend-avatar img{width:100%;height:100%;object-fit:cover}
+.friend-info{flex:1}
+.friend-info b{font-size:18px}
+.friend-actions{display:flex;gap:6px;margin-top:8px}
+.friend-actions button{padding:8px 12px}
+</style>
+</head><body><div class="app"><header><button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button><div id="pageTitle" class="page-title"></div><div class="header-spacer"></div><b>💬 My Social Chat</b><span id="head">Guest</span></header>
 <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
 <aside id="menuDrawer" class="menu-drawer">
   <div class="menu-user"><b id="menuUserName">Guest</b><div class="small" id="menuUserId">ID: -</div></div>
@@ -592,30 +602,46 @@ function viewUserProfile(id){
 }
 
 function friends(){
-  let b=document.getElementById('flist'); b.innerHTML='';
+  let b=document.getElementById('flist'); 
+  if(!b)return;
+  b.innerHTML='';
+
   db.req.filter(r=>r.t===me).forEach(r=>{
-    let u=db.users[r.f],d=document.createElement('div'); d.className='list';
-    d.innerHTML='<b>'+esc(u.name)+'</b> <span class="small">'+u.id+'</span><br>'+
+    let u=db.users[r.f];
+    if(!u)return;
+    let d=document.createElement('div');
+    d.className='list';
+    d.innerHTML='<b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+'</span><br>'+
       '<button class="btn green" onclick="accept(\''+u.id+'\')">လက်ခံ</button>'+
       '<button class="btn red" onclick="decline(\''+u.id+'\')">ငြင်း</button>';
     b.appendChild(d);
   });
-  db.groupInvites.filter(i=>i.to===me&&i.status==='pending').forEach(i=>{
-    let g=db.groups.find(x=>x.id===i.groupId),u=db.users[i.from];
-    if(!g||!u)return;
-    let d=document.createElement('div'); d.className='list';
-    d.innerHTML='<b>🏆 Group ဖိတ်ကြားချက်</b><br>'+
-      esc(g.name)+' — '+esc(u.name)+' က ဖိတ်ခေါ်ထားပါတယ်<br>'+
-      '<button class="btn green" onclick="acceptGroupInvite(\''+i.id+'\')">အသင်းဝင်မည်</button>'+
-      '<button class="btn red" onclick="declineGroupInvite(\''+i.id+'\')">ငြင်း</button>';
-    b.appendChild(d);
-  });
+
   db.friends.filter(x=>x.a===me||x.b===me).forEach(x=>{
-    let id=x.a===me?x.b:x.a,u=db.users[id],d=document.createElement('div'); d.className='list';
-    d.innerHTML='<b>'+esc(u.name)+'</b> <span class="small">'+u.id+'</span><br>'+
-      '<button class="btn" onclick="openChat(\''+id+'\')">💬 Chat</button>';
+    let id=x.a===me?x.b:x.a;
+    let u=db.users[id];
+    if(!u)return;
+
+    let photo=(u.photos&&u.photos[0])
+      ? '<img src="'+u.photos[0]+'">'
+      : '👤';
+
+    let d=document.createElement('div');
+    d.className='friend-user-card';
+
+    d.innerHTML=
+      '<div class="friend-avatar">'+photo+'</div>'+
+      '<div class="friend-info">'+
+      '<b>'+esc(u.name)+'</b>'+
+      '<div class="small">'+esc(u.id)+'</div>'+
+      '<div class="friend-actions">'+
+      '<button class="btn" onclick="openChat(\''+id+'\')">💬 Messenger</button>'+
+      '<button class="btn gold" onclick="viewUserProfile(\''+id+'\')">👤 Friend</button>'+
+      '</div></div>';
+
     b.appendChild(d);
   });
+
   if(!b.innerHTML)b.innerHTML='<div class="small">Friend မရှိသေးပါ</div>';
 }
 function accept(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));if(!db.friends.some(x=>(x.a===me&&x.b===id)||(x.a===id&&x.b===me)))db.friends.push({a:me,b:id});save();refresh()}
