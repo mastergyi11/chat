@@ -186,6 +186,7 @@ button,input,select,textarea{touch-action:manipulation}button{cursor:pointer;-we
 <div class="card"><h3>💬 Inbox</h3><div id="inboxList"></div></div>
 <div class="card"><h3>📨 Friend Requests</h3><div id="inboxRequests"></div></div>
 </section>
+<section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 <section id="groups" class="screen"><div id="groupCreateCard" class="card"><h3>👥 Group တည်ထောင်ရန်</h3><input id="gname" placeholder="Group အမည်"><button class="btn gold" onclick="createGroup()">ဖန်တီးမည်</button><p class="small">Level 1 = member 20 ယောက်အထိ။</p></div><div class="card"><div id="glist"></div></div></section><section id="groupDetail" class="screen"><div class="card"><button class="btn" onclick="show('groups')">← My Groups</button><div id="groupDetailBox"></div></div></section>
 <section id="admin" class="screen"><div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div></section>
 <div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center"><div class="photo-choice" style="border-radius:18px;max-width:520px"><h3>📷 ကင်မရာ</h3><video id="cameraVideo" autoplay playsinline muted style="width:100%;max-height:55vh;object-fit:cover;border-radius:12px;background:#000"></video><div style="display:flex;gap:8px;margin-top:10px"><button class="choice-btn camera" style="flex:1" onclick="takeCameraPhoto()">📸 ပုံရိုက်မည်</button><button class="choice-btn cancel" style="flex:1" onclick="closeCamera()">ပိတ်မည်</button></div><p id="cameraStatus" class="small"></p></div></div><div id="photoChoiceBackdrop" class="photo-choice-backdrop" onclick="if(event.target===this)closePhotoChoice()"><div class="photo-choice"><h3>📷 ဓာတ်ပုံရွေးရန်</h3><button class="choice-btn camera" onclick="openCamera()">📷 ကင်မရာဖွင့်ပြီး ပုံရိုက်မည်</button><button class="choice-btn" onclick="openGallery()">🖼️ ဖုန်းဓာတ်ပုံဖိုင်ထဲမှ ရွေးမည်</button><button class="choice-btn cancel" onclick="closePhotoChoice()">မလုပ်တော့ပါ</button></div></div><div id="nav" class="nav hidden">
@@ -291,7 +292,7 @@ function navGo(id){
   ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(x=>(document.getElementById(x)||{classList:{remove:function(){}}}).classList.remove('active-nav'));
   const map={onboarding:'navLocation',home:'navHome',friends:'navFriends',inbox:'navInbox',profile:'navProfile',settings:'navSetting'};
   (document.getElementById(map[id])||{classList:{add:function(){}}}).classList.add('active-nav');
-  const titles={onboarding:'Location',home:'Home',friends:'Friends',inbox:'Chats',profile:'My Profile',settings:'Setting',myAccount:'My Account',notifications:'Notifications',feedback:'Feedback / Report',groups:'Groups',groupDetail:'Group',chat:'Chat'};
+  const titles={onboarding:'Location',home:'Home',friends:'Friends',inbox:'Chats',profile:'My Profile',settings:'Setting',myAccount:'My Account',notifications:'Notifications',feedback:'Feedback / Report',groups:'Groups',groupDetail:'Group',chat:'Chat',userProfile:'User Profile'};
   const pt=document.getElementById('pageTitle');if(pt)pt.textContent=titles[id]||'';
 }
 function renderInbox(){
@@ -458,7 +459,8 @@ function renderNotifications(){
   const friendIds=db.friends.filter(x=>x.a===me||x.b===me).map(x=>x.a===me?x.b:x.a);
   const items=[];
   incoming.forEach(r=>{const u=db.users[r.f];if(u)items.push('👥 '+esc(u.name)+' က Friend Request ပို့ထားပါတယ်')});
-  friendIds.forEach(id=>{const u=db.users[id];const key=[me,id].sort().join('_');const msgs=db.messages[key]||[];const last=msgs[msgs.length-1];if(u&&last)items.push('💬 '+esc(u.name)+' နှင့် Chat ရှိပါတယ်')});
+  friendIds.forEach(id=>{const u=db.users[id];const
+  key=[me,id].sort().join('_');const msgs=db.messages[key]||[];const last=msgs[msgs.length-1];if(u&&last)items.push('💬 '+esc(u.name)+' နှင့် Chat ရှိပါတယ်')});
   list.innerHTML=items.length?items.map(x=>'<div class="list">'+x+'</div>').join(''):'<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
 }
 function previewReportImage(e){
@@ -574,9 +576,20 @@ function searchUsers(){
     const sent=db.req.some(r=>r.f===me&&r.t===u.id);
     const incoming=db.req.some(r=>r.f===u.id&&r.t===me);
     let action=friend?'<span>✅ Friend ဖြစ်ပြီး</span>':sent?'<span>📨 Request ပို့ထားပြီး</span>':incoming?'<span>📩 Friend Request ဝင်ထားပြီး</span>':'<button class="btn" onclick="requestFriend(\''+u.id+'\')">Add Friend</button>';
-    d.innerHTML='<b>'+esc(u.name)+'</b> <span class="small">ID: '+esc(u.id)+'</span><br>'+action;
+    d.innerHTML='<div onclick="viewUserProfile(\''+u.id+'\')" style="cursor:pointer"><b>'+esc(u.name)+'</b> <span class="small">ID: '+esc(u.id)+'</span></div><br>'+action;
     b.appendChild(d);
   });
+}
+
+function viewUserProfile(id){
+ const u=db.users[id]; if(!u)return;
+ window.viewingProfile=id;
+ show('userProfile');
+ const b=document.getElementById('userProfileBox');
+ const photo=(u.photos&&u.photos[0])?'<img src=\"'+u.photos[0]+'\" style=\"width:110px;height:110px;border-radius:50%;object-fit:cover\">':'👤';
+ const friend=db.friends.some(x=>(x.a===me&&x.b===id)||(x.a===id&&x.b===me));
+ const sent=db.req.some(r=>r.f===me&&r.t===id);
+ b.innerHTML='<div style=\"text-align:center\">'+photo+'<h2>'+esc(u.name||'-')+'</h2><div>ID: '+esc(id)+'</div><p>'+esc(u.bio||'')+'</p>'+(id!==me?(friend?'<span>✅ Friend</span>':sent?'<span>📨 Request ပို့ထားပြီး</span>':'<button class=\"btn\" onclick=\"requestFriend(\''+id+'\')\">Add Friend</button>'):'<span>👤 ကိုယ့် Profile</span>')+'</div>';
 }
 
 function friends(){
@@ -610,8 +623,9 @@ function accept(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));if(!db.friend
 function decline(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));save();refresh()}
 function openChat(id){chatWith=id;document.getElementById('ctitle').textContent='💬 '+db.users[id].name;show('chat')}
 function ck(){return [me,chatWith].sort().join('_')}
-function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');d.textContent=m.t;let s=document.createElement('div');s.className='seen';s.textContent = m.f === me ? (m.seen ? '✓✓ Seen' : '✓ Delivered') : '';d.appendChild(s);if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
-function send(){if(!chatWith){alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ');return}let i=document.getElementById('msg'),t=i.value.trim();if(!t)return;if(!db.messages[ck()])db.messages[ck()]=[];db.messages[ck()].push({f:me,t,seen:false,time:Date.now()});i.value='';save();renderChat()}
+function userAvatar(u){return u&&u.photos&&u.photos[0]?'<img src="'+u.photos[0]+'" style="width:42px;height:42px;border-radius:50%;object-fit:cover">':'<span style="font-size:32px">👤</span>'}
+function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let u=db.users[m.f]||{};let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');d.style.display='flex';d.style.alignItems='flex-start';d.style.gap='8px';d.innerHTML='<div>'+userAvatar(u)+'</div><div><b>'+esc(u.name||m.f)+'</b><br>'+esc(m.t)+'<div class="seen">'+(m.f===me?(m.seen?'✓✓ Seen':'✓ Delivered'):'')+'</div></div>';if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
+function send(){if(!chatWith){alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ');return}let i=document.getElementById('msg'),t=i.value.trim();if(!t)return;if(!db.messages[ck()])db.messages[ck()]=[];db.messages[ck()].push({f:me,t,seen:false,time:Date.now(),senderName:db.users[me].name,senderPhoto:(db.users[me].photos||[])[0]||''});i.value='';save();renderChat()}
 function createGroup(){
   let n=document.getElementById('gname').value.trim();
   if(!n){alert('Group အမည်ထည့်ပါ');return}
