@@ -28,8 +28,15 @@
         .photo-hint { margin: 8px 0 2px; color: #9fc0d3; font-size: 12px; }
         .list { border-bottom: 1px solid #20516d; padding: 11px; }
         .chat { height: 55vh; overflow: auto; background: #071f33; padding: 10px; border-radius: 12px; }
-        .msg { max-width: 78%; padding: 9px 11px; border-radius: 13px; margin: 7px 0; background: #164766; white-space: pre-wrap; word-break: break-word; }
-        .me { margin-left: auto; background: #176f9f; }
+        .msg { max-width: 78%; padding: 9px 11px; border-radius: 13px; margin: 7px 0; background: #164766; white-space: pre-wrap; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; }
+        .msg .avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .msg .bubble { flex: 1; }
+        .msg .bubble .name { font-weight: bold; font-size: 13px; cursor: pointer; }
+        .msg .bubble .text { word-break: break-word; }
+        .me { justify-content: flex-end; }
+        .me .avatar { order: 2; }
+        .me .bubble { order: 1; text-align: right; }
         .seen { font-size: 10px; color: #9ed9ff; }
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #06131f; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #17364b; box-shadow: 0 -4px 18px rgba(0,0,0,0.28); }
         .nav button { min-height: 58px; margin: 0 2px; border-radius: 10px; background: transparent; color: #b8c5cf; font-size: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
@@ -183,6 +190,19 @@
         .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
         .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
         .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+
+        /* Chat input area */
+        .chat-input-area { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #fff; border: 1px solid #ddd; border-radius: 30px; padding: 4px 8px; }
+        .chat-input-area .input-actions { display: flex; gap: 4px; align-items: center; }
+        .chat-input-area .input-actions button { background: transparent; border: 0; font-size: 24px; padding: 4px; cursor: pointer; color: #555; }
+        .chat-input-area .input-actions button:hover { color: #222; }
+        .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #222; }
+        .chat-input-area #msg:focus { outline: none; }
+        .chat-input-area .send-btn { background: #f4b400; border: 0; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; color: #332700; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .chat-input-area .send-btn.show { display: flex; }
+        .chat-input-area .send-btn:hover { background: #e0a000; }
+        .msg .msg-image { max-width: 200px; border-radius: 10px; margin-top: 4px; cursor: pointer; }
+        .msg .msg-image img { width: 100%; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -266,12 +286,10 @@
                 <div><b id="followersCount">0</b><span>Followers</span></div>
             </div>
             <div class="profile-form">
-                <!-- Region row -->
                 <div class="profile-region-row">
                     <label>📍 Region</label>
                     <div id="profileRegionDisplay" class="profile-region-value">-</div>
                 </div>
-
                 <div class="profile-row"><label>အမည်</label><input id="profileName" type="text" placeholder="သင့်အမည်"></div>
                 <div class="profile-row"><label>Account ဖွင့်အမည်</label><div id="accountNameView" class="profile-value">-</div></div>
                 <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value id-value">-</div></div>
@@ -355,7 +373,19 @@
 
     <!-- CHAT -->
     <section id="chat" class="screen">
-        <div class="card"><h3 id="ctitle">💬 Chat</h3><div id="chatbox" class="chat"></div><input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()"><button class="btn" onclick="send()">ပို့မည်</button></div>
+        <div class="card">
+            <h3 id="ctitle">💬 Chat</h3>
+            <div id="chatbox" class="chat"></div>
+            <div class="chat-input-area">
+                <div class="input-actions">
+                    <button onclick="openCameraForChat()" title="ကင်မရာ">📷</button>
+                    <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
+                    <button onclick="alert('Sticker မကြာမီ ထည့်ပေးပါမယ်')" title="စတစ်ကာ">😊</button>
+                </div>
+                <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()" oninput="toggleSendButton()">
+                <button class="send-btn" id="sendBtn" onclick="send()">➤</button>
+            </div>
+        </div>
     </section>
 
     <!-- INBOX -->
@@ -650,6 +680,7 @@
         if (id === 'inbox') renderInbox();
         if (id === 'notifications') renderNotifications();
         if (id === 'myAccount') renderMyAccount();
+        if (id === 'chat') { toggleSendButton(); }
     }
 
     function refresh() {
@@ -686,7 +717,6 @@
         var age = document.getElementById('profileAge');
         if (age) age.textContent = calcAge(u.dob) || '-';
 
-        // Region display
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) {
             regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-';
@@ -712,7 +742,6 @@
         startPresence();
     }
 
-    // ===== Reverse geocode =====
     async function fetchRegion(lat, lng) {
         if (!lat || !lng) return '';
         try {
@@ -737,7 +766,6 @@
         }
     }
 
-    // ===== Override locate() to fetch region =====
     window.locate = function() {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
         if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
@@ -758,7 +786,6 @@
                     lastSeen: firebase.database.ServerValue.TIMESTAMP
                 });
             }
-            // Fetch region only once if not set
             if (!db.users[me].region || db.users[me].region.trim() === '') {
                 var region = await fetchRegion(lat, lng);
                 if (region) {
@@ -1328,29 +1355,109 @@
         chatWith = id;
         document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
         show('chat');
+        // Clear chat input
+        var msgInput = document.getElementById('msg');
+        if (msgInput) msgInput.value = '';
+        toggleSendButton();
     }
 
     function ck() { return [me, chatWith].sort().join('_'); }
 
-    function userAvatar(u) { return u && u.photos && u.photos[0] ? '<img src="' + u.photos[0] + '" style="width:42px;height:42px;border-radius:50%;object-fit:cover">' : '<span style="font-size:32px">👤</span>'; }
+    function getUserAvatar(user) {
+        if (!user) return '';
+        if (user.photos && user.photos[0]) {
+            return '<img src="' + user.photos[0] + '" alt="avatar">';
+        }
+        return '<span style="font-size:20px;">👤</span>';
+    }
 
     function renderChat() {
         if (!chatWith) return;
         var b = document.getElementById('chatbox');
         b.innerHTML = '';
-        (db.messages[ck()] || []).forEach(function(m) {
+        var msgs = db.messages[ck()] || [];
+        msgs.forEach(function(m) {
             var u = db.users[m.f] || {};
+            var isMe = (m.f === me);
+            var avatarHtml = getUserAvatar(u);
+            var nameDisplay = esc(u.name || m.f || 'Unknown');
+            var msgText = esc(m.t || '');
+
             var d = document.createElement('div');
-            d.className = 'msg ' + (m.f === me ? 'me' : '');
-            d.style.display = 'flex';
-            d.style.alignItems = 'flex-start';
-            d.style.gap = '8px';
-            d.innerHTML = '<div onclick="viewUserProfile(\'' + m.f + '\')" style="cursor:pointer">' + userAvatar(u) + '</div><div><b onclick="viewUserProfile(\'' + m.f + '\')" style="cursor:pointer">' + esc(u.name || m.f) + '</b><br>' + esc(m.t) + '<div class="seen">' + (m.f === me ? (m.seen ? '✓✓ Seen' : '✓ Delivered') : '') + '</div></div>';
-            if (m.f === chatWith) m.seen = true;
+            d.className = 'msg' + (isMe ? ' me' : '');
+
+            // Avatar
+            var avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            avatarDiv.innerHTML = avatarHtml;
+            avatarDiv.onclick = function() {
+                if (m.f && db.users[m.f]) {
+                    viewUserProfile(m.f);
+                }
+            };
+
+            // Bubble
+            var bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+
+            var nameSpan = document.createElement('div');
+            nameSpan.className = 'name';
+            nameSpan.textContent = nameDisplay;
+            nameSpan.onclick = function() {
+                if (m.f && db.users[m.f]) {
+                    viewUserProfile(m.f);
+                }
+            };
+
+            var textSpan = document.createElement('div');
+            textSpan.className = 'text';
+            textSpan.textContent = msgText;
+
+            // Image if exists
+            if (m.image) {
+                var imgDiv = document.createElement('div');
+                imgDiv.className = 'msg-image';
+                var img = document.createElement('img');
+                img.src = m.image;
+                img.alt = 'Image';
+                img.onclick = function() {
+                    window.open(m.image, '_blank');
+                };
+                imgDiv.appendChild(img);
+                textSpan.appendChild(imgDiv);
+            }
+
+            var seenSpan = document.createElement('div');
+            seenSpan.className = 'seen';
+            if (isMe) {
+                seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered';
+            } else {
+                // Mark as seen
+                m.seen = true;
+            }
+
+            bubbleDiv.appendChild(nameSpan);
+            bubbleDiv.appendChild(textSpan);
+            bubbleDiv.appendChild(seenSpan);
+
+            d.appendChild(avatarDiv);
+            d.appendChild(bubbleDiv);
             b.appendChild(d);
         });
         save();
         b.scrollTop = b.scrollHeight;
+    }
+
+    function toggleSendButton() {
+        var msgInput = document.getElementById('msg');
+        var sendBtn = document.getElementById('sendBtn');
+        if (msgInput && sendBtn) {
+            if (msgInput.value.trim().length > 0) {
+                sendBtn.classList.add('show');
+            } else {
+                sendBtn.classList.remove('show');
+            }
+        }
     }
 
     function send() {
@@ -1359,12 +1466,104 @@
             t = i.value.trim();
         if (!t) return;
         if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '' });
+        db.messages[ck()].push({
+            f: me,
+            t: t,
+            seen: false,
+            time: Date.now(),
+            senderName: db.users[me].name,
+            senderPhoto: (db.users[me].photos || [])[0] || '',
+            image: null
+        });
         i.value = '';
+        toggleSendButton();
         save();
         renderChat();
     }
 
+    // Chat image sending
+    function sendChatImage(imageData) {
+        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
+        if (!imageData) return;
+        if (!db.messages[ck()]) db.messages[ck()] = [];
+        db.messages[ck()].push({
+            f: me,
+            t: '📷 ဓာတ်ပုံ',
+            seen: false,
+            time: Date.now(),
+            senderName: db.users[me].name,
+            senderPhoto: (db.users[me].photos || [])[0] || '',
+            image: imageData
+        });
+        save();
+        renderChat();
+    }
+
+    function openCameraForChat() {
+        if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
+        var input = document.getElementById('photoCamera');
+        if (input) {
+            input.value = '';
+            input.setAttribute('capture', 'environment');
+            input.click();
+            // Override onchange to send to chat
+            input.onchange = function(e) {
+                var f = e.target.files && e.target.files[0];
+                if (!f) return;
+                var r = new FileReader();
+                r.onload = function() {
+                    var img = new Image();
+                    img.onload = function() {
+                        var max = 900,
+                            scale = Math.min(1, max / img.width);
+                        var c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * scale));
+                        c.height = Math.max(1, Math.round(img.height * scale));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        var data = c.toDataURL('image/jpeg', 0.62);
+                        sendChatImage(data);
+                        alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    };
+                    img.src = r.result;
+                };
+                r.readAsDataURL(f);
+                e.target.value = '';
+            };
+        }
+    }
+
+    function openGalleryForChat() {
+        if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
+        var input = document.getElementById('photoGallery');
+        if (input) {
+            input.value = '';
+            input.onchange = function(e) {
+                var f = e.target.files && e.target.files[0];
+                if (!f) return;
+                var r = new FileReader();
+                r.onload = function() {
+                    var img = new Image();
+                    img.onload = function() {
+                        var max = 900,
+                            scale = Math.min(1, max / img.width);
+                        var c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * scale));
+                        c.height = Math.max(1, Math.round(img.height * scale));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        var data = c.toDataURL('image/jpeg', 0.62);
+                        sendChatImage(data);
+                        alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    };
+                    img.src = r.result;
+                };
+                r.readAsDataURL(f);
+                e.target.value = '';
+            };
+            input.click();
+        }
+    }
+
+    // ---- Group functions ----
     function createGroup() {
         var n = document.getElementById('gname').value.trim();
         if (!n) { alert('Group အမည်ထည့်ပါ'); return; }
@@ -1528,4 +1727,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-</html>
+                </html>
