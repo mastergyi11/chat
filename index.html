@@ -215,11 +215,11 @@ var KEY='my_social_chat_v1';var NEARBY_RADIUS_KM=5;var me=null,chatWith=null,db=
 function byId(id){return document.getElementById(id)}
 function val(id){var e=byId(id);return e&&typeof e.value!=='undefined'?e.value:''}
 function fileList(id){var e=byId(id);return e&&e.files?e.files:null}
-const DEFAULT={users:{U10001:{id:'U10001',name:'မောင်မောင်',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10002:{id:'U10002',name:'လှလှ',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10003:{id:'U10003',name:'Aung',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'}},req:[],friends:[],messages:{},groups:[]};
+const DEFAULT={users:{U10001:{id:'U10001',name:'မောင်မောင်',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10002:{id:'U10002',name:'လှလှ',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'},U10003:{id:'U10003',name:'Aung',bio:'',photos:[],photoLimit:4,lat:null,lng:null,password:'123456'}},req:[],friends:[],messages:{},groups:[],groupMessages:{}};
 function clone(){return JSON.parse(JSON.stringify(DEFAULT))}
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 function localLoad(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.users)return x}catch(e){}return clone()}
-function normalize(x){x=x||{};x.users=x.users||{};x.req=Array.isArray(x.req)?x.req:[];x.friends=Array.isArray(x.friends)?x.friends:[];x.messages=x.messages||{};x.groups=Array.isArray(x.groups)?x.groups:[];x.groupInvites=Array.isArray(x.groupInvites)?x.groupInvites:[];Object.keys(DEFAULT.users).forEach(id=>{if(!x.users[id])x.users[id]=DEFAULT.users[id]});Object.keys(x.users).forEach(id=>{const u=x.users[id];if(u){u.accountName=u.accountName||u.name||id;u.dob=u.dob||'';u.gender=u.gender||'';u.photos=Array.isArray(u.photos)?u.photos.slice(0,4):[]}});return x}
+function normalize(x){x=x||{};x.users=x.users||{};x.req=Array.isArray(x.req)?x.req:[];x.friends=Array.isArray(x.friends)?x.friends:[];x.messages=x.messages||{};x.groups=Array.isArray(x.groups)?x.groups:[];x.groupMessages=x.groupMessages||{};x.groupInvites=Array.isArray(x.groupInvites)?x.groupInvites:[];Object.keys(DEFAULT.users).forEach(id=>{if(!x.users[id])x.users[id]=DEFAULT.users[id]});Object.keys(x.users).forEach(id=>{const u=x.users[id];if(u){u.accountName=u.accountName||u.name||id;u.dob=u.dob||'';u.gender=u.gender||'';u.photos=Array.isArray(u.photos)?u.photos.slice(0,4):[]}});return x}
 async function save(){if(!db)return;db=normalize(db);localSave();if(!fbReady||!firebaseDB)return;try{await firebaseDB.ref('appData').set(db);setStatus('✅ချိတ်ဆက်—ပြီးပါပြီ')}catch(e){console.error(e);setStatus('⚠️ Firebase သိမ်းမရပါ — Rules/Internet စစ်ပါ')}}
 function setStatus(t){let el=document.getElementById('loginStatus');if(el)el.textContent=t}
 async function initFirebase(){
@@ -691,6 +691,7 @@ function openGroup(groupId){
   }else if(g.members.length>=20){
     box.innerHTML+='<hr><div class="small">အသင်း Member 20 ယောက်ပြည့်ပါပြီ။</div>';
   }
+  box.innerHTML+='<br><button class="btn" onclick="openGroupChat(\''+g.id+'\')">🏆 အသင်း Chat ဝင်မည်</button>';
   show('groupDetail');
 }
 
@@ -723,6 +724,49 @@ function declineGroupInvite(inviteId){
   if(!i)return;
   i.status='declined'; save(); refresh();
 }
+
+function openGroupChat(groupId){
+  let g=db.groups.find(x=>x.id===groupId);
+  if(!g||!g.members.includes(me)){alert('အသင်းဝင်များသာ အသင်း Chat သုံးနိုင်ပါတယ်');return}
+  window.currentGroupChat=groupId;
+  show('groupDetail');
+  renderGroupChat();
+}
+
+function renderGroupChat(){
+  let id=window.currentGroupChat;
+  let box=document.getElementById('groupDetailBox');
+  if(!box||!id)return;
+  let g=db.groups.find(x=>x.id===id);
+  if(!g||!g.members.includes(me))return;
+  let msgs=db.groupMessages[id]||[];
+  box.innerHTML='<h2>🏆 '+esc(g.name)+'</h2><div class="small">အသင်းဝင် '+g.members.length+' ယောက် • အသင်းဝင်များသာ စာဖတ်/ပို့နိုင်ပါသည်</div><div id="groupChatBox" class="chat"></div><input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ"><button class="btn" onclick="sendGroupMessage()">ပို့မည်</button>';
+  let cb=document.getElementById('groupChatBox');
+  msgs.forEach(m=>{
+    let d=document.createElement('div');
+    d.className='msg '+(m.f===me?'me':'');
+    d.textContent=(db.users[m.f]?db.users[m.f].name:m.f)+': '+m.t;
+    cb.appendChild(d);
+  });
+  cb.scrollTop=cb.scrollHeight;
+}
+
+function sendGroupMessage(){
+  let id=window.currentGroupChat;
+  let g=db.groups.find(x=>x.id===id);
+  if(!g||!g.members.includes(me)){alert('အသင်းဝင်မဟုတ်ပါ');return}
+  let input=document.getElementById('groupMsg');
+  let t=input.value.trim();
+  if(!t)return;
+  db.groupMessages=db.groupMessages||{};
+  db.groupMessages[id]=db.groupMessages[id]||[];
+  db.groupMessages[id].push({f:me,t,time:Date.now()});
+  input.value='';
+  save();
+  renderGroupChat();
+}
+
+
 function grant(){let id=document.getElementById('target').value.trim().toUpperCase(),n=Number(document.getElementById('plimit').value);if(!db.users[id]){document.getElementById('result').textContent='❌ ID မတွေ့ပါ';return}db.users[id].photoLimit=n;save();document.getElementById('result').textContent='✅ '+id+' အတွက် '+n+' ပုံ သတ်မှတ်ပြီးပါပြီ';refresh()}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 </script><script>
