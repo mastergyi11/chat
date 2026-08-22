@@ -261,12 +261,12 @@ async function initFirebase(){
       localSave();
       if(me&&db.users[me])refresh();
     });
-    setStatus('✅ Firebase ချိတ်ပြီးပါပြီ — Online Sync အလုပ်လုပ်နေပါတယ်');
+    setStatus('✅ ချိတ်ဆက်ပြီးပါပြီ..... —..');
   }catch(e){
     console.error('Firebase:',e);
     fbReady=false;
     localSave();
-    setStatus('⚠️ Firebase မချိတ်နိုင်ပါ — Internet / Database Rules ကိုစစ်ပါ');
+    setStatus('⚠️ မချိတ်ဆက်နိုင်ပါ — Internet / Database Rules ကိုစစ်ပါ');
   }
 }
 db=localLoad();
