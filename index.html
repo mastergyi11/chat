@@ -220,7 +220,7 @@ function clone(){return JSON.parse(JSON.stringify(DEFAULT))}
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 function localLoad(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.users)return x}catch(e){}return clone()}
 function normalize(x){x=x||{};x.users=x.users||{};x.req=Array.isArray(x.req)?x.req:[];x.friends=Array.isArray(x.friends)?x.friends:[];x.messages=x.messages||{};x.groups=Array.isArray(x.groups)?x.groups:[];x.groupInvites=Array.isArray(x.groupInvites)?x.groupInvites:[];Object.keys(DEFAULT.users).forEach(id=>{if(!x.users[id])x.users[id]=DEFAULT.users[id]});Object.keys(x.users).forEach(id=>{const u=x.users[id];if(u){u.accountName=u.accountName||u.name||id;u.dob=u.dob||'';u.gender=u.gender||'';u.photos=Array.isArray(u.photos)?u.photos.slice(0,4):[]}});return x}
-async function save(){if(!db)return;db=normalize(db);localSave();if(!fbReady||!firebaseDB)return;try{await firebaseDB.ref('appData').set(db);setStatus('✅ Firebase Online — သိမ်းပြီးပါပြီ')}catch(e){console.error(e);setStatus('⚠️ Firebase သိမ်းမရပါ — Rules/Internet စစ်ပါ')}}
+async function save(){if(!db)return;db=normalize(db);localSave();if(!fbReady||!firebaseDB)return;try{await firebaseDB.ref('appData').set(db);setStatus('✅ချိတ်ဆက်—ပြီးပါပြီ')}catch(e){console.error(e);setStatus('⚠️ Firebase သိမ်းမရပါ — Rules/Internet စစ်ပါ')}}
 function setStatus(t){let el=document.getElementById('loginStatus');if(el)el.textContent=t}
 async function initFirebase(){
   db=localLoad();
