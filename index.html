@@ -129,7 +129,6 @@ button,input,select,textarea{touch-action:manipulation}button{cursor:pointer;-we
     <div class="profile-row"><label>မွေးနေ့</label><input id="profileDob" type="date"></div>
     <div class="profile-row"><label>What's Up</label><textarea id="bio" placeholder="Looking for friends!"></textarea></div>
     <div class="profile-row"><label>Gender</label><select id="profileGender"><option value="">ရွေးပါ</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
-    <div class="profile-row"><label>Account Location 🔒</label><div id="profileLocation" class="profile-value">-</div></div>
     <div class="profile-row"><label>အသက်</label><div id="profileAge" class="profile-value">-</div></div>
     <div class="profile-save-wrap"><button class="profile-save" onclick="saveProfileForm()">သိမ်းမည်</button></div>
   </div>
@@ -333,28 +332,11 @@ function renderInbox(){
   if(badge) badge.textContent=incoming.length?'💬 '+incoming.length:'💬';
 }
 function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');refresh();if(id==='inbox')renderInbox();if(id==='notifications')renderNotifications();if(id==='myAccount')renderMyAccount();}
-function refresh(){db=normalize(db);if(!me||!db.users[me])return;let u=db.users[me];u.accountName=u.accountName||u.name;u.dob=u.dob||'';u.gender=u.gender||'';document.getElementById('head').textContent=u.name;const mun=document.getElementById('menuUserName');if(mun)mun.textContent=u.name||'User';const muid=document.getElementById('menuUserId');if(muid)muid.textContent='ID: '+(u.id||me);let pn=document.getElementById('profileName');if(pn)pn.value=u.name||'';let an=document.getElementById('accountNameView');if(an)an.textContent=u.accountName||u.name||'-';let pid=document.getElementById('pid');if(pid)pid.textContent=u.id;let hn=document.getElementById('homeName');if(hn)hn.textContent=u.name;let hi=document.getElementById('homeId');if(hi)hi.textContent=u.id;let bio=document.getElementById('bio');if(bio)bio.value=u.bio||'';let dob=document.getElementById('profileDob');if(dob)dob.value=u.dob||'';let gender=document.getElementById('profileGender');if(gender)gender.value=u.gender||'';let age=document.getElementById('profileAge');if(age)age.textContent=calcAge(u.dob)||'-';let pl=document.getElementById('profileLocation');if(pl)pl.textContent=(u.signupLocation?(u.signupLocation.city||'-')+', '+(u.signupLocation.country||'-')+' 🔒':'-');let fc=document.getElementById('followersCount');if(fc)fc.textContent=db.req.filter(r=>r.t===me).length+db.friends.filter(x=>x.a===me||x.b===me).length;let fwc=document.getElementById('followingCount');if(fwc)fwc.textContent=db.friends.filter(x=>x.a===me||x.b===me).length;renderPhotos();nearby();friends();searchUsers();groups();if(chatWith)renderChat()}
+function refresh(){db=normalize(db);if(!me||!db.users[me])return;let u=db.users[me];u.accountName=u.accountName||u.name;u.dob=u.dob||'';u.gender=u.gender||'';document.getElementById('head').textContent=u.name;const mun=document.getElementById('menuUserName');if(mun)mun.textContent=u.name||'User';const muid=document.getElementById('menuUserId');if(muid)muid.textContent='ID: '+(u.id||me);let pn=document.getElementById('profileName');if(pn)pn.value=u.name||'';let an=document.getElementById('accountNameView');if(an)an.textContent=u.accountName||u.name||'-';let pid=document.getElementById('pid');if(pid)pid.textContent=u.id;let hn=document.getElementById('homeName');if(hn)hn.textContent=u.name;let hi=document.getElementById('homeId');if(hi)hi.textContent=u.id;let bio=document.getElementById('bio');if(bio)bio.value=u.bio||'';let dob=document.getElementById('profileDob');if(dob)dob.value=u.dob||'';let gender=document.getElementById('profileGender');if(gender)gender.value=u.gender||'';let age=document.getElementById('profileAge');if(age)age.textContent=calcAge(u.dob)||'-';let fc=document.getElementById('followersCount');if(fc)fc.textContent=db.req.filter(r=>r.t===me).length+db.friends.filter(x=>x.a===me||x.b===me).length;let fwc=document.getElementById('followingCount');if(fwc)fwc.textContent=db.friends.filter(x=>x.a===me||x.b===me).length;renderPhotos();nearby();friends();searchUsers();groups();if(chatWith)renderChat()}
 function enter(){document.getElementById('login').classList.remove('active');document.getElementById('nav').classList.remove('hidden');navGo('onboarding');startPresence()}
 function searchOnboardUsers(){const b=document.getElementById('onboardResults');const q=(val('onboardSearch')||'').trim().toLowerCase();if(!b)return;if(!q){b.innerHTML='';return}const found=Object.values(db.users||{}).filter(u=>u&&u.id!==me&&((u.name||'').toLowerCase().includes(q)||(u.id||'').toLowerCase().includes(q))).slice(0,20);if(!found.length){b.innerHTML='<div class="small">ရှာတွေ့သူ မရှိပါ။</div>';return}b.innerHTML='';found.forEach(u=>{const d=document.createElement('div');d.className='list';d.innerHTML='<b>'+esc(u.name)+'</b> <span class="small">ID: '+esc(u.id)+'</span><br><button class="btn" onclick="requestFriend(\''+u.id+'\')">Add Friend</button>';b.appendChild(d)})}
 
 function makeBaseName(name){let base=name.trim().replace(/\s+/g,'');base=base.replace(/[^a-zA-Z0-9\u1000-\u109F]/g,'');return base||'User'}
-async function getSignupLocation(){
-  return await new Promise((resolve,reject)=>{
-    if(!navigator.geolocation){reject(new Error('Location မထောက်ပံ့ပါ'));return}
-    navigator.geolocation.getCurrentPosition(async pos=>{
-      const lat=pos.coords.latitude,lng=pos.coords.longitude;
-      let city='',country='';
-      try{
-        const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=10',{headers:{'Accept':'application/json'}});
-        const j=await r.json();
-        city=(j.address&& (j.address.city||j.address.town||j.address.village))||'';
-        country=(j.address&&j.address.country)||'';
-      }catch(e){}
-      resolve({lat:lat,lng:lng,city:city,country:country,locked:true});
-    },err=>reject(err),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
-  });
-}
-
 async function register(){
   if(firebaseInitPromise) await firebaseInitPromise;
   if(!db){alert('ခဏစောင့်ပါ');return}
@@ -382,18 +364,9 @@ async function register(){
   let num=1001,id='';
   do{id=base+num;num++;}while(db.users[id]);
 
-  let signupLocation;
-  try{
-    signupLocation=await getSignupLocation();
-  }catch(e){
-    alert('📍 Location Permission ပေးမှ Account ဖွင့်နိုင်ပါသည်');
-    return;
-  }
-
   const user={
     id:id,name:name,accountName:name,bio:'',dob:'',gender:'',
-    photos:[],photoLimit:4,lat:signupLocation.lat,lng:signupLocation.lng,
-    signupLocation:signupLocation,password:p
+    photos:[],photoLimit:4,lat:null,lng:null,password:p
   };
 
   try{
@@ -521,7 +494,7 @@ async function submitReport(){
 }
 
 function calcAge(dob){if(!dob)return '';const d=new Date(dob+'T00:00:00');if(Number.isNaN(d.getTime()))return '';const n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return a>=0&&a<=130?String(a):''}
-function saveProfileForm(){if(!me||!db.users[me])return;const u=db.users[me];const name=(val('profileName')||'').trim();if(!name){alert('အမည်ထည့်ပါ');return}u.name=name;u.bio=val('bio')||'';u.dob=val('profileDob')||'';u.gender=val('profileGender')||'';u.accountName=u.accountName||name; if(u.signupLocation)u.signupLocation.locked=true; save();refresh();alert('✅ Profile ကို သိမ်းပြီးပါပြီ')}
+function saveProfileForm(){if(!me||!db.users[me])return;const u=db.users[me];const name=(val('profileName')||'').trim();if(!name){alert('အမည်ထည့်ပါ');return}u.name=name;u.bio=val('bio')||'';u.dob=val('profileDob')||'';u.gender=val('profileGender')||'';u.accountName=u.accountName||name;save();refresh();alert('✅ Profile ကို သိမ်းပြီးပါပြီ')}
 function saveBio(){db.users[me].bio=document.getElementById('bio').value;save();alert('သိမ်းပြီးပါပြီ')}
 let photoSlot=0;
 function renderPhotos(){let u=db.users[me],g=document.getElementById('photos');if(!u||!g)return;g.innerHTML='';u.photos=Array.isArray(u.photos)?u.photos.slice(0,4):[];for(let i=0;i<4;i++){let d=document.createElement('div');d.className='profile-photo '+(u.photos[i]?'':'empty');d.onclick=()=>pickPhoto(i);if(u.photos[i]){let im=document.createElement('img');im.src=u.photos[i];im.alt='Profile photo '+(i+1);d.appendChild(im);let c=document.createElement('span');c.className='change';c.textContent='ပြောင်းမည်';d.appendChild(c)}else{let s=document.createElement('span');s.textContent='＋';d.appendChild(s)}let n=document.createElement('span');n.className='slot-num';n.textContent=(i+1)+'/4';d.appendChild(n);g.appendChild(d)}let lim=document.getElementById('limit');if(lim)lim.textContent='ပုံ '+u.photos.length+'/4 ပုံ'}
