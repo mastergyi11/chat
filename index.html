@@ -179,13 +179,9 @@
         .friend-info b { font-size: 18px; }
         .friend-actions { display: flex; gap: 6px; margin-top: 8px; }
         .friend-actions button { padding: 8px 12px; }
-        /* region display in profile */
         .profile-region-row { border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #fafafa; }
         .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
         .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
-    </style>
-    <style>
-        /* add region value display */
         .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
     </style>
 </head>
@@ -210,7 +206,7 @@
         <button class="menu-item" onclick="menuGo('settings')"><span class="mi">⚙️</span>Setting</button>
     </aside>
 
-    <!-- LOGIN (unchanged) -->
+    <!-- LOGIN -->
     <section id="login" class="screen active">
         <div class="card">
             <h2>အကောင့်ဝင်ရန်</h2>
@@ -224,7 +220,7 @@
         </div>
     </section>
 
-    <!-- ONBOARDING (location) -->
+    <!-- ONBOARDING -->
     <section id="onboarding" class="screen">
         <div class="onboard">
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန်" oninput="searchOnboardUsers()"></div>
@@ -257,7 +253,7 @@
         </div>
     </section>
 
-    <!-- PROFILE (with region display) -->
+    <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
             <div class="profile-gallery-wrap">
@@ -270,7 +266,7 @@
                 <div><b id="followersCount">0</b><span>Followers</span></div>
             </div>
             <div class="profile-form">
-                <!-- Region row - placed above name, visible to all -->
+                <!-- Region row -->
                 <div class="profile-region-row">
                     <label>📍 Region</label>
                     <div id="profileRegionDisplay" class="profile-region-value">-</div>
@@ -382,7 +378,7 @@
         <div class="card"><button class="btn" onclick="show('groups')">← My Groups</button><div id="groupDetailBox"></div></div>
     </section>
 
-    <!-- ADMIN (demo) -->
+    <!-- ADMIN -->
     <section id="admin" class="screen">
         <div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div>
     </section>
@@ -426,7 +422,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-    /* ---- Firebase Config ---- */
+    // ===== Firebase Config =====
     const firebaseConfig = {
         apiKey: 'AIzaSyBMtwQBUCHm0kzum4L-TM87jEBnqageybU',
         authDomain: 'chat-50dd8.firebaseapp.com',
@@ -437,23 +433,32 @@
         appId: '1:136560761031:web:3cb27a0baa8efe5cc506e2',
         measurementId: 'G-1DT23E8DV8'
     };
-    var firebaseAuth = null, firebaseDB = null, firebaseSDKReady = false;
+    var firebaseAuth = null,
+        firebaseDB = null,
+        firebaseSDKReady = false;
     try {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             try { firebaseAuth = firebase.auth(); } catch (e) { firebaseAuth = null; }
-            try { firebaseDB = firebase.database(); firebaseSDKReady = true; } catch (e) { firebaseDB = null; }
+            try { firebaseDB = firebase.database();
+                firebaseSDKReady = true; } catch (e) { firebaseDB = null; }
         }
     } catch (e) { console.error('Firebase init error', e); }
 
     var KEY = 'my_social_chat_v1';
     var NEARBY_RADIUS_KM = 5;
-    var me = null, chatWith = null, db = null, fbReady = false;
-    var presenceRef = null, locationWatchId = null;
+    var me = null,
+        chatWith = null,
+        db = null,
+        fbReady = false;
+    var presenceRef = null,
+        locationWatchId = null;
     var firebaseInitPromise = null;
 
     function byId(id) { return document.getElementById(id); }
+
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
+
     function fileList(id) { var e = byId(id); return e && e.files ? e.files : null; }
 
     var DEFAULT = {
@@ -515,7 +520,8 @@
 
     async function initFirebase() {
         db = localLoad();
-        if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
+        if (!firebaseDB) { fbReady = false;
+            setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
             try {
                 if (firebaseAuth) {
@@ -680,7 +686,7 @@
         var age = document.getElementById('profileAge');
         if (age) age.textContent = calcAge(u.dob) || '-';
 
-        // region display
+        // Region display
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) {
             regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-';
@@ -706,7 +712,7 @@
         startPresence();
     }
 
-    /* ----- REGION: reverse geocode from lat/lng (once, user cannot edit) ----- */
+    // ===== Reverse geocode =====
     async function fetchRegion(lat, lng) {
         if (!lat || !lng) return '';
         try {
@@ -731,8 +737,7 @@
         }
     }
 
-    /* ----- Override locate() to also fetch region once ----- */
-    var originalLocate = window.locate;
+    // ===== Override locate() to fetch region =====
     window.locate = function() {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
         if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
@@ -753,7 +758,7 @@
                     lastSeen: firebase.database.ServerValue.TIMESTAMP
                 });
             }
-            // ---- fetch region only once if not set ----
+            // Fetch region only once if not set
             if (!db.users[me].region || db.users[me].region.trim() === '') {
                 var region = await fetchRegion(lat, lng);
                 if (region) {
@@ -767,7 +772,6 @@
         }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
     };
 
-    /* ---- preserve original nearby() but we'll reuse it ---- */
     function searchOnboardUsers() {
         var b = document.getElementById('onboardResults');
         var q = (val('onboardSearch') || '').trim().toLowerCase();
@@ -853,7 +857,8 @@
             try {
                 var snap = await firebaseDB.ref('appData/users/' + id).once('value');
                 if (snap.exists()) u = snap.val();
-            } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
+            } catch (e) { remoteError = e;
+                console.warn('Remote account lookup failed', e); }
         }
         if (!u && db.users) u = db.users[id];
         if (!u) {
@@ -1185,7 +1190,8 @@
                 d.className = 'list';
                 var f = db.friends.some(function(z) { return (z.a === me && z.b === x.id) || (z.a === x.id && z.b === me); });
                 var q = db.req.some(function(r) { return r.f === me && r.t === x.id; });
-                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + '</div>' + (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
+                var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
+                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' + (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
             });
         } catch (e) { console.error(e);
@@ -1260,7 +1266,8 @@
             var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
             var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
-            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer"><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + '</span></div><br>' + action;
+            var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
+            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer"><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div><br>' + action;
             b.appendChild(d);
         });
     }
@@ -1274,7 +1281,8 @@
         var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:110px;height:110px;border-radius:50%;object-fit:cover\">' : '👤';
         var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
         var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
-        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div><p>' + esc(u.bio || '') + '</p>' + (id !== me ? (friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>') : '<span>👤 ကိုယ့် Profile</span>') + '</div>';
+        var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
+        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + (id !== me ? (friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>') : '<span>👤 ကိုယ့် Profile</span>') + '</div>';
     }
 
     function friends() {
@@ -1294,9 +1302,10 @@
             var u = db.users[id];
             if (!u) return;
             var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
+            var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
             var d = document.createElement('div');
             d.className = 'friend-user-card';
-            d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' + '<div class="friend-info">' + '<b>' + esc(u.name) + '</b>' + '<div class="small">' + esc(u.id) + '</div>' + '<div class="friend-actions">' + '<button class="btn" onclick="openChat(\'' + id + '\')">💬 Messenger</button>' + '<button class="btn gold" onclick="viewUserProfile(\'' + id + '\')">👤 Friend</button>' + '</div></div>';
+            d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' + '<div class="friend-info">' + '<b>' + esc(u.name) + '</b>' + '<div class="small">' + esc(u.id) + '</div>' + regionText + '<div class="friend-actions">' + '<button class="btn" onclick="openChat(\'' + id + '\')">💬 Messenger</button>' + '<button class="btn gold" onclick="viewUserProfile(\'' + id + '\')">👤 Friend</button>' + '</div></div>';
             b.appendChild(d);
         });
         if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
@@ -1507,7 +1516,6 @@
 
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
-    // attach click listeners for mobile compatibility
     document.addEventListener('click', function(e) {
         var el = e.target;
         while (el && el !== document && el.tagName !== 'BUTTON') el = el.parentNode;
