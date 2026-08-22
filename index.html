@@ -220,11 +220,11 @@ function clone(){return JSON.parse(JSON.stringify(DEFAULT))}
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 function localLoad(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.users)return x}catch(e){}return clone()}
 function normalize(x){x=x||{};x.users=x.users||{};x.req=Array.isArray(x.req)?x.req:[];x.friends=Array.isArray(x.friends)?x.friends:[];x.messages=x.messages||{};x.groups=Array.isArray(x.groups)?x.groups:[];x.groupInvites=Array.isArray(x.groupInvites)?x.groupInvites:[];Object.keys(DEFAULT.users).forEach(id=>{if(!x.users[id])x.users[id]=DEFAULT.users[id]});Object.keys(x.users).forEach(id=>{const u=x.users[id];if(u){u.accountName=u.accountName||u.name||id;u.dob=u.dob||'';u.gender=u.gender||'';u.photos=Array.isArray(u.photos)?u.photos.slice(0,4):[]}});return x}
-async function save(){if(!db)return;db=normalize(db);localSave();if(!fbReady||!firebaseDB)return;try{await firebaseDB.ref('appData').set(db);setStatus('✅ ချိတ်ဆက်မှု အောင်မြင်ပါသည်')}catch(e){console.error(e);setStatus('⚠️ ချိတ်ဆက်၍မရပါ')}}
+async function save(){if(!db)return;db=normalize(db);localSave();if(!fbReady||!firebaseDB)return;try{await firebaseDB.ref('appData').set(db);setStatus('✅ Firebase Online — သိမ်းပြီးပါပြီ')}catch(e){console.error(e);setStatus('⚠️ Firebase သိမ်းမရပါ — Rules/Internet စစ်ပါ')}}
 function setStatus(t){let el=document.getElementById('loginStatus');if(el)el.textContent=t}
 async function initFirebase(){
   db=localLoad();
-  if(!firebaseDB){fbReady=false;setStatus('⚠️ ချိတ်ဆက်၍မရပါ');return}
+  if(!firebaseDB){fbReady=false;setStatus('⚠️ Firebase SDK မတက်ပါ — ဒီ Browser က Firebase script ကိုပိတ်ထားနိုင်ပါတယ်');return}
   try{
     /*
       Firebase Database is the shared account store. Anonymous Auth is helpful
@@ -623,16 +623,7 @@ function decline(id){db.req=db.req.filter(r=>!(r.f===id&&r.t===me));save();refre
 function openChat(id){chatWith=id;document.getElementById('ctitle').textContent='💬 '+db.users[id].name;show('chat')}
 function ck(){return [me,chatWith].sort().join('_')}
 function userAvatar(u){return u&&u.photos&&u.photos[0]?'<img src="'+u.photos[0]+'" style="width:42px;height:42px;border-radius:50%;object-fit:cover">':'<span style="font-size:32px">👤</span>'}
-function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let u=db.users[m.f]||{};let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');d.style.display='flex';d.style.alignItems='flex-start';d.style.gap='8px';d.innerHTML='<div onclick="openUserProfile(''+m.f+'')" style="cursor:pointer">'+userAvatar(u)+'</div><div><b onclick="openUserProfile(''+m.f+'')" style="cursor:pointer">'+esc(u.name||m.f)+'</b><br>'+esc(m.t)+'<div class="seen">'+(m.f===me?(m.seen?'✓✓ Seen':'✓ Delivered'):'')+'</div></div>';if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
-function openUserProfile(uid){
-  if(!db.users[uid]) return;
-  const u=db.users[uid];
-  show('profile');
-  document.getElementById('profileName').value=u.name||uid;
-  document.getElementById('bio').value=u.bio||'';
-  document.getElementById('pid').textContent=uid;
-  renderPhotos(u.photos||[]);
-}
+function renderChat(){if(!chatWith)return;let b=document.getElementById('chatbox');b.innerHTML='';(db.messages[ck()]||[]).forEach(m=>{let u=db.users[m.f]||{};let d=document.createElement('div');d.className='msg '+(m.f===me?'me':'');d.style.display='flex';d.style.alignItems='flex-start';d.style.gap='8px';d.innerHTML='<div>'+userAvatar(u)+'</div><div><b>'+esc(u.name||m.f)+'</b><br>'+esc(m.t)+'<div class="seen">'+(m.f===me?(m.seen?'✓✓ Seen':'✓ Delivered'):'')+'</div></div>';if(m.f===chatWith)m.seen=true;b.appendChild(d)});save();b.scrollTop=b.scrollHeight}
 function send(){if(!chatWith){alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ');return}let i=document.getElementById('msg'),t=i.value.trim();if(!t)return;if(!db.messages[ck()])db.messages[ck()]=[];db.messages[ck()].push({f:me,t,seen:false,time:Date.now(),senderName:db.users[me].name,senderPhoto:(db.users[me].photos||[])[0]||''});i.value='';save();renderChat()}
 function createGroup(){
   let n=document.getElementById('gname').value.trim();
