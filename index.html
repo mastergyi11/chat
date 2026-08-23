@@ -9,23 +9,17 @@
         body { margin: 0; background: #071b2e; color: #fff; font-family: Arial, sans-serif; }
         .app { max-width: 900px; margin: auto; min-height: 100vh; background: #0b2942; padding-bottom: 78px; }
         header { padding: 14px; background: #083b63; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 3; }
+        header .header-title { font-size: 18px; font-weight: bold; }
         .screen { display: none; padding: 15px; }
         .screen.active { display: block; }
         .card { background: #103b5a; border: 1px solid #225b7e; border-radius: 15px; padding: 15px; margin-bottom: 12px; }
         input, textarea, select { width: 100%; padding: 11px; margin: 5px 0; border-radius: 10px; border: 1px solid #397a9e; background: #071f33; color: white; }
-        .btn { border: 0; border-radius: 10px; padding: 10px 13px; background: #1688cf; color: #fff; font-weight: bold; margin: 3px; }
-        .gold { background: #e7ad21; color: #172130; }
-        .green { background: #20a06b; }
-        .red { background: #c83b4b; }
+        .btn { border: 0; border-radius: 10px; padding: 10px 13px; background: #1688cf; color: #fff; font-weight: bold; margin: 3px; cursor: pointer; }
+        .btn.gold { background: #e7ad21; color: #172130; }
+        .btn.green { background: #20a06b; }
+        .btn.red { background: #c83b4b; }
+        .btn.small { padding: 6px 10px; font-size: 12px; }
         .small { font-size: 12px; color: #9fc0d3; }
-        .photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-        .photo { aspect-ratio: 1; background: #09263b; border: 1px solid #397a9e; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
-        .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .photo.empty { background: #0b3048; border: 2px dashed #4c88a8; color: #9fd4e8; font-size: 34px; }
-        .photo.empty span { font-size: 34px; line-height: 1; }
-        .photo .slot-num { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.55); border-radius: 9px; padding: 2px 6px; font-size: 10px; color: #fff; }
-        .photo .change { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.55); border-radius: 9px; padding: 3px 6px; font-size: 11px; }
-        .photo-hint { margin: 8px 0 2px; color: #9fc0d3; font-size: 12px; }
         .list { border-bottom: 1px solid #20516d; padding: 11px; }
         .chat { height: 55vh; overflow: auto; background: #071f33; padding: 10px; border-radius: 12px; }
         .msg { max-width: 78%; padding: 9px 11px; border-radius: 13px; margin: 7px 0; background: #164766; white-space: pre-wrap; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; }
@@ -34,167 +28,88 @@
         .msg .bubble { flex: 1; }
         .msg .bubble .name { font-weight: bold; font-size: 13px; cursor: pointer; }
         .msg .bubble .text { word-break: break-word; }
+        .msg .bubble .msg-image { max-width: 200px; border-radius: 10px; margin-top: 4px; cursor: pointer; }
+        .msg .bubble .msg-image img { width: 100%; border-radius: 10px; }
         .me { justify-content: flex-end; }
         .me .avatar { order: 2; }
         .me .bubble { order: 1; text-align: right; }
         .seen { font-size: 10px; color: #9ed9ff; }
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #06131f; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #17364b; box-shadow: 0 -4px 18px rgba(0,0,0,0.28); }
-        .nav button { min-height: 58px; margin: 0 2px; border-radius: 10px; background: transparent; color: #b8c5cf; font-size: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+        .nav button { min-height: 58px; margin: 0 2px; border-radius: 10px; background: transparent; color: #b8c5cf; font-size: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
         .nav button.active-nav { color: #fff; background: #12324a; }
-        .nav .center-empty { visibility: hidden; pointer-events: none; }
-        .nav .logout { display: none; }
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick .btn { min-height: 54px; font-size: 15px; }
-        .section-title { margin: 4px 0 10px; }
-        .top-actions { display: flex; gap: 6px; align-items: center; }
-        .top-actions button { padding: 7px 10px; }
-        .page-intro { color: #b8d4e3; margin-top: -4px; }
-        .divider { height: 1px; background: #20516d; margin: 14px 0; }
+        .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #20516d; }
+        .friend-avatar { width: 58px; height: 58px; border-radius: 50%; overflow: hidden; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 30px; flex: none; }
+        .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .friend-info { flex: 1; }
+        .friend-info b { font-size: 18px; }
+        .friend-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .friend-actions button { padding: 6px 10px; font-size: 12px; }
         .hidden { display: none !important; }
         .status { margin-top: 8px; padding: 9px; border-radius: 8px; background: #063b50; color: #b9f4ff; }
+        .profile-region-row { border-bottom: 1px solid #20516d; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #0a1f30; }
+        .profile-region-row label { font-size: 16px; min-width: 145px; }
+        .profile-region-value { flex: 1; text-align: right; font-size: 16px; word-break: break-word; font-weight: 500; }
+        .user-groups-section { margin-top: 12px; border-top: 1px solid #20516d; padding-top: 12px; }
+        .user-groups-section .group-chip { display: inline-block; background: #0f2a42; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
+        .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #20516d; cursor: pointer; }
+        .onboard-user-card .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .onboard-user-card .info { flex: 1; }
+        .onboard-user-card .info .name { font-weight: bold; }
+        .onboard-user-card .info .id { font-size: 12px; color: #9fc0d3; }
+        .onboard-user-card .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .photo-choice-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.58); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
+        .photo-choice { width: min(520px, 100%); background: #103b5a; border: 1px solid #397a9e; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 30px rgba(0,0,0,0.35); }
+        .photo-choice h3 { margin: 0 0 12px; }
+        .photo-choice .choice-btn { width: 100%; padding: 14px; margin: 5px 0; border: 0; border-radius: 12px; font-size: 16px; font-weight: bold; background: #1688cf; color: #fff; cursor: pointer; }
+        .photo-choice .choice-btn.camera { background: #20a06b; }
+        .photo-choice .choice-btn.cancel { background: #344c5d; color: #d9e7ef; }
+        .chat-input-area { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #0a1f30; border: 1px solid #225b7e; border-radius: 30px; padding: 4px 8px; }
+        .chat-input-area .input-actions { display: flex; gap: 4px; align-items: center; }
+        .chat-input-area .input-actions button { background: transparent; border: 0; font-size: 22px; padding: 4px; cursor: pointer; color: #9fc0d3; }
+        .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #fff; }
+        .chat-input-area #msg:focus { outline: none; }
+        .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; color: #172130; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .chat-input-area .send-btn.show { display: flex; }
+        .chat-header-actions { display: flex; align-items: center; gap: 8px; position: relative; z-index: 10; }
+        .chat-header-actions button { background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer; padding: 4px; }
+        #chatMenu { display: none; background: #0b2942; border: 1px solid #225b7e; border-radius: 8px; padding: 8px; margin: 8px 0; }
+        #chatMenu .menu-item { background: transparent; border: 0; color: #fff; padding: 8px 12px; width: 100%; text-align: left; cursor: pointer; border-radius: 6px; font-size: 14px; }
+        #chatMenu .menu-item:hover { background: #1a3d5a; }
+        #chatMenu .menu-item.danger { color: #e85d5d; }
+        .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; }
+        .blocked-users-list .list .unblock-btn { background: #e85d5d; color: #fff; border: 0; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+        .settings-item .blocked-badge { background: #e84a12; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
+        .settings-page { background: #0b2942; color: #fff; min-height: calc(100vh - 30px); padding: 0 14px 90px; }
+        .settings-item { height: 60px; background: #103b5a; border-bottom: 1px solid #225b7e; display: flex; align-items: center; gap: 18px; padding: 0 22px; font-size: 16px; cursor: pointer; }
+        .settings-item .sicon { width: 32px; text-align: center; font-size: 22px; flex: 0 0 32px; }
+        .settings-logout { width: 100%; height: 56px; margin-top: 18px; border: 0; border-radius: 7px; background: #e7ad21; color: #172130; font-size: 17px; cursor: pointer; }
+        .profile-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .profile-photo { aspect-ratio: 1; border-radius: 14px; background: #0a1f30; border: 1px solid #225b7e; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #9fc0d3; }
+        .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-photo .slot-num { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 10px; padding: 2px 7px; font-size: 11px; }
+        .profile-photo .change { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 9px; padding: 3px 6px; font-size: 10px; }
+        .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #225b7e; }
+        .profile-stats b { font-size: 20px; }
+        .profile-stats span { font-size: 13px; color: #9fc0d3; }
+        .profile-row { min-height: 56px; border-bottom: 1px solid #225b7e; padding: 10px 18px; display: flex; align-items: center; gap: 12px; }
+        .profile-row label { font-size: 15px; min-width: 120px; }
+        .profile-row input, .profile-row textarea, .profile-row select { margin: 0; background: #0a1f30; color: #fff; border: 0; border-bottom: 1px solid #e7ad21; border-radius: 0; padding: 6px 4px; font-size: 15px; text-align: right; flex: 1; }
+        .profile-row textarea { min-height: 50px; resize: vertical; text-align: left; }
+        .profile-save { width: 100%; border: 0; border-radius: 12px; padding: 12px; background: #e7ad21; color: #172130; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .profile-page { background: #0b2942; color: #fff; min-height: calc(100vh - 30px); padding: 0 0 90px; }
+        .profile-gallery-wrap { padding: 14px; background: #0a1f30; }
+        .profile-photo-note { color: #9fc0d3; font-size: 12px; padding: 8px 4px 2px; }
+        .profile-limit { color: #9fc0d3; text-align: center; padding: 8px; }
         @media (max-width: 520px) {
             .photos { grid-template-columns: repeat(2, 1fr); }
             .quick { grid-template-columns: 1fr; }
             .nav { grid-template-columns: repeat(6, 1fr); }
             .nav button { font-size: 11px; padding: 6px 1px; }
+            .profile-row label { min-width: 100px; font-size: 14px; }
         }
-        .onboard { min-height: calc(100vh - 80px); position: relative; padding: 15px 15px 100px; }
-        .searchbar { background: #103b5a; border: 1px solid #397a9e; border-radius: 12px; padding: 5px 10px; display: flex; align-items: center; gap: 5px; }
-        .searchbar input { margin: 0; border: 0; background: transparent; padding: 9px; }
-        .location-center { text-align: center; margin-top: 22vh; }
-        .location-icon { font-size: 60px; }
-        #onboardResults { margin-top: 12px; text-align: left; }
-        .continue-btn { position: fixed; right: 14px; bottom: 78px; z-index: 5; padding: 13px 18px; }
-        .photo-choice-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.58); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
-        .photo-choice { width: min(520px, 100%); background: #103b5a; border: 1px solid #397a9e; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 30px rgba(0,0,0,0.35); }
-        .photo-choice h3 { margin: 0 0 12px; }
-        .photo-choice .choice-btn { width: 100%; padding: 14px; margin: 5px 0; border: 0; border-radius: 12px; font-size: 16px; font-weight: bold; background: #1688cf; color: #fff; }
-        .photo-choice .choice-btn.camera { background: #20a06b; }
-        .photo-choice .choice-btn.cancel { background: #344c5d; color: #d9e7ef; }
-        .profile-page { background: #fff; color: #222; min-height: calc(100vh - 30px); margin: -15px; border-radius: 0; overflow: hidden; padding-bottom: 90px; }
-        .profile-topbar { height: 58px; background: linear-gradient(90deg, #ffb300, #ffc107); color: #4a3500; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 22px; font-weight: 500; }
-        .profile-back, .profile-more { border: 0; background: transparent; color: #5b4200; font-size: 38px; line-height: 1; width: 44px; height: 44px; }
-        .profile-more { font-size: 30px; }
-        .profile-gallery-wrap { background: #fafafa; padding: 14px 14px 8px; }
-        .profile-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .profile-photo { aspect-ratio: 1; border-radius: 14px; background: #f1f1f1; border: 1px solid #ddd; overflow: hidden; position: relative; cursor: pointer; }
-        .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-photo.empty { display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 54px; }
-        .profile-photo .slot-num { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 10px; padding: 2px 7px; font-size: 11px; }
-        .profile-photo .change { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 9px; padding: 3px 6px; font-size: 10px; }
-        .profile-photo-note { color: #aaa; font-size: 12px; padding: 8px 4px 2px; }
-        .profile-stats { height: 104px; background: #fff; display: flex; align-items: center; justify-content: center; gap: 70px; border-bottom: 8px solid #f6f6f6; }
-        .profile-stats>div:not(.profile-stat-line) { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .profile-stats b { font-size: 22px; color: #222; }
-        .profile-stats span { font-size: 15px; color: #777; }
-        .profile-stat-line { height: 50px; width: 1px; background: #ddd; }
-        .profile-form { background: #fff; }
-        .profile-row { min-height: 68px; border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; }
-        .profile-row label { font-size: 16px; color: #222; min-width: 145px; }
-        .profile-row input, .profile-row textarea, .profile-row select { margin: 0; background: #fff; color: #222; border: 0; border-bottom: 1px solid #e3bd3b; border-radius: 0; padding: 7px 4px; font-size: 16px; text-align: right; flex: 1; }
-        .profile-row textarea { min-height: 58px; resize: vertical; text-align: left; border-bottom: 0; background: #fafafa; padding: 10px; }
-        .profile-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; }
-        .id-value { color: #777; }
-        .profile-save-wrap { padding: 14px 18px; background: #fafafa; }
-        .profile-save { width: 100%; border: 0; border-radius: 12px; padding: 13px; background: #ffb300; color: #4a3500; font-size: 17px; font-weight: bold; }
-        .profile-limit { color: #888; text-align: center; padding: 8px; }
-        .profile-page .photo-choice-backdrop { z-index: 3000; }
-        @media (max-width: 520px) {
-            .profile-stats { gap: 52px; }
-            .profile-row label { min-width: 125px; }
-            .profile-photos { grid-template-columns: repeat(3, 1fr); }
-        }
-        .settings-page { background: #eeeeee; color: #555; min-height: calc(100vh - 30px); margin: -15px; padding: 0 14px 90px; overflow: hidden; }
-        .settings-topbar { height: 58px; background: #f7c52b; color: #fff; display: flex; align-items: center; gap: 10px; padding: 0 10px; margin: 0 -14px 14px; font-size: 22px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.18); }
-        .settings-back { width: 42px; height: 42px; border: 0; background: transparent; color: #fff; font-size: 38px; line-height: 1; padding: 0; }
-        .settings-list { background: #fff; border: 1px solid #e5e5e5; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .settings-item { height: 88px; background: #fff; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 18px; padding: 0 22px; font-size: 18px; color: #555; position: relative; }
-        .settings-item:last-child { border-bottom: 0; }
-        .settings-item .sicon { width: 32px; text-align: center; font-size: 25px; color: #777; flex: 0 0 32px; }
-        .settings-item .dot { position: absolute; right: 25px; width: 13px; height: 13px; border-radius: 50%; background: #e84a12; }
-        .settings-logout { width: 100%; height: 66px; margin-top: 18px; border: 0; border-radius: 7px; background: #f7c52b; color: #755700; font-size: 19px; box-shadow: 0 2px 4px rgba(0,0,0,0.12); }
-        @media (max-width: 520px) {
-            .settings-item { height: 86px; font-size: 18px; padding: 0 18px; }
-            .settings-page { padding-left: 14px; padding-right: 14px; }
-            .settings-topbar { margin-left: -14px; margin-right: -14px; }
-        }
-        body { background: #fff; color: #222; }
-        .app { background: #fff; color: #222; }
-        header { height: 58px; background: #f4b400; color: #222; padding: 0 10px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: flex; position: sticky; top: 0; z-index: 30; }
-        header b, header #head { display: none; }
-        .menu-btn { width: 46px; height: 46px; border: 0; background: transparent; color: #222; font-size: 30px; font-weight: 700; line-height: 1; cursor: pointer; }
-        .page-title { flex: 1; text-align: center; font-size: 21px; font-weight: 700; color: #3a2a00; }
-        .header-spacer { width: 46px; }
-        .menu-drawer { position: fixed; top: 58px; left: 0; width: min(310px, 86vw); height: calc(100vh - 58px); background: #fff; color: #333; z-index: 50; transform: translateX(-105%); transition: transform .22s ease; box-shadow: 6px 0 22px rgba(0,0,0,0.18); padding: 12px 10px 90px; overflow: auto; }
-        .menu-drawer.open { transform: translateX(0); }
-        .menu-overlay { position: fixed; inset: 58px 0 0; background: rgba(0,0,0,0.28); z-index: 49; display: none; }
-        .menu-overlay.open { display: block; }
-        .menu-user { padding: 12px; border-radius: 14px; background: #fff8dc; border: 1px solid #f0d26b; margin-bottom: 8px; }
-        .menu-item { width: 100%; border: 0; background: #fff; color: #333; text-align: left; padding: 14px 13px; border-bottom: 1px solid #eee; font-size: 16px; display: flex; align-items: center; gap: 12px; border-radius: 10px; }
-        .menu-item:active { background: #fff4c7; }
-        .menu-item .mi { width: 28px; text-align: center; font-size: 22px; }
-        .report-page, .notification-page, .account-page { background: #fff; color: #222; min-height: calc(100vh - 58px); padding: 8px 0 100px; }
-        .report-card, .notification-card, .account-card { background: #fff; border: 1px solid #e7e7e7; border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.08); padding: 16px; margin-bottom: 12px; }
-        .report-card h2, .notification-card h2, .account-card h2 { margin-top: 0; color: #333; }
-        .report-image { width: 100%; max-height: 260px; object-fit: contain; border: 1px dashed #ccc; border-radius: 12px; background: #fafafa; display: none; margin-top: 10px; }
-        .toggle { width: 54px; height: 30px; border: 0; border-radius: 20px; background: #bbb; position: relative; cursor: pointer; vertical-align: middle; }
-        .toggle::after { content: ""; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: .2s; }
-        .toggle.on { background: #f4b400; }
-        .toggle.on::after { left: 28px; }
-        .screen { background: #fff; color: #222; }
-        .card { background: #fff; color: #222; border: 1px solid #e7e7e7; border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.08); }
-        .small, .page-intro { color: #777; }
-        input, textarea, select { background: #fff; color: #222; border: 1px solid #ddd; }
-        .btn { background: #f4b400; color: #332700; border-radius: 12px; box-shadow: 0 2px 7px rgba(0,0,0,0.10); }
-        .btn.green { background: #f4b400; color: #332700; }
-        .btn.gold { background: #f4b400; color: #332700; }
-        .btn.red { background: #e85d5d; color: #fff; }
-        .quick { gap: 10px; }
-        .quick .btn { background: #ffd45a; color: #332700; border: 0; min-height: 54px; }
-        .list { border-bottom: 1px solid #eee; color: #222; }
-        .chat { background: #f7f7f7; }
-        .msg { background: #fff; color: #222; border: 1px solid #eee; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-        .msg.me { background: #fff0b8; color: #222; }
-        .seen { color: #888; }
-        .nav { background: #fff; border-top: 1px solid #ddd; box-shadow: 0 -3px 14px rgba(0,0,0,0.10); }
-        .nav button { color: #777; background: #fff; border-radius: 12px; }
-        .nav button.active-nav { color: #222; background: #fff1bf; box-shadow: inset 0 -3px 0 #f4b400; }
-        .searchbar { background: #fff; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .onboard { background: #fff; }
-        .continue-btn { background: #f4b400; }
-        .photo-choice { background: #fff; color: #222; border-color: #ddd; }
-        .photo-choice .choice-btn { background: #f4b400; color: #332700; }
-        .photo-choice .choice-btn.camera { background: #f4b400; color: #332700; }
-        .photo-choice .choice-btn.cancel { background: #eee; color: #555; }
-        .profile-topbar { background: #f4b400; color: #3a2a00; }
-        .profile-topbar>div { display: none; }
-        .profile-back, .profile-more { color: #3a2a00; }
-        .profile-gallery-wrap { background: #fff; }
-        .profile-stats { background: #fff; }
-        .profile-page { background: #fff; }
-        .settings-page { background: #fff; }
-        .settings-topbar { background: #f4b400; color: #3a2a00; }
-        .settings-back { color: #3a2a00; }
-        .settings-list { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-        .settings-logout { background: #f4b400; color: #3a2a00; }
-        button, input, select, textarea { touch-action: manipulation; }
-        button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .friend-avatar { width: 58px; height: 58px; border-radius: 50%; overflow: hidden; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 30px; flex: none; }
-        .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .friend-info { flex: 1; }
-        .friend-info b { font-size: 18px; }
-        .friend-actions { display: flex; gap: 6px; margin-top: 8px; }
-        .friend-actions button { padding: 8px 12px; }
-        .profile-region-row { border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #fafafa; }
-        .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
-        .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
-        .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
-        .chat-header-actions { display: flex; align-items: center; gap: 8px; }
-        .chat-header-actions button { background: transparent; border: 0; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
-        .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; }
-        .blocked-users-list .list .unblock-btn { background: #e85d5d; color: #fff; border: 0; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
-        .settings-item .blocked-badge { background: #e84a12; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -202,9 +117,9 @@
 
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-        <div id="pageTitle" class="page-title"></div>
+        <div id="pageTitle" class="header-title"></div>
         <div class="header-spacer"></div>
-        <b>💬 My Social Chat</b><span id="head">Guest</span>
+        <span id="head">Guest</span>
     </header>
 
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
@@ -223,11 +138,10 @@
         <div class="card">
             <h2>အကောင့်ဝင်ရန်</h2>
             <input id="loginId" placeholder="Account ID ဥပမာ Aung1001">
-            <input id="loginName" class="hidden" placeholder="အမည်">
             <input id="loginPassword" type="password" placeholder="Password">
             <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
             <button id="registerBtn" type="button" class="btn green" onclick="register()">အကောင့်အသစ်ဖွင့်မည်</button>
-            <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။ ဖုန်းနံပါတ်/SMS မလိုပါ။<br>အကောင့်အသစ်ဖွင့်ရန် အမည်နဲ့ Password သတ်မှတ်ပါ။</p>
+            <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
         </div>
     </section>
@@ -274,7 +188,6 @@
             </div>
             <div class="profile-stats">
                 <div><b id="followingCount">0</b><span>Following</span></div>
-                <div class="profile-stat-line"></div>
                 <div><b id="followersCount">0</b><span>Followers</span></div>
             </div>
             <div class="profile-form">
@@ -294,6 +207,7 @@
             <input id="photoCamera" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <input id="photoGallery" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <div id="limit" class="small profile-limit"></div>
+            <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;"></div>
         </div>
     </section>
 
@@ -305,7 +219,7 @@
                 <div class="settings-item" onclick="alert('Preferences ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">ℹ</span><span>Preferences</span></div>
                 <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span><span class="dot" id="settingsNotifyDot"></span></div>
                 <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
-                <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / တိုင်ကြားရန်</span></div>
+                <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
                 <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
                 <div class="settings-item" onclick="alert('My Social Chat\nVersion 1.0')"><span class="sicon">ⓘ</span><span>About</span></div>
             </div>
@@ -323,46 +237,40 @@
 
     <!-- MY ACCOUNT -->
     <section id="myAccount" class="screen">
-        <div class="account-page">
-            <div class="account-card">
-                <h2>👤 My Account</h2>
-                <div style="text-align:center">
-                    <div id="myAccountPhoto" style="width:110px;height:110px;border-radius:50%;margin:8px auto 12px;background:#f3f3f3;border:2px solid #f4b400;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden">👤</div>
-                    <h3 id="myAccountName">-</h3>
-                    <div class="small" id="myAccountId">ID: -</div>
-                </div>
+        <div class="card">
+            <h2>👤 My Account</h2>
+            <div style="text-align:center">
+                <div id="myAccountPhoto" style="width:100px;height:100px;border-radius:50%;margin:8px auto;background:#0a1f30;border:2px solid #e7ad21;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden">👤</div>
+                <h3 id="myAccountName">-</h3>
+                <div class="small" id="myAccountId">ID: -</div>
             </div>
         </div>
     </section>
 
     <!-- NOTIFICATIONS -->
     <section id="notifications" class="screen">
-        <div class="notification-page">
-            <div class="notification-card">
-                <h2>🔔 အသိပေးချက်များ</h2>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-                    <span>သူငယ်ချင်း / Chat အသိပေးချက်</span>
-                    <button id="notifyToggle" class="toggle" onclick="toggleNotifications()"></button>
-                </div>
-                <div class="small">On ဖြစ်ထားရင် ဒီ APK ထဲမှာ သူငယ်ချင်း request နဲ့ စာအသစ်တွေကို အချက်ပေးပါမယ်။</div>
+        <div class="card">
+            <h2>🔔 အသိပေးချက်များ</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+                <span>သူငယ်ချင်း / Chat အသိပေးချက်</span>
+                <button id="notifyToggle" class="toggle" onclick="toggleNotifications()"></button>
             </div>
-            <div class="notification-card"><h3>📨 လက်ရှိအသိပေးချက်များ</h3><div id="notificationList"></div></div>
+            <div class="small">On ဖြစ်ထားရင် ဒီ APK ထဲမှာ သူငယ်ချင်း request နဲ့ စာအသစ်တွေကို အချက်ပေးပါမယ်။</div>
+            <div id="notificationList"></div>
         </div>
     </section>
 
     <!-- FEEDBACK -->
     <section id="feedback" class="screen">
-        <div class="report-page">
-            <div class="report-card">
-                <h2>✉️ တိုင်ကြားရန် / Report</h2>
-                <p class="small">ပြဿနာဖြစ်နေတဲ့နေရာကို ပုံပို့ပြီး အကြောင်းအရာကို ရေးပို့နိုင်ပါတယ်။</p>
-                <input id="reportTitle" placeholder="ပြဿနာအကြောင်းအရာ">
-                <textarea id="reportText" rows="6" placeholder="ပြဿနာကို အသေးစိတ်ရေးပါ..."></textarea>
-                <input id="reportImageInput" type="file" accept="image/*" onchange="previewReportImage(event)">
-                <img id="reportImagePreview" class="report-image" alt="Report preview">
-                <button class="btn gold" onclick="submitReport()">📨 Report ပို့မည်</button>
-                <div id="reportStatus" class="status" style="display:none"></div>
-            </div>
+        <div class="card">
+            <h2>✉️ တိုင်ကြားရန် / Report</h2>
+            <p class="small">ပြဿနာဖြစ်နေတဲ့နေရာကို ပုံပို့ပြီး အကြောင်းအရာကို ရေးပို့နိုင်ပါတယ်။</p>
+            <input id="reportTitle" placeholder="ပြဿနာအကြောင်းအရာ">
+            <textarea id="reportText" rows="4" placeholder="ပြဿနာကို အသေးစိတ်ရေးပါ..."></textarea>
+            <input id="reportImageInput" type="file" accept="image/*" onchange="previewReportImage(event)">
+            <img id="reportImagePreview" class="report-image" alt="Report preview">
+            <button class="btn gold" onclick="submitReport()">📨 Report ပို့မည်</button>
+            <div id="reportStatus" class="status" style="display:none"></div>
         </div>
     </section>
 
@@ -375,15 +283,18 @@
     <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <h3 id="ctitle">💬 Chat</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10;">
+                <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
                 <div class="chat-header-actions">
-                    <button onclick="toggleChatMenu()" title="ဆက်တင်များ">☰</button>
+                    <button onclick="toggleChatMenu()" style="background:transparent; border:0; color:#fff; font-size:24px; cursor:pointer; position:relative; z-index:20;">☰</button>
                 </div>
             </div>
-            <!-- Chat Menu Dropdown -->
-            <div id="chatMenu" style="display:none; background:#0b2942; padding:8px; border-radius:8px; margin-bottom:8px;">
-                <button class="btn red" onclick="blockCurrentUser()" style="width:100%;">🚫 ဘလော့လုပ်မည်</button>
+            <!-- Chat Menu -->
+            <div id="chatMenu" style="display:none; background:#0b2942; border:1px solid #225b7e; border-radius:8px; padding:8px; margin:8px 0;">
+                <button class="menu-item danger" onclick="blockCurrentUser()">🚫 ဘလော့လုပ်မည်</button>
+                <button class="menu-item" onclick="alert('ဖိတ်ခေါ်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">📨 သူငယ်ချင်းဖိတ်ရန်</button>
+                <button class="menu-item" onclick="alert('အသင်းပိုင်ရှင်လွှဲပြောင်းရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">👑 အသင်းလွှဲပြောင်းရန်</button>
+                <button class="menu-item" onclick="alert('အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">⚙️ အသင်းအုပ်ချုပ်သူခန့်ရန်</button>
             </div>
             <div id="chatbox" class="chat"></div>
             <div class="chat-input-area">
@@ -415,7 +326,10 @@
 
     <!-- GROUP DETAIL -->
     <section id="groupDetail" class="screen">
-        <div class="card"><button class="btn" onclick="show('groups')">← My Groups</button><div id="groupDetailBox"></div></div>
+        <div class="card">
+            <button class="btn" onclick="show('groups')">← My Groups</button>
+            <div id="groupDetailBox"></div>
+        </div>
     </section>
 
     <!-- ADMIN -->
@@ -473,33 +387,24 @@
         appId: '1:136560761031:web:3cb27a0baa8efe5cc506e2',
         measurementId: 'G-1DT23E8DV8'
     };
-    var firebaseAuth = null,
-        firebaseDB = null,
-        firebaseSDKReady = false;
+    var firebaseAuth = null, firebaseDB = null, firebaseSDKReady = false;
     try {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             try { firebaseAuth = firebase.auth(); } catch (e) { firebaseAuth = null; }
-            try { firebaseDB = firebase.database();
-                firebaseSDKReady = true; } catch (e) { firebaseDB = null; }
+            try { firebaseDB = firebase.database(); firebaseSDKReady = true; } catch (e) { firebaseDB = null; }
         }
     } catch (e) { console.error('Firebase init error', e); }
 
     var KEY = 'my_social_chat_v1';
     var NEARBY_RADIUS_KM = 5;
-    var me = null,
-        chatWith = null,
-        db = null,
-        fbReady = false;
-    var presenceRef = null,
-        locationWatchId = null;
+    var me = null, chatWith = null, db = null, fbReady = false;
+    var presenceRef = null, locationWatchId = null;
     var firebaseInitPromise = null;
     var chatMenuVisible = false;
 
     function byId(id) { return document.getElementById(id); }
-
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
-
     function fileList(id) { var e = byId(id); return e && e.files ? e.files : null; }
 
     var DEFAULT = {
@@ -513,20 +418,13 @@
         messages: {},
         groups: [],
         groupMessages: {},
-        blocked: {}  // { userId: true }
+        blocked: {},
+        groupInvites: []
     };
 
     function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
-
-    function localSave() {
-        try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {}
-    }
-
-    function localLoad() {
-        try { var x = JSON.parse(localStorage.getItem(KEY)); if (x && x.users) return x; } catch (e) {}
-        return clone();
-    }
-
+    function localSave() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+    function localLoad() { try { var x = JSON.parse(localStorage.getItem(KEY)); if (x && x.users) return x; } catch (e) {} return clone(); }
     function normalize(x) {
         x = x || {};
         x.users = x.users || {};
@@ -563,8 +461,7 @@
 
     async function initFirebase() {
         db = localLoad();
-        if (!firebaseDB) { fbReady = false;
-            setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
+        if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
             try {
                 if (firebaseAuth) {
@@ -572,7 +469,6 @@
                     if (!firebaseAuth.currentUser) { try { await firebaseAuth.signInAnonymously(); } catch (e) {} }
                 }
             } catch (e) { console.warn('Auth init:', e); }
-
             var ref = firebaseDB.ref('appData');
             var snap = await ref.once('value');
             if (snap.exists()) {
@@ -626,35 +522,25 @@
     function navGo(id) {
         show(id);
         closeMenu();
-        ['navLocation', 'navHome', 'navFriends', 'navInbox', 'navProfile', 'navSetting'].forEach(x => {
+        ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(x => {
             var el = document.getElementById(x);
             if (el) el.classList.remove('active-nav');
         });
-        var map = { onboarding: 'navLocation', home: 'navHome', friends: 'navFriends', inbox: 'navInbox', profile: 'navProfile', settings: 'navSetting', blockedUsers: 'navSetting' };
+        var map = { onboarding:'navLocation', home:'navHome', friends:'navFriends', inbox:'navInbox', profile:'navProfile', settings:'navSetting', blockedUsers:'navSetting' };
         var el = document.getElementById(map[id]);
         if (el) el.classList.add('active-nav');
         var titles = {
-            onboarding: 'Location',
-            home: 'Home',
-            friends: 'Friends',
-            inbox: 'Chats',
-            profile: 'My Profile',
-            settings: 'Setting',
-            blockedUsers: 'Blocked Users',
-            myAccount: 'My Account',
-            notifications: 'Notifications',
-            feedback: 'Feedback / Report',
-            groups: 'Groups',
-            groupDetail: 'Group',
-            chat: 'Chat',
-            userProfile: 'User Profile'
+            onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile',
+            settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account',
+            notifications:'Notifications', feedback:'Feedback / Report', groups:'Groups',
+            groupDetail:'Group', chat:'Chat', userProfile:'User Profile'
         };
         var pt = document.getElementById('pageTitle');
         if (pt) pt.textContent = titles[id] || '';
         if (id === 'blockedUsers') renderBlockedUsers();
+        if (id === 'groupDetail') renderGroupDetail();
     }
 
-    // ===== Block Functions =====
     function isBlocked(userId) {
         if (!db || !db.blocked) return false;
         return db.blocked[userId] === true;
@@ -665,17 +551,12 @@
         if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; }
         db.blocked = db.blocked || {};
         db.blocked[userId] = true;
-        // Remove from friends if exists
         db.friends = db.friends.filter(f => !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)));
-        // Remove from requests
         db.req = db.req.filter(r => !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)));
         save();
         refresh();
         alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ');
-        if (chatWith === userId) {
-            chatWith = null;
-            show('inbox');
-        }
+        if (chatWith === userId) { chatWith = null; show('inbox'); }
         renderBlockedUsers();
     }
 
@@ -712,7 +593,6 @@
         var blockedIds = Object.keys(db.blocked || {}).filter(id => db.blocked[id] === true);
         var badge = document.getElementById('blockedBadge');
         if (badge) badge.textContent = blockedIds.length;
-
         if (!blockedIds.length) {
             container.innerHTML = '<div class="small">ဘလော့လုပ်ထားသူမရှိပါ</div>';
             return;
@@ -731,7 +611,6 @@
         });
     }
 
-    // Override search to exclude blocked
     function searchUsers() {
         var b = document.getElementById('searchResults');
         var q = (val('userSearch') || '').trim().toLowerCase();
@@ -764,20 +643,15 @@
 
     function renderInbox() {
         if (!me || !db) return;
-        var list = document.getElementById('inboxList'),
-            req = document.getElementById('inboxRequests');
+        var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
         if (!list || !req) return;
-        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
-        // Filter out blocked
-        friendIds = friendIds.filter(id => !isBlocked(id));
+        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
         list.innerHTML = '';
-        if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။ Friends ထဲက Chat ကိုနှိပ်ပါ။</div>';
+        if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
         friendIds.forEach(id => {
             var u = db.users[id];
             if (!u) return;
-            var key = [me, id].sort().join('_'),
-                msgs = db.messages[key] || [],
-                last = msgs[msgs.length - 1];
+            var key = [me, id].sort().join('_'), msgs = db.messages[key] || [], last = msgs[msgs.length - 1];
             var d = document.createElement('div');
             d.className = 'list';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
@@ -851,7 +725,7 @@
         window.viewingProfile = id;
         show('userProfile');
         var b = document.getElementById('userProfileBox');
-        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:110px;height:110px;border-radius:50%;object-fit:cover\">' : '👤';
+        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:100px;height:100px;border-radius:50%;object-fit:cover\">' : '👤';
         var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
         var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
         var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
@@ -872,13 +746,13 @@
             if (blocked) {
                 actionHtml = '<span style="color:#e85d5d;">🚫 ဘလော့လုပ်ထားပါသည်</span><br><button class="btn" onclick="unblockUser(\''+id+'\')">ဘလော့ဖြုတ်မည်</button>';
             } else {
-                actionHtml = friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>';
+                actionHtml = friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + id + '\')">Add Friend</button>';
                 actionHtml += '<br><button class="btn red" onclick="blockUser(\''+id+'\')">🚫 ဘလော့လုပ်မည်</button>';
             }
         } else {
             actionHtml = '<span>👤 ကိုယ့် Profile</span>';
         }
-        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
+        b.innerHTML = '<div style="text-align:center">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
             actionHtml +
             groupsHtml +
             '</div>';
@@ -899,19 +773,10 @@
     function send() {
         if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
-        var i = document.getElementById('msg'),
-            t = i.value.trim();
+        var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
         if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({
-            f: me,
-            t: t,
-            seen: false,
-            time: Date.now(),
-            senderName: db.users[me].name,
-            senderPhoto: (db.users[me].photos || [])[0] || '',
-            image: null
-        });
+        db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
         i.value = '';
         toggleSendButton();
         save();
@@ -933,60 +798,37 @@
             var avatarHtml = getUserAvatar(u);
             var nameDisplay = esc(u.name || m.f || 'Unknown');
             var msgText = esc(m.t || '');
-
             var d = document.createElement('div');
             d.className = 'msg' + (isMe ? ' me' : '');
-
             var avatarDiv = document.createElement('div');
             avatarDiv.className = 'avatar';
             avatarDiv.innerHTML = avatarHtml;
-            avatarDiv.onclick = function() {
-                if (m.f && db.users[m.f]) {
-                    viewUserProfile(m.f);
-                }
-            };
-
+            avatarDiv.onclick = function() { if (m.f && db.users[m.f]) { viewUserProfile(m.f); } };
             var bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'bubble';
-
             var nameSpan = document.createElement('div');
             nameSpan.className = 'name';
             nameSpan.textContent = nameDisplay;
-            nameSpan.onclick = function() {
-                if (m.f && db.users[m.f]) {
-                    viewUserProfile(m.f);
-                }
-            };
-
+            nameSpan.onclick = function() { if (m.f && db.users[m.f]) { viewUserProfile(m.f); } };
             var textSpan = document.createElement('div');
             textSpan.className = 'text';
             textSpan.textContent = msgText;
-
             if (m.image) {
                 var imgDiv = document.createElement('div');
                 imgDiv.className = 'msg-image';
                 var img = document.createElement('img');
                 img.src = m.image;
                 img.alt = 'Image';
-                img.onclick = function() {
-                    window.open(m.image, '_blank');
-                };
+                img.onclick = function() { window.open(m.image, '_blank'); };
                 imgDiv.appendChild(img);
                 textSpan.appendChild(imgDiv);
             }
-
             var seenSpan = document.createElement('div');
             seenSpan.className = 'seen';
-            if (isMe) {
-                seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered';
-            } else {
-                m.seen = true;
-            }
-
+            if (isMe) { seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered'; } else { m.seen = true; }
             bubbleDiv.appendChild(nameSpan);
             bubbleDiv.appendChild(textSpan);
             bubbleDiv.appendChild(seenSpan);
-
             d.appendChild(avatarDiv);
             d.appendChild(bubbleDiv);
             b.appendChild(d);
@@ -1029,8 +871,7 @@
                 r.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        var max = 900,
-                            scale = Math.min(1, max / img.width);
+                        var max = 900, scale = Math.min(1, max / img.width);
                         var c = document.createElement('canvas');
                         c.width = Math.max(1, Math.round(img.width * scale));
                         c.height = Math.max(1, Math.round(img.height * scale));
@@ -1060,8 +901,7 @@
                 r.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        var max = 900,
-                            scale = Math.min(1, max / img.width);
+                        var max = 900, scale = Math.min(1, max / img.width);
                         var c = document.createElement('canvas');
                         c.width = Math.max(1, Math.round(img.width * scale));
                         c.height = Math.max(1, Math.round(img.height * scale));
@@ -1080,19 +920,9 @@
     }
 
     function sendChatImage(imageData) {
-        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
-        if (isBlocked(chatWith)) return;
-        if (!imageData) return;
+        if (!chatWith || isBlocked(chatWith) || !imageData) return;
         if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({
-            f: me,
-            t: '📷 ဓာတ်ပုံ',
-            seen: false,
-            time: Date.now(),
-            senderName: db.users[me].name,
-            senderPhoto: (db.users[me].photos || [])[0] || '',
-            image: imageData
-        });
+        db.messages[ck()].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData });
         save();
         renderChat();
     }
@@ -1107,11 +937,9 @@
         if (id === 'inbox') renderInbox();
         if (id === 'notifications') renderNotifications();
         if (id === 'myAccount') renderMyAccount();
-        if (id === 'chat' && chatWith) {
-            renderChat();
-        }
+        if (id === 'chat' && chatWith) renderChat();
         if (id === 'blockedUsers') renderBlockedUsers();
-        if (id === 'settings') renderBlockedUsers();
+        if (id === 'groupDetail') renderGroupDetail();
     }
 
     function refresh() {
@@ -1122,13 +950,11 @@
         u.dob = u.dob || '';
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
-
         document.getElementById('head').textContent = u.name;
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
         var muid = document.getElementById('menuUserId');
         if (muid) muid.textContent = 'ID: ' + (u.id || me);
-
         var pn = document.getElementById('profileName');
         if (pn) pn.value = u.name || '';
         var an = document.getElementById('accountNameView');
@@ -1147,17 +973,12 @@
         if (gender) gender.value = u.gender || '';
         var age = document.getElementById('profileAge');
         if (age) age.textContent = calcAge(u.dob) || '-';
-
         var regionDisplay = document.getElementById('profileRegionDisplay');
-        if (regionDisplay) {
-            regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-';
-        }
-
+        if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; }
         var fc = document.getElementById('followersCount');
         if (fc) fc.textContent = db.req.filter(r => r.t === me).length + db.friends.filter(x => x.a === me || x.b === me).length;
         var fwc = document.getElementById('followingCount');
         if (fwc) fwc.textContent = db.friends.filter(x => x.a === me || x.b === me).length;
-
         renderPhotos();
         nearby();
         friends();
@@ -1176,9 +997,7 @@
         var userGroups = db.groups.filter(g => g.members.includes(me));
         if (userGroups.length) {
             var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => {
-                html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
-            });
+            userGroups.forEach(g => { html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
             container.innerHTML = html;
             container.style.display = 'block';
         } else {
@@ -1212,38 +1031,22 @@
                 if (parts.length) return parts.join(', ');
             }
             return '';
-        } catch (e) {
-            console.warn('Reverse geocode error', e);
-            return '';
-        }
+        } catch (e) { console.warn('Reverse geocode error', e); return ''; }
     }
 
     window.locate = function() {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
         if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
         navigator.geolocation.getCurrentPosition(async function(p) {
-            var lat = p.coords.latitude;
-            var lng = p.coords.longitude;
-            db.users[me].lat = lat;
-            db.users[me].lng = lng;
+            var lat = p.coords.latitude, lng = p.coords.longitude;
+            db.users[me].lat = lat; db.users[me].lng = lng;
             localSave();
             if (fbReady) {
-                await firebaseDB.ref('presence/' + me).update({
-                    id: me,
-                    name: db.users[me].name || me,
-                    online: true,
-                    lat: lat,
-                    lng: lng,
-                    accuracy: p.coords.accuracy || null,
-                    lastSeen: firebase.database.ServerValue.TIMESTAMP
-                });
+                await firebaseDB.ref('presence/' + me).update({ id: me, name: db.users[me].name || me, online: true, lat: lat, lng: lng, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
             }
             if (!db.users[me].region || db.users[me].region.trim() === '') {
                 var region = await fetchRegion(lat, lng);
-                if (region) {
-                    db.users[me].region = region;
-                    await save();
-                }
+                if (region) { db.users[me].region = region; await save(); }
             }
             startPresence();
             await nearby();
@@ -1299,24 +1102,9 @@
         if (p === null) return;
         if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
         var base = makeBaseName(name);
-        var num = 1001,
-            id = '';
-        do { id = base + num;
-            num++; } while (db.users[id]);
-        var user = {
-            id: id,
-            name: name,
-            accountName: name,
-            bio: '',
-            dob: '',
-            gender: '',
-            photos: [],
-            photoLimit: 4,
-            lat: null,
-            lng: null,
-            password: p,
-            region: ''
-        };
+        var num = 1001, id = '';
+        do { id = base + num; num++; } while (db.users[id]);
+        var user = { id: id, name: name, accountName: name, bio: '', dob: '', gender: '', photos: [], photoLimit: 4, lat: null, lng: null, password: p, region: '' };
         try {
             await firebaseDB.ref('appData/users/' + id).set(user);
             var verify = await firebaseDB.ref('appData/users/' + id).once('value');
@@ -1347,8 +1135,7 @@
             try {
                 var snap = await firebaseDB.ref('appData/users/' + id).once('value');
                 if (snap.exists()) u = snap.val();
-            } catch (e) { remoteError = e;
-                console.warn('Remote account lookup failed', e); }
+            } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
         }
         if (!u && db.users) u = db.users[id];
         if (!u) {
@@ -1371,8 +1158,7 @@
     function logout() {
         stopPresence();
         try { localStorage.removeItem('my_social_logged_in'); } catch (e) {}
-        me = null;
-        chatWith = null;
+        me = null; chatWith = null;
         document.getElementById('nav').classList.add('hidden');
         document.getElementById('head').textContent = 'Guest';
         closeMenu();
@@ -1380,8 +1166,7 @@
     }
 
     function toggleMenu() {
-        var d = document.getElementById('menuDrawer'),
-            o = document.getElementById('menuOverlay');
+        var d = document.getElementById('menuDrawer'), o = document.getElementById('menuOverlay');
         if (d) d.classList.toggle('open');
         if (o) o.classList.toggle('open');
     }
@@ -1393,8 +1178,7 @@
         if (o) o.classList.remove('open');
     }
 
-    function menuGo(id) { if (!me) return;
-        navGo(id); }
+    function menuGo(id) { if (!me) return; navGo(id); }
 
     function renderMyAccount() {
         if (!me || !(db && db.users && db.users[me])) return;
@@ -1415,7 +1199,6 @@
     }
 
     function notificationEnabled() { return localStorage.getItem('my_social_notifications') !== 'off'; }
-
     function toggleNotifications() {
         var on = !notificationEnabled();
         localStorage.setItem('my_social_notifications', on ? 'on' : 'off');
@@ -1431,20 +1214,15 @@
         var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
         var items = [];
         incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
-        friendIds.forEach(id => { var u = db.users[id];
-            var key = [me, id].sort().join('_');
-            var msgs = db.messages[key] || [];
-            var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
+        friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
         list.innerHTML = items.length ? items.map(x => '<div class="list">' + x + '</div>').join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
     }
 
     function previewReportImage(e) {
-        var f = (e.target.files && e.target.files[0]),
-            img = document.getElementById('reportImagePreview');
+        var f = (e.target.files && e.target.files[0]), img = document.getElementById('reportImagePreview');
         if (!f || !img) return;
         var r = new FileReader();
-        r.onload = function() { img.src = r.result;
-            img.style.display = 'block'; };
+        r.onload = function() { img.src = r.result; img.style.display = 'block'; };
         r.readAsDataURL(f);
     }
 
@@ -1454,8 +1232,7 @@
         var text = (val('reportText') || '').trim();
         var file = (fileList('reportImageInput') && fileList('reportImageInput')[0]);
         var st = document.getElementById('reportStatus');
-        if (!title && !text && !file) { if (st) { st.style.display = 'block';
-                st.textContent = '⚠️ အကြောင်းအရာ သို့မဟုတ် ပုံတစ်ခုခု ထည့်ပါ'; } return; }
+        if (!title && !text && !file) { if (st) { st.style.display = 'block'; st.textContent = '⚠️ အကြောင်းအရာ သို့မဟုတ် ပုံတစ်ခုခု ထည့်ပါ'; } return; }
         try {
             var image = '';
             if (file) {
@@ -1468,20 +1245,14 @@
             }
             var report = { from: me, title: title, text: text, image: image, createdAt: Date.now() };
             if (fbReady) await firebaseDB.ref('reports/' + me).push(report);
-            else { db.reports = db.reports || {};
-                db.reports[me] = db.reports[me] || [];
-                db.reports[me].push(report);
-                await save(); }
-            if (st) { st.style.display = 'block';
-                st.textContent = '✅ Report ပို့ပြီးပါပြီ'; }
+            else { db.reports = db.reports || {}; db.reports[me] = db.reports[me] || []; db.reports[me].push(report); await save(); }
+            if (st) { st.style.display = 'block'; st.textContent = '✅ Report ပို့ပြီးပါပြီ'; }
             document.getElementById('reportTitle').value = '';
             document.getElementById('reportText').value = '';
             document.getElementById('reportImageInput').value = '';
             var img = document.getElementById('reportImagePreview');
-            if (img) { img.src = '';
-                img.style.display = 'none'; }
-        } catch (e) { console.error(e); if (st) { st.style.display = 'block';
-                st.textContent = '⚠️ Report ပို့မရပါ'; } }
+            if (img) { img.src = ''; img.style.display = 'none'; }
+        } catch (e) { console.error(e); if (st) { st.style.display = 'block'; st.textContent = '⚠️ Report ပို့မရပါ'; } }
     }
 
     function calcAge(dob) {
@@ -1513,8 +1284,7 @@
     var photoSlot = 0;
 
     function renderPhotos() {
-        var u = db.users[me],
-            g = document.getElementById('photos');
+        var u = db.users[me], g = document.getElementById('photos');
         if (!u || !g) return;
         g.innerHTML = '';
         u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
@@ -1556,24 +1326,17 @@
     function closePhotoChoice() { var box = document.getElementById('photoChoiceBackdrop'); if (box) box.style.display = 'none'; }
 
     var cameraStream = null;
-
     async function openCamera() {
         closePhotoChoice();
         var input = document.getElementById('photoCamera');
         if (!input) { alert('ကင်မရာခလုတ် မတွေ့ပါ'); return; }
-        try {
-            input.value = '';
-            input.click();
-        } catch (e) {
-            alert('ကင်မရာဖွင့်မရပါ။ Chrome/Android Camera Permission ကို Allow လုပ်ပါ။');
-        }
+        try { input.value = ''; input.click(); } catch (e) { alert('ကင်မရာဖွင့်မရပါ။'); }
     }
 
     function closeCamera() {
         var back = document.getElementById('cameraBackdrop');
         var video = document.getElementById('cameraVideo');
-        if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); });
-            cameraStream = null; }
+        if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); cameraStream = null; }
         if (video) video.srcObject = null;
         if (back) back.style.display = 'none';
     }
@@ -1582,15 +1345,13 @@
         var video = document.getElementById('cameraVideo');
         if (!video || !video.videoWidth) { alert('ကင်မရာမဖွင့်သေးပါ'); return; }
         var canvas = document.createElement('canvas');
-        var max = 900,
-            scale = Math.min(1, max / video.videoWidth);
+        var max = 900, scale = Math.min(1, max / video.videoWidth);
         canvas.width = Math.round(video.videoWidth * scale);
         canvas.height = Math.round(video.videoHeight * scale);
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         var data = canvas.toDataURL('image/jpeg', 0.62);
         var u = db.users[me];
-        if (!u) { closeCamera();
-            alert('Account မတွေ့ပါ'); return; }
+        if (!u) { closeCamera(); alert('Account မတွေ့ပါ'); return; }
         u.photos = Array.isArray(u.photos) ? u.photos : [];
         u.photos[photoSlot] = data;
         u.photos = u.photos.slice(0, 4);
@@ -1603,24 +1364,20 @@
     function openGallery() {
         closePhotoChoice();
         var input = document.getElementById('photoGallery');
-        if (input) { input.value = '';
-            input.click(); }
+        if (input) { input.value = ''; input.click(); }
     }
 
     function addPhotoToSlot(e) {
         var f = e.target.files && e.target.files[0];
         if (!f) return;
-        if (!f.type.startsWith('image/')) { alert('ဓာတ်ပုံဖိုင်ကိုသာ ရွေးပါ');
-            e.target.value = ''; return; }
+        if (!f.type.startsWith('image/')) { alert('ဓာတ်ပုံဖိုင်ကိုသာ ရွေးပါ'); e.target.value = ''; return; }
         var u = db.users[me];
-        if (!u) { alert('Account မတွေ့ပါ');
-            e.target.value = ''; return; }
+        if (!u) { alert('Account မတွေ့ပါ'); e.target.value = ''; return; }
         var r = new FileReader();
         r.onload = function() {
             var img = new Image();
             img.onload = function() {
-                var max = 900,
-                    scale = Math.min(1, max / img.width);
+                var max = 900, scale = Math.min(1, max / img.width);
                 var c = document.createElement('canvas');
                 c.width = Math.max(1, Math.round(img.width * scale));
                 c.height = Math.max(1, Math.round(img.height * scale));
@@ -1640,16 +1397,13 @@
     }
 
     function distanceKm(lat1, lng1, lat2, lng2) {
-        var R = 6371,
-            rad = Math.PI / 180,
-            dLat = (lat2 - lat1) * rad,
-            dLng = (lng2 - lng1) * rad,
-            a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+        var R = 6371, rad = Math.PI / 180, dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad;
+        var a = Math.sin(dLat/2)**2 + Math.cos(lat1*rad) * Math.cos(lat2*rad) * Math.sin(dLng/2)**2;
         return 2 * R * Math.asin(Math.sqrt(a));
     }
 
     async function nearby() {
-        var onboardingActive = (document.getElementById('onboarding') && document.getElementById('onboarding').classList.contains('active'));
+        var onboardingActive = document.getElementById('onboarding') && document.getElementById('onboarding').classList.contains('active');
         var b = onboardingActive ? document.getElementById('onboardResults') : document.getElementById('near');
         if (!b || !me || !fbReady) { if (b) b.innerHTML = '<div class="small">Firebase Online ဖြစ်မှ အနီးနား User တွေကို ပြပါမယ်</div>'; return; }
         b.innerHTML = '<div class="small">အနီးနားမှာ သုံးနေသူတွေ ရှာနေပါတယ်...</div>';
@@ -1671,7 +1425,7 @@
                     if (km <= NEARBY_RADIUS_KM) users.push({ id: id, km: km, u: u });
                 }
             });
-            users.sort(function(a, b) { return a.km - b.km; });
+            users.sort(function(a,b) { return a.km - b.km; });
             if (!users.length) { b.innerHTML = '<div class="small">အနီးနားမှာ ဒီ APK ကို လက်ရှိအသုံးပြုနေသူ မရှိပါ။</div>'; return; }
             b.innerHTML = '';
             users.forEach(function(x) {
@@ -1684,8 +1438,7 @@
                 d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' + (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
             });
-        } catch (e) { console.error(e);
-            b.innerHTML = '<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။ Internet/Firebase Rules စစ်ပါ။</div>'; }
+        } catch (e) { console.error(e); b.innerHTML = '<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။</div>'; }
     }
 
     function startPresence() {
@@ -1699,22 +1452,13 @@
             if (locationWatchId !== null) navigator.geolocation.clearWatch(locationWatchId);
             if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
             locationWatchId = navigator.geolocation.watchPosition(async function(p) {
-                db.users[me].lat = p.coords.latitude;
-                db.users[me].lng = p.coords.longitude;
+                db.users[me].lat = p.coords.latitude; db.users[me].lng = p.coords.longitude;
                 localSave();
-                await presenceRef.update({
-                    id: me,
-                    name: db.users[me].name || me,
-                    online: true,
-                    lat: p.coords.latitude,
-                    lng: p.coords.longitude,
-                    accuracy: p.coords.accuracy || null,
-                    lastSeen: firebase.database.ServerValue.TIMESTAMP
-                });
+                await presenceRef.update({ id: me, name: db.users[me].name || me, online: true, lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 nearby();
             }, function() {
                 var b = document.getElementById('near');
-                if (b) b.innerHTML = '<div class="small">📍 Location permission မပေးထားသေးပါ။ ဖုန်း Settings မှာ Location ခွင့်ပြုပါ။</div>';
+                if (b) b.innerHTML = '<div class="small">📍 Location permission မပေးထားသေးပါ။</div>';
             }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 });
             nearby();
         } catch (e) { console.error(e); }
@@ -1723,8 +1467,7 @@
     function stopPresence() {
         try { if (locationWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(locationWatchId); } catch (e) {}
         locationWatchId = null;
-        if (presenceRef) { presenceRef.remove().catch(function() {});
-            presenceRef = null; }
+        if (presenceRef) { presenceRef.remove().catch(function() {}); presenceRef = null; }
     }
 
     function requestFriend(id) {
@@ -1750,6 +1493,7 @@
         refresh();
     }
 
+    // ===== Group Functions =====
     function createGroup() {
         var n = document.getElementById('gname').value.trim();
         if (!n) { alert('Group အမည်ထည့်ပါ'); return; }
@@ -1775,7 +1519,9 @@
             d.className = 'list';
             d.style.cursor = 'pointer';
             d.onclick = function() { openGroup(g.id); };
-            d.innerHTML = '<b>' + esc(g.name) + '</b> ⭐ Level ' + g.level + '<div class="small">Members ' + g.members.length + '/20 • Activity ' + g.activity + '</div><div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
+            d.innerHTML = '<b>' + esc(g.name) + '</b> ⭐ Level ' + g.level +
+                '<div class="small">Members ' + g.members.length + '/20 • Activity ' + g.activity + '</div>' +
+                '<div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
             b.appendChild(d);
         });
         if (!b.innerHTML) b.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>';
@@ -1787,91 +1533,131 @@
             alert('ဒီအသင်းထဲ ဝင်ခွင့်မရှိပါ');
             return;
         }
-        var box = document.getElementById('groupDetailBox');
-        var owner = (g.owner === me);
-        var members = g.members.map(function(id) { return db.users[id]; }).filter(Boolean);
-        var myFriends = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; });
-        var canInvite = owner && g.members.length < 20;
-        var candidates = myFriends.filter(function(id) { return !g.members.includes(id) && !isBlocked(id); });
-        box.innerHTML = '<h2>🏆 ' + esc(g.name) + '</h2>' + '<p class="small">Level ' + g.level + ' • Members ' + g.members.length + '/20</p>' + '<hr><h3>👥 အသင်းဝင်များ</h3>' + (members.length ? members.map(function(u) { return '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span>' + (u.id === g.owner ? ' — 👑 Owner' : '') + '</div>'; }).join('') : '<div class="small">Member မရှိသေးပါ</div>');
-        if (canInvite) {
-            var inviteHtml = '<hr><h3>📨 သူငယ်ချင်းကို အသင်းထဲဖိတ်ခေါ်မည်</h3>';
-            if (candidates.length) {
-                inviteHtml += candidates.map(function(id) {
-                    var u = db.users[id];
-                    var pending = db.groupInvites.some(function(i) { return i.groupId === g.id && i.to === id && i.status === 'pending'; });
-                    return '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' + (pending ? '<span>📨 ဖိတ်ကြားထားပြီး</span>' : '<button class="btn" onclick="inviteToGroup(\'' + g.id + '\',\'' + id + '\')">ဖိတ်ခေါ်မည်</button>') + '</div>';
-                }).join('');
-            } else {
-                inviteHtml += '<div class="small">ဖိတ်ခေါ်နိုင်တဲ့ လက်ခံပြီးသား Friend မရှိသေးပါ။</div>';
-            }
-            box.innerHTML += inviteHtml;
-        } else if (g.members.length >= 20) {
-            box.innerHTML += '<hr><div class="small">အသင်း Member 20 ယောက်ပြည့်ပါပြီ။</div>';
-        }
-        box.innerHTML += '<br><button class="btn" onclick="openGroupChat(\'' + g.id + '\')">🏆 အသင်း Chat ဝင်မည်</button>';
+        window.currentGroup = groupId;
         show('groupDetail');
+        renderGroupDetail();
     }
 
-    function inviteToGroup(groupId, userId) {
+    function renderGroupDetail() {
+        var box = document.getElementById('groupDetailBox');
+        if (!box) return;
+        var g = db.groups.find(function(x) { return x.id === window.currentGroup; });
+        if (!g) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
+        var isOwner = g.owner === me;
+        var isMember = g.members.includes(me);
+        var members = g.members.map(function(id) { return db.users[id]; }).filter(Boolean);
+
+        var html = '<h2>🏆 ' + esc(g.name) + '</h2>' +
+            '<p class="small">Level ' + g.level + ' • Members ' + g.members.length + '/20</p>' +
+            '<hr><h3>👥 အသင်းဝင်များ</h3>';
+        if (members.length) {
+            members.forEach(function(u) {
+                html += '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span>' +
+                    (u.id === g.owner ? ' — 👑 Owner' : '') +
+                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
+                    (isOwner && u.id !== me ? ' <button class="btn small" onclick="promoteAdmin(\''+g.id+'\',\''+u.id+'\')">အုပ်ချုပ်သူခန့်</button>' : '') +
+                    '</div>';
+            });
+        } else {
+            html += '<div class="small">Member မရှိသေးပါ</div>';
+        }
+
+        // Chat menu for group
+        html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
+            (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') +
+            (isOwner ? '<button class="btn red" onclick="deleteGroup(\''+g.id+'\')">🗑️ ဖျက်မည်</button>' : '') +
+            (isOwner ? '<button class="btn gold" onclick="inviteFriendToGroup(\''+g.id+'\')">📨 ဖိတ်မည်</button>' : '') +
+            (isOwner ? '<button class="btn" onclick="alert(\'အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။\')">⚙️ အုပ်ချုပ်သူခန့်</button>' : '') +
+            '</div>';
+
+        box.innerHTML = html;
+    }
+
+    function transferGroup(groupId, userId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
-        if (!g || g.owner !== me) return;
-        if (g.members.length >= 20) { alert('အသင်းမှာ Member 20 ယောက်အထိပဲ ရပါတယ်'); return; }
-        if (!db.friends.some(function(x) { return (x.a === me && x.b === userId) || (x.a === userId && x.b === me); })) { alert('Friend ဖြစ်ပြီးသားသူကိုပဲ ဖိတ်ခေါ်နိုင်ပါတယ်'); return; }
-        if (g.members.includes(userId)) { alert('ဒီသူက အသင်းထဲရှိပြီးသားပါ'); return; }
-        if (db.groupInvites.some(function(i) { return i.groupId === groupId && i.to === userId && i.status === 'pending'; })) { alert('ဖိတ်ကြားထားပြီးသားပါ'); return; }
-        db.groupInvites.push({ id: 'GI' + Date.now() + Math.random().toString(36).slice(2, 7), groupId: groupId, from: me, to: userId, status: 'pending', time: Date.now() });
-        save();
-        openGroup(groupId);
-        alert('✅ Group ဖိတ်ကြားချက် ပို့ပြီးပါပြီ');
+        if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+        if (!g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
+        if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
+            g.owner = userId;
+            save();
+            renderGroupDetail();
+            alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
+        }
     }
 
-    function acceptGroupInvite(inviteId) {
-        var i = db.groupInvites.find(function(x) { return x.id === inviteId && x.to === me && x.status === 'pending'; });
-        if (!i) return;
-        var g = db.groups.find(function(x) { return x.id === i.groupId; });
-        if (!g) { i.status = 'declined';
-            save(); return; }
-        if (g.members.length >= 20) { alert('အသင်း Member 20 ယောက်ပြည့်နေပါပြီ'); return; }
-        if (!g.members.includes(me)) g.members.push(me);
-        i.status = 'accepted';
-        save();
-        refresh();
-        openGroup(g.id);
+    function promoteAdmin(groupId, userId) {
+        alert('အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။ နောင်တွင် အပြည့်အစုံ ထည့်ပေးပါမည်။');
     }
 
-    function declineGroupInvite(inviteId) {
-        var i = db.groupInvites.find(function(x) { return x.id === inviteId && x.to === me && x.status === 'pending'; });
-        if (!i) return;
-        i.status = 'declined';
+    function deleteGroup(groupId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+        if (confirm('ဒီအသင်းကို ဖျက်မှာလား?')) {
+            db.groups = db.groups.filter(function(x) { return x.id !== groupId; });
+            delete db.groupMessages[groupId];
+            save();
+            show('groups');
+            alert('✅ အသင်းဖျက်ပြီးပါပြီ');
+        }
+    }
+
+    function inviteFriendToGroup(groupId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+        if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
+        var friends = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; });
+        var available = friends.filter(function(id) { return !g.members.includes(id) && !isBlocked(id); });
+        if (!available.length) { alert('ဖိတ်ခေါ်နိုင်တဲ့ သူငယ်ချင်းမရှိပါ'); return; }
+        var msg = 'ဖိတ်ခေါ်မည့်သူကို ရွေးပါ:\n';
+        available.forEach(function(id, idx) {
+            var u = db.users[id];
+            if (u) msg += (idx+1) + '. ' + u.name + ' (' + u.id + ')\n';
+        });
+        var choice = prompt(msg);
+        if (choice === null) return;
+        var idx = parseInt(choice) - 1;
+        if (idx < 0 || idx >= available.length) { alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
+        var targetId = available[idx];
+        if (!targetId) return;
+        if (db.groupInvites.some(function(i) { return i.groupId === g.id && i.to === targetId && i.status === 'pending'; })) {
+            alert('ဖိတ်ကြားထားပြီးသားပါ');
+            return;
+        }
+        db.groupInvites.push({ id: 'GI'+Date.now()+Math.random().toString(36).slice(2,7), groupId: g.id, from: me, to: targetId, status: 'pending', time: Date.now() });
         save();
-        refresh();
+        renderGroupDetail();
+        alert('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ');
     }
 
     function openGroupChat(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
-        if (!g || !g.members.includes(me)) { alert('အသင်းဝင်များသာ အသင်း Chat သုံးနိုင်ပါတယ်'); return; }
+        if (!g || !g.members.includes(me)) { alert('အသင်းဝင်များသာ Chat သုံးနိုင်ပါတယ်'); return; }
         window.currentGroupChat = groupId;
         show('groupDetail');
         renderGroupChat();
     }
 
     function renderGroupChat() {
-        var id = window.currentGroupChat;
         var box = document.getElementById('groupDetailBox');
-        if (!box || !id) return;
+        if (!box) return;
+        var id = window.currentGroupChat;
         var g = db.groups.find(function(x) { return x.id === id; });
-        if (!g || !g.members.includes(me)) return;
+        if (!g || !g.members.includes(me)) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
         var msgs = db.groupMessages[id] || [];
-        box.innerHTML = '<h2>🏆 ' + esc(g.name) + '</h2><div class="small">အသင်းဝင် ' + g.members.length + ' ယောက် • အသင်းဝင်များသာ စာဖတ်/ပို့နိုင်ပါသည်</div><div id="groupChatBox" class="chat"></div><input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ"><button class="btn" onclick="sendGroupMessage()">ပို့မည်</button>';
-        var cb = document.getElementById('groupChatBox');
+        var html = '<h2>🏆 ' + esc(g.name) + '</h2><div class="small">အသင်းဝင် ' + g.members.length + ' ယောက်</div>' +
+            '<div id="groupChatBox" class="chat" style="height:40vh;">';
         msgs.forEach(function(m) {
-            var d = document.createElement('div');
-            d.className = 'msg ' + (m.f === me ? 'me' : '');
-            d.textContent = (db.users[m.f] ? db.users[m.f].name : m.f) + ': ' + m.t;
-            cb.appendChild(d);
+            var u = db.users[m.f] || {};
+            html += '<div class="msg ' + (m.f === me ? 'me' : '') + '">' +
+                '<div class="bubble"><b>' + esc(u.name || m.f) + '</b><br>' + esc(m.t) + '</div></div>';
         });
-        cb.scrollTop = cb.scrollHeight;
+        html += '</div><div class="chat-input-area">' +
+            '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">' +
+            '<button class="send-btn show" onclick="sendGroupMessage()">➤</button>' +
+            '</div>';
+        box.innerHTML = html;
+        var cb = document.getElementById('groupChatBox');
+        if (cb) cb.scrollTop = cb.scrollHeight;
     }
 
     function sendGroupMessage() {
@@ -1890,8 +1676,8 @@
     }
 
     function grant() {
-        var id = document.getElementById('target').value.trim().toUpperCase(),
-            n = Number(document.getElementById('plimit').value);
+        var id = document.getElementById('target').value.trim().toUpperCase();
+        var n = Number(document.getElementById('plimit').value);
         if (!db.users[id]) { document.getElementById('result').textContent = '❌ ID မတွေ့ပါ'; return; }
         db.users[id].photoLimit = n;
         save();
@@ -1899,7 +1685,7 @@
         refresh();
     }
 
-    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
 
     document.addEventListener('click', function(e) {
         var el = e.target;
@@ -1913,4 +1699,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+</html>
