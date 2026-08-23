@@ -190,6 +190,10 @@
         .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
         .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
         .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+        .group-list-item { cursor: pointer; padding: 8px; border-bottom: 1px solid #20516d; }
+        .group-list-item:hover { background: #0f2a42; }
+        .user-groups-section { margin-top: 12px; border-top: 1px solid #20516d; padding-top: 12px; }
+        .user-groups-section .group-chip { display: inline-block; background: #0f2a42; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -629,7 +633,13 @@
                 last = msgs[msgs.length - 1];
             var d = document.createElement('div');
             d.className = 'list';
-            d.innerHTML = '<b>💬 ' + esc(u.name) + '</b><div class="small">' + esc(u.id) + ' • ' + (last ? esc(last.t) : 'စာမပို့ရသေးပါ') + '</div><button class="btn" onclick="openChat(\'' + id + '\')">Chat ဖွင့်မည်</button>';
+            // Inbox list: show friend avatar if available
+            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
+            d.innerHTML = '<div style="display:flex;align-items:center;cursor:pointer;" onclick="openChat(\''+id+'\')">'+
+                avatarHtml +
+                '<div><b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div>'+
+                '</div>'+
+                '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')">Chat ဖွင့်မည်</button>';
             list.appendChild(d);
         });
         var incoming = db.req.filter(r => r.t === me);
@@ -694,7 +704,6 @@
         var age = document.getElementById('profileAge');
         if (age) age.textContent = calcAge(u.dob) || '-';
 
-        // Region display
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) {
             regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-';
@@ -720,7 +729,6 @@
         startPresence();
     }
 
-    // ===== Reverse geocode =====
     async function fetchRegion(lat, lng) {
         if (!lat || !lng) return '';
         try {
@@ -745,7 +753,6 @@
         }
     }
 
-    // ===== Override locate() to fetch region =====
     window.locate = function() {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
         if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
@@ -766,7 +773,6 @@
                     lastSeen: firebase.database.ServerValue.TIMESTAMP
                 });
             }
-            // Fetch region only once if not set
             if (!db.users[me].region || db.users[me].region.trim() === '') {
                 var region = await fetchRegion(lat, lng);
                 if (region) {
@@ -1290,7 +1296,22 @@
         var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
         var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
         var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
-        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + (id !== me ? (friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>') : '<span>👤 ကိုယ့် Profile</span>') + '</div>';
+
+        // Show groups this user is a member of
+        var userGroups = db.groups.filter(g => g.members.includes(id));
+        var groupsHtml = '';
+        if (userGroups.length) {
+            groupsHtml = '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
+            userGroups.forEach(g => {
+                groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
+            });
+            groupsHtml += '</div>';
+        }
+
+        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
+            (id !== me ? (friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>') : '<span>👤 ကိုယ့် Profile</span>') + 
+            groupsHtml +
+            '</div>';
     }
 
     function friends() {
@@ -1309,19 +1330,13 @@
             var id = x.a === me ? x.b : x.a;
             var u = db.users[id];
             if (!u) return;
-
-            // Friend avatar
             var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
             var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
-
             var d = document.createElement('div');
             d.className = 'friend-user-card';
-            // Make the whole card clickable to view profile
             d.style.cursor = 'pointer';
             d.onclick = function() { viewUserProfile(id); };
-
-            d.innerHTML = 
-                '<div class="friend-avatar">' + photo + '</div>' +
+            d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' +
                 '<div class="friend-info">' +
                     '<b>' + esc(u.name) + '</b>' +
                     '<div class="small">' + esc(u.id) + '</div>' +
@@ -1380,7 +1395,6 @@
             var d = document.createElement('div');
             d.className = 'msg' + (isMe ? ' me' : '');
 
-            // Avatar
             var avatarDiv = document.createElement('div');
             avatarDiv.className = 'avatar';
             avatarDiv.innerHTML = avatarHtml;
@@ -1390,7 +1404,6 @@
                 }
             };
 
-            // Bubble
             var bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'bubble';
 
@@ -1407,7 +1420,6 @@
             textSpan.className = 'text';
             textSpan.textContent = msgText;
 
-            // Image if exists
             if (m.image) {
                 var imgDiv = document.createElement('div');
                 imgDiv.className = 'msg-image';
@@ -1426,7 +1438,6 @@
             if (isMe) {
                 seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered';
             } else {
-                // Mark as seen
                 m.seen = true;
             }
 
@@ -1625,4 +1636,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-                                                                                     </html>
+    </html>
