@@ -190,10 +190,15 @@
         .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
         .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
         .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
-        .group-list-item { cursor: pointer; padding: 8px; border-bottom: 1px solid #20516d; }
-        .group-list-item:hover { background: #0f2a42; }
         .user-groups-section { margin-top: 12px; border-top: 1px solid #20516d; padding-top: 12px; }
         .user-groups-section .group-chip { display: inline-block; background: #0f2a42; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
+        .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #20516d; cursor: pointer; }
+        .onboard-user-card .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .onboard-user-card .info { flex: 1; }
+        .onboard-user-card .info .name { font-weight: bold; }
+        .onboard-user-card .info .id { font-size: 12px; color: #9fc0d3; }
+        .onboard-user-card .actions { display: flex; gap: 6px; }
     </style>
 </head>
 <body>
@@ -293,6 +298,8 @@
             <input id="photoCamera" type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSlot(event)">
             <input id="photoGallery" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <div id="limit" class="small profile-limit"></div>
+            <!-- User groups display -->
+            <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;background:#fafafa;border-top:1px solid #eee;"></div>
         </div>
     </section>
 
@@ -633,7 +640,6 @@
                 last = msgs[msgs.length - 1];
             var d = document.createElement('div');
             d.className = 'list';
-            // Inbox list: show friend avatar if available
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
             d.innerHTML = '<div style="display:flex;align-items:center;cursor:pointer;" onclick="openChat(\''+id+'\')">'+
                 avatarHtml +
@@ -667,6 +673,27 @@
         if (id === 'myAccount') renderMyAccount();
         if (id === 'chat' && chatWith) {
             renderChat();
+        }
+        if (id === 'profile') {
+            renderProfileGroups();
+        }
+    }
+
+    function renderProfileGroups() {
+        if (!me || !db) return;
+        var container = document.getElementById('profileUserGroups');
+        if (!container) return;
+        var userGroups = db.groups.filter(g => g.members.includes(me));
+        if (userGroups.length) {
+            var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
+            userGroups.forEach(g => {
+                html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
+            });
+            container.innerHTML = html;
+            container.style.display = 'block';
+        } else {
+            container.innerHTML = '<div class="small">📌 အသင်းမပါဝင်သေးပါ</div>';
+            container.style.display = 'block';
         }
     }
 
@@ -720,6 +747,7 @@
         searchUsers();
         groups();
         if (chatWith) renderChat();
+        renderProfileGroups();
     }
 
     function enter() {
@@ -796,8 +824,19 @@
         b.innerHTML = '';
         found.forEach(u => {
             var d = document.createElement('div');
-            d.className = 'list';
-            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + '</span><br><button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
+            d.className = 'onboard-user-card';
+            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '👤';
+            d.innerHTML = 
+                '<div class="avatar">'+avatarHtml+'</div>'+
+                '<div class="info">'+
+                    '<div class="name">'+esc(u.name)+'</div>'+
+                    '<div class="id">ID: '+esc(u.id)+'</div>'+
+                '</div>'+
+                '<div class="actions">'+
+                    '<button class="btn" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
+                    '<button class="btn green" onclick="event.stopPropagation();requestFriend(\''+u.id+'\')">+ Friend</button>'+
+                '</div>';
+            d.onclick = function() { viewUserProfile(u.id); };
             b.appendChild(d);
         });
     }
@@ -1281,7 +1320,11 @@
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
             var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer"><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div><br>' + action;
+            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
+            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
+                avatarHtml +
+                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div>'+
+                '</div><br>' + action;
             b.appendChild(d);
         });
     }
@@ -1297,7 +1340,6 @@
         var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
         var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
 
-        // Show groups this user is a member of
         var userGroups = db.groups.filter(g => g.members.includes(id));
         var groupsHtml = '';
         if (userGroups.length) {
@@ -1306,6 +1348,8 @@
                 groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
             });
             groupsHtml += '</div>';
+        } else {
+            groupsHtml = '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
         }
 
         b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
@@ -1636,4 +1680,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+                </html>
