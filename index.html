@@ -6,120 +6,149 @@
     <title>My Social Chat</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #071b2e; color: #fff; font-family: Arial, sans-serif; }
-        .app { max-width: 900px; margin: auto; min-height: 100vh; background: #0b2942; padding-bottom: 78px; }
+        body { margin: 0; background: #fff; color: #222; font-family: Arial, sans-serif; }
+        .app { max-width: 900px; margin: auto; min-height: 100vh; background: #fff; padding-bottom: 78px; }
         header { padding: 14px; background: #083b63; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 3; }
-        header .header-title { font-size: 18px; font-weight: bold; }
-        .screen { display: none; padding: 15px; }
+        .header-title { font-size: 18px; font-weight: bold; color: #fff; }
+        .menu-btn { background: transparent; border: 0; color: #fff; font-size: 24px; cursor: pointer; padding: 0 8px; }
+        .header-spacer { flex: 1; }
+        #head { color: #fff; font-size: 14px; }
+        .screen { display: none; padding: 15px; background: #fff; }
         .screen.active { display: block; }
-        .card { background: #103b5a; border: 1px solid #225b7e; border-radius: 15px; padding: 15px; margin-bottom: 12px; }
-        input, textarea, select { width: 100%; padding: 11px; margin: 5px 0; border-radius: 10px; border: 1px solid #397a9e; background: #071f33; color: white; }
-        .btn { border: 0; border-radius: 10px; padding: 10px 13px; background: #1688cf; color: #fff; font-weight: bold; margin: 3px; cursor: pointer; }
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; }
+        .btn { border: 0; border-radius: 10px; padding: 10px 16px; background: #e7ad21; color: #172130; font-weight: bold; margin: 3px; cursor: pointer; }
         .btn.gold { background: #e7ad21; color: #172130; }
-        .btn.green { background: #20a06b; }
-        .btn.red { background: #c83b4b; }
-        .btn.small { padding: 6px 10px; font-size: 12px; }
-        .small { font-size: 12px; color: #9fc0d3; }
-        .list { border-bottom: 1px solid #20516d; padding: 11px; }
-        .chat { height: 55vh; overflow: auto; background: #071f33; padding: 10px; border-radius: 12px; }
-        .msg { max-width: 78%; padding: 9px 11px; border-radius: 13px; margin: 7px 0; background: #164766; white-space: pre-wrap; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; }
-        .msg .avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        .btn.green { background: #28a745; color: #fff; }
+        .btn.red { background: #dc3545; color: #fff; }
+        .btn.outline { background: transparent; border: 1px solid #ddd; color: #555; }
+        .small { font-size: 12px; color: #777; }
+        .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: #fff; }
+        .list:last-child { border-bottom: 0; }
+        .chat { height: 55vh; overflow: auto; background: #f7f7f7; padding: 10px; border-radius: 12px; }
+        .msg { max-width: 78%; padding: 9px 14px; border-radius: 18px; margin: 7px 0; background: #e9ecef; color: #222; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; }
+        .msg .avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
         .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .msg .bubble { flex: 1; }
-        .msg .bubble .name { font-weight: bold; font-size: 13px; cursor: pointer; }
+        .msg .bubble .name { font-weight: 600; font-size: 13px; cursor: pointer; color: #0d6efd; }
         .msg .bubble .text { word-break: break-word; }
         .msg .bubble .msg-image { max-width: 200px; border-radius: 10px; margin-top: 4px; cursor: pointer; }
         .msg .bubble .msg-image img { width: 100%; border-radius: 10px; }
         .me { justify-content: flex-end; }
         .me .avatar { order: 2; }
-        .me .bubble { order: 1; text-align: right; }
-        .seen { font-size: 10px; color: #9ed9ff; }
-        .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #06131f; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #17364b; box-shadow: 0 -4px 18px rgba(0,0,0,0.28); }
-        .nav button { min-height: 58px; margin: 0 2px; border-radius: 10px; background: transparent; color: #b8c5cf; font-size: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
-        .nav button.active-nav { color: #fff; background: #12324a; }
+        .me .bubble { order: 1; text-align: right; background: #e7f3ff; }
+        .seen { font-size: 10px; color: #888; margin-top: 2px; }
+        .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
+        .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
+        .nav button span { font-size: 22px; }
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .quick .btn { min-height: 54px; font-size: 15px; }
-        .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #20516d; }
-        .friend-avatar { width: 58px; height: 58px; border-radius: 50%; overflow: hidden; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 30px; flex: none; }
+        .quick .btn { min-height: 50px; font-size: 14px; }
+        .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: #fff; }
+        .friend-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 24px; flex: none; }
         .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .friend-info { flex: 1; }
-        .friend-info b { font-size: 18px; }
-        .friend-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .friend-actions button { padding: 6px 10px; font-size: 12px; }
-        .hidden { display: none !important; }
-        .status { margin-top: 8px; padding: 9px; border-radius: 8px; background: #063b50; color: #b9f4ff; }
-        .profile-region-row { border-bottom: 1px solid #20516d; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #0a1f30; }
-        .profile-region-row label { font-size: 16px; min-width: 145px; }
-        .profile-region-value { flex: 1; text-align: right; font-size: 16px; word-break: break-word; font-weight: 500; }
-        .user-groups-section { margin-top: 12px; border-top: 1px solid #20516d; padding-top: 12px; }
-        .user-groups-section .group-chip { display: inline-block; background: #0f2a42; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
-        .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #20516d; cursor: pointer; }
-        .onboard-user-card .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .friend-info b { font-size: 16px; }
+        .friend-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+        .friend-actions button { padding: 4px 12px; font-size: 12px; }
+        .profile-region-row { border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #fafafa; }
+        .profile-region-row label { font-size: 15px; min-width: 120px; color: #555; }
+        .profile-region-value { flex: 1; text-align: right; font-size: 15px; word-break: break-word; }
+        .user-groups-section { margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; }
+        .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; }
+        .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .onboard-user-card .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .onboard-user-card .info { flex: 1; }
-        .onboard-user-card .info .name { font-weight: bold; }
-        .onboard-user-card .info .id { font-size: 12px; color: #9fc0d3; }
+        .onboard-user-card .info .name { font-weight: 600; }
+        .onboard-user-card .info .id { font-size: 12px; color: #777; }
         .onboard-user-card .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-        .photo-choice-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.58); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
-        .photo-choice { width: min(520px, 100%); background: #103b5a; border: 1px solid #397a9e; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 30px rgba(0,0,0,0.35); }
-        .photo-choice h3 { margin: 0 0 12px; }
-        .photo-choice .choice-btn { width: 100%; padding: 14px; margin: 5px 0; border: 0; border-radius: 12px; font-size: 16px; font-weight: bold; background: #1688cf; color: #fff; cursor: pointer; }
-        .photo-choice .choice-btn.camera { background: #20a06b; }
-        .photo-choice .choice-btn.cancel { background: #344c5d; color: #d9e7ef; }
-        .chat-input-area { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #0a1f30; border: 1px solid #225b7e; border-radius: 30px; padding: 4px 8px; }
+        .photo-choice-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
+        .photo-choice { width: min(520px, 100%); background: #fff; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 30px rgba(0,0,0,0.2); }
+        .photo-choice h3 { margin: 0 0 12px; color: #222; }
+        .photo-choice .choice-btn { width: 100%; padding: 14px; margin: 5px 0; border: 0; border-radius: 12px; font-size: 16px; font-weight: bold; background: #e7ad21; color: #172130; cursor: pointer; }
+        .photo-choice .choice-btn.camera { background: #28a745; color: #fff; }
+        .photo-choice .choice-btn.cancel { background: #f8f9fa; color: #555; }
+        .chat-input-area { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #fff; border: 1px solid #ddd; border-radius: 30px; padding: 4px 12px; }
         .chat-input-area .input-actions { display: flex; gap: 4px; align-items: center; }
-        .chat-input-area .input-actions button { background: transparent; border: 0; font-size: 22px; padding: 4px; cursor: pointer; color: #9fc0d3; }
-        .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #fff; }
-        .chat-input-area #msg:focus { outline: none; }
-        .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; color: #172130; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .chat-input-area .input-actions button { background: transparent; border: 0; font-size: 20px; padding: 4px; cursor: pointer; color: #777; }
+        .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #222; outline: none; }
+        .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; color: #172130; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
         .chat-input-area .send-btn.show { display: flex; }
-        .chat-header-actions { display: flex; align-items: center; gap: 8px; position: relative; z-index: 10; }
-        .chat-header-actions button { background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer; padding: 4px; }
-        #chatMenu { display: none; background: #0b2942; border: 1px solid #225b7e; border-radius: 8px; padding: 8px; margin: 8px 0; }
-        #chatMenu .menu-item { background: transparent; border: 0; color: #fff; padding: 8px 12px; width: 100%; text-align: left; cursor: pointer; border-radius: 6px; font-size: 14px; }
-        #chatMenu .menu-item:hover { background: #1a3d5a; }
-        #chatMenu .menu-item.danger { color: #e85d5d; }
-        .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; }
-        .blocked-users-list .list .unblock-btn { background: #e85d5d; color: #fff; border: 0; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
-        .settings-item .blocked-badge { background: #e84a12; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
-        .settings-page { background: #0b2942; color: #fff; min-height: calc(100vh - 30px); padding: 0 14px 90px; }
-        .settings-item { height: 60px; background: #103b5a; border-bottom: 1px solid #225b7e; display: flex; align-items: center; gap: 18px; padding: 0 22px; font-size: 16px; cursor: pointer; }
-        .settings-item .sicon { width: 32px; text-align: center; font-size: 22px; flex: 0 0 32px; }
-        .settings-logout { width: 100%; height: 56px; margin-top: 18px; border: 0; border-radius: 7px; background: #e7ad21; color: #172130; font-size: 17px; cursor: pointer; }
+        .chat-header-actions { display: flex; align-items: center; gap: 6px; }
+        .chat-header-actions button { background: transparent; border: 0; color: #222; font-size: 20px; cursor: pointer; padding: 4px; }
+        #chatMenu { display: none; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 0; margin: 6px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        #chatMenu .menu-item { background: transparent; border: 0; padding: 10px 16px; width: 100%; text-align: left; cursor: pointer; font-size: 14px; color: #222; border-bottom: 1px solid #f5f5f5; }
+        #chatMenu .menu-item:last-child { border-bottom: 0; }
+        #chatMenu .menu-item:hover { background: #f8f9fa; }
+        #chatMenu .menu-item.danger { color: #dc3545; }
+        .settings-page { background: #fff; color: #222; min-height: calc(100vh - 30px); padding: 0 14px 90px; }
+        .settings-list { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+        .settings-item { height: 56px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 16px; padding: 0 18px; font-size: 15px; cursor: pointer; color: #222; }
+        .settings-item:last-child { border-bottom: 0; }
+        .settings-item .sicon { width: 28px; text-align: center; font-size: 20px; flex: 0 0 28px; }
+        .settings-item .blocked-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 11px; margin-left: auto; }
+        .settings-logout { width: 100%; height: 52px; margin-top: 18px; border: 0; border-radius: 10px; background: #e7ad21; color: #172130; font-size: 16px; cursor: pointer; }
         .profile-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .profile-photo { aspect-ratio: 1; border-radius: 14px; background: #0a1f30; border: 1px solid #225b7e; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #9fc0d3; }
+        .profile-photo { aspect-ratio: 1; border-radius: 12px; background: #f8f9fa; border: 1px solid #eee; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #aaa; }
         .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-photo .slot-num { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 10px; padding: 2px 7px; font-size: 11px; }
-        .profile-photo .change { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.55); color: #fff; border-radius: 9px; padding: 3px 6px; font-size: 10px; }
-        .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #225b7e; }
+        .profile-photo .slot-num { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 10px; }
+        .profile-photo .change { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 8px; padding: 2px 8px; font-size: 10px; }
+        .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #eee; }
         .profile-stats b { font-size: 20px; }
-        .profile-stats span { font-size: 13px; color: #9fc0d3; }
-        .profile-row { min-height: 56px; border-bottom: 1px solid #225b7e; padding: 10px 18px; display: flex; align-items: center; gap: 12px; }
-        .profile-row label { font-size: 15px; min-width: 120px; }
-        .profile-row input, .profile-row textarea, .profile-row select { margin: 0; background: #0a1f30; color: #fff; border: 0; border-bottom: 1px solid #e7ad21; border-radius: 0; padding: 6px 4px; font-size: 15px; text-align: right; flex: 1; }
-        .profile-row textarea { min-height: 50px; resize: vertical; text-align: left; }
-        .profile-save { width: 100%; border: 0; border-radius: 12px; padding: 12px; background: #e7ad21; color: #172130; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .profile-page { background: #0b2942; color: #fff; min-height: calc(100vh - 30px); padding: 0 0 90px; }
-        .profile-gallery-wrap { padding: 14px; background: #0a1f30; }
-        .profile-photo-note { color: #9fc0d3; font-size: 12px; padding: 8px 4px 2px; }
-        .profile-limit { color: #9fc0d3; text-align: center; padding: 8px; }
+        .profile-stats span { font-size: 13px; color: #777; }
+        .profile-row { min-height: 52px; border-bottom: 1px solid #eee; padding: 8px 16px; display: flex; align-items: center; gap: 12px; }
+        .profile-row label { font-size: 14px; min-width: 110px; color: #555; }
+        .profile-row input, .profile-row textarea, .profile-row select { margin: 0; background: #fff; color: #222; border: 0; border-bottom: 1px solid #e7ad21; border-radius: 0; padding: 6px 4px; font-size: 14px; text-align: right; flex: 1; }
+        .profile-row textarea { min-height: 44px; resize: vertical; text-align: left; }
+        .profile-save { width: 100%; border: 0; border-radius: 10px; padding: 12px; background: #e7ad21; color: #172130; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .profile-page { background: #fff; color: #222; min-height: calc(100vh - 30px); padding: 0 0 90px; }
+        .profile-gallery-wrap { padding: 14px; background: #fafafa; }
+        .profile-photo-note { color: #888; font-size: 12px; padding: 8px 4px 2px; }
+        .profile-limit { color: #888; text-align: center; padding: 8px; font-size: 12px; }
+        .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; }
+        .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
+        .hidden { display: none !important; }
+        .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
+        .menu-drawer { position: fixed; top: 58px; left: 0; width: min(300px, 80vw); height: calc(100vh - 58px); background: #fff; color: #333; z-index: 50; transform: translateX(-105%); transition: transform .2s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.1); padding: 12px 10px 90px; overflow: auto; }
+        .menu-drawer.open { transform: translateX(0); }
+        .menu-overlay { position: fixed; inset: 58px 0 0; background: rgba(0,0,0,0.3); z-index: 49; display: none; }
+        .menu-overlay.open { display: block; }
+        .menu-user { padding: 12px; border-radius: 12px; background: #f8f9fa; border: 1px solid #eee; margin-bottom: 8px; }
+        .menu-item { width: 100%; border: 0; background: #fff; color: #333; text-align: left; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; font-size: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .menu-item .mi { width: 24px; text-align: center; font-size: 18px; }
+        .menu-item:hover { background: #f8f9fa; }
+        .report-image { width: 100%; max-height: 200px; object-fit: contain; border: 1px dashed #ddd; border-radius: 8px; background: #fafafa; display: none; margin-top: 8px; }
+        .toggle { width: 48px; height: 26px; border: 0; border-radius: 20px; background: #ccc; position: relative; cursor: pointer; }
+        .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: .2s; }
+        .toggle.on { background: #e7ad21; }
+        .toggle.on::after { left: 25px; }
+        .searchbar { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
+        .searchbar input { margin: 0; border: 0; background: transparent; padding: 8px; flex: 1; }
+        .location-center { text-align: center; margin-top: 20vh; }
+        .location-icon { font-size: 48px; }
         @media (max-width: 520px) {
             .photos { grid-template-columns: repeat(2, 1fr); }
             .quick { grid-template-columns: 1fr; }
             .nav { grid-template-columns: repeat(6, 1fr); }
-            .nav button { font-size: 11px; padding: 6px 1px; }
-            .profile-row label { min-width: 100px; font-size: 14px; }
+            .nav button { font-size: 10px; }
+            .profile-row label { min-width: 90px; font-size: 13px; }
         }
+        /* Group detail header with settings icon */
+        .group-header { display: flex; justify-content: space-between; align-items: center; }
+        .group-header .group-title { margin: 0; }
+        .group-header .group-actions { display: flex; gap: 8px; align-items: center; }
+        .group-header .group-actions button { background: transparent; border: 0; font-size: 22px; cursor: pointer; color: #555; padding: 4px; }
     </style>
 </head>
 <body>
 <div class="app">
 
-    <header>
-        <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-        <div id="pageTitle" class="header-title"></div>
+    <header style="background: #f4b400; color: #222; padding: 10px 14px;">
+        <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu" style="color:#222;">☰</button>
+        <div id="pageTitle" class="header-title" style="color:#222;">My Social Chat</div>
         <div class="header-spacer"></div>
-        <span id="head">Guest</span>
+        <span id="head" style="color:#222;">Guest</span>
     </header>
 
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
@@ -197,7 +226,7 @@
                 </div>
                 <div class="profile-row"><label>အမည်</label><input id="profileName" type="text" placeholder="သင့်အမည်"></div>
                 <div class="profile-row"><label>Account ဖွင့်အမည်</label><div id="accountNameView" class="profile-value">-</div></div>
-                <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value id-value">-</div></div>
+                <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value">-</div></div>
                 <div class="profile-row"><label>မွေးနေ့</label><input id="profileDob" type="date"></div>
                 <div class="profile-row"><label>What's Up</label><textarea id="bio" placeholder="Looking for friends!"></textarea></div>
                 <div class="profile-row"><label>Gender</label><select id="profileGender"><option value="">ရွေးပါ</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
@@ -206,7 +235,7 @@
             </div>
             <input id="photoCamera" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <input id="photoGallery" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
-            <div id="limit" class="small profile-limit"></div>
+            <div id="limit" class="profile-limit"></div>
             <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;"></div>
         </div>
     </section>
@@ -217,7 +246,7 @@
             <div class="settings-list">
                 <div class="settings-item" onclick="navGo('myAccount')"><span class="sicon">🔗</span><span>My Accounts</span></div>
                 <div class="settings-item" onclick="alert('Preferences ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">ℹ</span><span>Preferences</span></div>
-                <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span><span class="dot" id="settingsNotifyDot"></span></div>
+                <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span></div>
                 <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
                 <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
                 <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
@@ -240,7 +269,7 @@
         <div class="card">
             <h2>👤 My Account</h2>
             <div style="text-align:center">
-                <div id="myAccountPhoto" style="width:100px;height:100px;border-radius:50%;margin:8px auto;background:#0a1f30;border:2px solid #e7ad21;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden">👤</div>
+                <div id="myAccountPhoto" style="width:90px;height:90px;border-radius:50%;margin:8px auto;background:#e9ecef;border:2px solid #e7ad21;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden">👤</div>
                 <h3 id="myAccountName">-</h3>
                 <div class="small" id="myAccountId">ID: -</div>
             </div>
@@ -255,7 +284,7 @@
                 <span>သူငယ်ချင်း / Chat အသိပေးချက်</span>
                 <button id="notifyToggle" class="toggle" onclick="toggleNotifications()"></button>
             </div>
-            <div class="small">On ဖြစ်ထားရင် ဒီ APK ထဲမှာ သူငယ်ချင်း request နဲ့ စာအသစ်တွေကို အချက်ပေးပါမယ်။</div>
+            <div class="small">On ဖြစ်ထားရင် သူငယ်ချင်း request နဲ့ စာအသစ်တွေကို အချက်ပေးပါမယ်။</div>
             <div id="notificationList"></div>
         </div>
     </section>
@@ -283,18 +312,14 @@
     <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
                 <div class="chat-header-actions">
-                    <button onclick="toggleChatMenu()" style="background:transparent; border:0; color:#fff; font-size:24px; cursor:pointer; position:relative; z-index:20;">☰</button>
+                    <button onclick="toggleChatMenu()" style="font-size:22px;">☰</button>
                 </div>
             </div>
-            <!-- Chat Menu -->
-            <div id="chatMenu" style="display:none; background:#0b2942; border:1px solid #225b7e; border-radius:8px; padding:8px; margin:8px 0;">
+            <div id="chatMenu">
                 <button class="menu-item danger" onclick="blockCurrentUser()">🚫 ဘလော့လုပ်မည်</button>
-                <button class="menu-item" onclick="alert('ဖိတ်ခေါ်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">📨 သူငယ်ချင်းဖိတ်ရန်</button>
-                <button class="menu-item" onclick="alert('အသင်းပိုင်ရှင်လွှဲပြောင်းရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">👑 အသင်းလွှဲပြောင်းရန်</button>
-                <button class="menu-item" onclick="alert('အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။')">⚙️ အသင်းအုပ်ချုပ်သူခန့်ရန်</button>
             </div>
             <div id="chatbox" class="chat"></div>
             <div class="chat-input-area">
@@ -327,7 +352,7 @@
     <!-- GROUP DETAIL -->
     <section id="groupDetail" class="screen">
         <div class="card">
-            <button class="btn" onclick="show('groups')">← My Groups</button>
+            <button class="btn outline" onclick="show('groups')" style="margin-bottom:10px;">← My Groups</button>
             <div id="groupDetailBox"></div>
         </div>
     </section>
@@ -359,13 +384,13 @@
     </div>
 
     <!-- NAVIGATION -->
-    <div id="nav" class="nav hidden">
-        <button id="navLocation" onclick="navGo('onboarding')"><span style="font-size:24px">📍</span><span>Location</span></button>
-        <button id="navHome" onclick="navGo('home')"><span style="font-size:24px">⌂</span><span>Home</span></button>
-        <button id="navFriends" onclick="navGo('friends')"><span style="font-size:24px">♧</span><span>Friends</span></button>
-        <button id="navInbox" onclick="navGo('inbox')"><span id="inboxBadge" style="font-size:24px">💬</span><span>Chats</span></button>
-        <button id="navProfile" onclick="navGo('profile')"><span style="font-size:24px">♙</span><span>Profile</span></button>
-        <button id="navSetting" onclick="navGo('settings')"><span style="font-size:24px">⚙️</span><span>Setting</span></button>
+    <div id="nav" class="nav">
+        <button id="navLocation" onclick="navGo('onboarding')"><span>📍</span><span>Location</span></button>
+        <button id="navHome" onclick="navGo('home')"><span>⌂</span><span>Home</span></button>
+        <button id="navFriends" onclick="navGo('friends')"><span>♧</span><span>Friends</span></button>
+        <button id="navInbox" onclick="navGo('inbox')"><span id="inboxBadge" style="font-size:22px;">💬</span><span>Chats</span></button>
+        <button id="navProfile" onclick="navGo('profile')"><span>♙</span><span>Profile</span></button>
+        <button id="navSetting" onclick="navGo('settings')"><span>⚙️</span><span>Setting</span></button>
     </div>
 
 </div>
@@ -659,7 +684,7 @@
                 avatarHtml +
                 '<div><b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div>'+
                 '</div>'+
-                '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')">Chat ဖွင့်မည်</button>';
+                '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
             list.appendChild(d);
         });
         var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
@@ -686,7 +711,7 @@
             if (!u) return;
             var d = document.createElement('div');
             d.className = 'list';
-            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' + '<button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button>' + '<button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
+            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br><button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button><button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
             b.appendChild(d);
         });
         db.friends.filter(function(x) { return (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a); }).forEach(function(x) {
@@ -707,7 +732,7 @@
                     '<div class="friend-actions">' +
                         '<button class="btn" onclick="event.stopPropagation();openChat(\'' + id + '\')">💬 Messenger</button>' +
                         '<button class="btn gold" onclick="event.stopPropagation();viewUserProfile(\'' + id + '\')">👤 Friend</button>' +
-                        (isBlocked(id) ? '<span class="small" style="color:#e85d5d;">🚫 Blocked</span>' : '') +
+                        (isBlocked(id) ? '<span class="small" style="color:#dc3545;">🚫 Blocked</span>' : '') +
                     '</div>' +
                 '</div>';
             b.appendChild(d);
@@ -725,7 +750,7 @@
         window.viewingProfile = id;
         show('userProfile');
         var b = document.getElementById('userProfileBox');
-        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:100px;height:100px;border-radius:50%;object-fit:cover\">' : '👤';
+        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:90px;height:90px;border-radius:50%;object-fit:cover\">' : '👤';
         var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
         var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
         var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
@@ -734,9 +759,7 @@
         var groupsHtml = '';
         if (userGroups.length) {
             groupsHtml = '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => {
-                groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
-            });
+            userGroups.forEach(g => { groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
             groupsHtml += '</div>';
         } else {
             groupsHtml = '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
@@ -744,7 +767,7 @@
         var actionHtml = '';
         if (id !== me) {
             if (blocked) {
-                actionHtml = '<span style="color:#e85d5d;">🚫 ဘလော့လုပ်ထားပါသည်</span><br><button class="btn" onclick="unblockUser(\''+id+'\')">ဘလော့ဖြုတ်မည်</button>';
+                actionHtml = '<span style="color:#dc3545;">🚫 ဘလော့လုပ်ထားပါသည်</span><br><button class="btn" onclick="unblockUser(\''+id+'\')">ဘလော့ဖြုတ်မည်</button>';
             } else {
                 actionHtml = friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + id + '\')">Add Friend</button>';
                 actionHtml += '<br><button class="btn red" onclick="blockUser(\''+id+'\')">🚫 ဘလော့လုပ်မည်</button>';
@@ -786,7 +809,7 @@
     function renderChat() {
         if (!chatWith) return;
         if (isBlocked(chatWith)) {
-            document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#e85d5d;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>';
+            document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#dc3545;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>';
             return;
         }
         var b = document.getElementById('chatbox');
@@ -1547,30 +1570,48 @@
         var isMember = g.members.includes(me);
         var members = g.members.map(function(id) { return db.users[id]; }).filter(Boolean);
 
-        var html = '<h2>🏆 ' + esc(g.name) + '</h2>' +
+        var html = '<div class="group-header">' +
+            '<h3 class="group-title">🏆 ' + esc(g.name) + '</h3>' +
+            '<div class="group-actions">' +
+            '<button onclick="showGroupSettings()" title="အသင်းဆက်တင်">⚙️</button>' +
+            '</div>' +
+            '</div>' +
             '<p class="small">Level ' + g.level + ' • Members ' + g.members.length + '/20</p>' +
             '<hr><h3>👥 အသင်းဝင်များ</h3>';
+
+        // Group settings menu
+        html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 0;">';
+        if (isOwner) {
+            html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
+            html += '<button class="menu-item" onclick="alert(\'အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။\')" style="border:0;background:transparent;padding:8px;">⚙️ အုပ်ချုပ်သူခန့်</button>';
+            html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
+        }
+        html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;">✖️ ပိတ်မည်</button>';
+        html += '</div>';
+
         if (members.length) {
             members.forEach(function(u) {
                 html += '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span>' +
                     (u.id === g.owner ? ' — 👑 Owner' : '') +
                     (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
-                    (isOwner && u.id !== me ? ' <button class="btn small" onclick="promoteAdmin(\''+g.id+'\',\''+u.id+'\')">အုပ်ချုပ်သူခန့်</button>' : '') +
                     '</div>';
             });
         } else {
             html += '<div class="small">Member မရှိသေးပါ</div>';
         }
 
-        // Chat menu for group
         html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
             (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') +
-            (isOwner ? '<button class="btn red" onclick="deleteGroup(\''+g.id+'\')">🗑️ ဖျက်မည်</button>' : '') +
-            (isOwner ? '<button class="btn gold" onclick="inviteFriendToGroup(\''+g.id+'\')">📨 ဖိတ်မည်</button>' : '') +
-            (isOwner ? '<button class="btn" onclick="alert(\'အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။\')">⚙️ အုပ်ချုပ်သူခန့်</button>' : '') +
             '</div>';
 
         box.innerHTML = html;
+    }
+
+    function showGroupSettings() {
+        var menu = document.getElementById('groupSettingsMenu');
+        if (menu) {
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
     }
 
     function transferGroup(groupId, userId) {
@@ -1583,10 +1624,6 @@
             renderGroupDetail();
             alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
         }
-    }
-
-    function promoteAdmin(groupId, userId) {
-        alert('အသင်းအုပ်ချုပ်သူခန့်ရန် လုပ်ဆောင်ချက် ထည့်သွင်းထားပါသည်။ နောင်တွင် အပြည့်အစုံ ထည့်ပေးပါမည်။');
     }
 
     function deleteGroup(groupId) {
@@ -1644,7 +1681,8 @@
         var g = db.groups.find(function(x) { return x.id === id; });
         if (!g || !g.members.includes(me)) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
         var msgs = db.groupMessages[id] || [];
-        var html = '<h2>🏆 ' + esc(g.name) + '</h2><div class="small">အသင်းဝင် ' + g.members.length + ' ယောက်</div>' +
+        var html = '<div class="group-header"><h3 class="group-title">🏆 ' + esc(g.name) + '</h3><div class="group-actions"><button onclick="renderGroupDetail()" title="ပြန်">✖️</button></div></div>' +
+            '<div class="small">အသင်းဝင် ' + g.members.length + ' ယောက်</div>' +
             '<div id="groupChatBox" class="chat" style="height:40vh;">';
         msgs.forEach(function(m) {
             var u = db.users[m.f] || {};
