@@ -190,15 +190,11 @@
         .profile-region-row label { font-size: 16px; color: #222; min-width: 145px; }
         .profile-region-value { flex: 1; text-align: right; color: #555; font-size: 16px; word-break: break-word; font-weight: 500; }
         .region-display { color: #2a6f8f; background: #eef6fc; padding: 4px 10px; border-radius: 20px; display: inline-block; }
-        .user-groups-section { margin-top: 12px; border-top: 1px solid #20516d; padding-top: 12px; }
-        .user-groups-section .group-chip { display: inline-block; background: #0f2a42; padding: 4px 12px; border-radius: 20px; margin: 4px; font-size: 12px; }
-        .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #20516d; cursor: pointer; }
-        .onboard-user-card .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #2a4b66; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .onboard-user-card .info { flex: 1; }
-        .onboard-user-card .info .name { font-weight: bold; }
-        .onboard-user-card .info .id { font-size: 12px; color: #9fc0d3; }
-        .onboard-user-card .actions { display: flex; gap: 6px; }
+        .chat-header-actions { display: flex; align-items: center; gap: 8px; }
+        .chat-header-actions button { background: transparent; border: 0; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
+        .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; }
+        .blocked-users-list .list .unblock-btn { background: #e85d5d; color: #fff; border: 0; border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+        .settings-item .blocked-badge { background: #e84a12; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -295,11 +291,9 @@
                 <div class="profile-row"><label>အသက်</label><div id="profileAge" class="profile-value">-</div></div>
                 <div class="profile-save-wrap"><button class="profile-save" onclick="saveProfileForm()">သိမ်းမည်</button></div>
             </div>
-        <input id="photoCamera" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
+            <input id="photoCamera" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <input id="photoGallery" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <div id="limit" class="small profile-limit"></div>
-            <!-- User groups display -->
-            <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;background:#fafafa;border-top:1px solid #eee;"></div>
         </div>
     </section>
 
@@ -312,9 +306,18 @@
                 <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span><span class="dot" id="settingsNotifyDot"></span></div>
                 <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
                 <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / တိုင်ကြားရန်</span></div>
+                <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
                 <div class="settings-item" onclick="alert('My Social Chat\nVersion 1.0')"><span class="sicon">ⓘ</span><span>About</span></div>
             </div>
             <button class="settings-logout" onclick="logout()">Logout</button>
+        </div>
+    </section>
+
+    <!-- BLOCKED USERS -->
+    <section id="blockedUsers" class="screen">
+        <div class="card">
+            <h3>🚫 Blocked Users</h3>
+            <div id="blockedUsersList" class="blocked-users-list"></div>
         </div>
     </section>
 
@@ -371,7 +374,28 @@
 
     <!-- CHAT -->
     <section id="chat" class="screen">
-        <div class="card"><h3 id="ctitle">💬 Chat</h3><div id="chatbox" class="chat"></div><input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()"><button class="btn" onclick="send()">ပို့မည်</button></div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h3 id="ctitle">💬 Chat</h3>
+                <div class="chat-header-actions">
+                    <button onclick="toggleChatMenu()" title="ဆက်တင်များ">☰</button>
+                </div>
+            </div>
+            <!-- Chat Menu Dropdown -->
+            <div id="chatMenu" style="display:none; background:#0b2942; padding:8px; border-radius:8px; margin-bottom:8px;">
+                <button class="btn red" onclick="blockCurrentUser()" style="width:100%;">🚫 ဘလော့လုပ်မည်</button>
+            </div>
+            <div id="chatbox" class="chat"></div>
+            <div class="chat-input-area">
+                <div class="input-actions">
+                    <button onclick="openCameraForChat()" title="ကင်မရာ">📷</button>
+                    <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
+                    <button onclick="alert('Sticker မကြာမီ ထည့်ပေးပါမယ်')" title="စတစ်ကာ">😊</button>
+                </div>
+                <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()" oninput="toggleSendButton()">
+                <button class="send-btn" id="sendBtn" onclick="send()">➤</button>
+            </div>
+        </div>
     </section>
 
     <!-- INBOX -->
@@ -470,6 +494,7 @@
     var presenceRef = null,
         locationWatchId = null;
     var firebaseInitPromise = null;
+    var chatMenuVisible = false;
 
     function byId(id) { return document.getElementById(id); }
 
@@ -487,7 +512,8 @@
         friends: [],
         messages: {},
         groups: [],
-        groupMessages: {}
+        groupMessages: {},
+        blocked: {}  // { userId: true }
     };
 
     function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -510,6 +536,7 @@
         x.groups = Array.isArray(x.groups) ? x.groups : [];
         x.groupMessages = x.groupMessages || {};
         x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
+        x.blocked = x.blocked || {};
         Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
         Object.keys(x.users).forEach(id => {
             var u = x.users[id];
@@ -552,6 +579,7 @@
                 var remote = normalize(snap.val());
                 var local = normalize(db);
                 Object.keys(local.users).forEach(function(id) { if (!remote.users[id]) remote.users[id] = local.users[id]; });
+                remote.blocked = remote.blocked || {};
                 db = remote;
                 try { await ref.set(db); } catch (e) { console.warn('Remote merge save failed', e); }
             } else {
@@ -602,7 +630,7 @@
             var el = document.getElementById(x);
             if (el) el.classList.remove('active-nav');
         });
-        var map = { onboarding: 'navLocation', home: 'navHome', friends: 'navFriends', inbox: 'navInbox', profile: 'navProfile', settings: 'navSetting' };
+        var map = { onboarding: 'navLocation', home: 'navHome', friends: 'navFriends', inbox: 'navInbox', profile: 'navProfile', settings: 'navSetting', blockedUsers: 'navSetting' };
         var el = document.getElementById(map[id]);
         if (el) el.classList.add('active-nav');
         var titles = {
@@ -612,6 +640,7 @@
             inbox: 'Chats',
             profile: 'My Profile',
             settings: 'Setting',
+            blockedUsers: 'Blocked Users',
             myAccount: 'My Account',
             notifications: 'Notifications',
             feedback: 'Feedback / Report',
@@ -622,6 +651,115 @@
         };
         var pt = document.getElementById('pageTitle');
         if (pt) pt.textContent = titles[id] || '';
+        if (id === 'blockedUsers') renderBlockedUsers();
+    }
+
+    // ===== Block Functions =====
+    function isBlocked(userId) {
+        if (!db || !db.blocked) return false;
+        return db.blocked[userId] === true;
+    }
+
+    function blockUser(userId) {
+        if (!me || !db) return;
+        if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; }
+        db.blocked = db.blocked || {};
+        db.blocked[userId] = true;
+        // Remove from friends if exists
+        db.friends = db.friends.filter(f => !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)));
+        // Remove from requests
+        db.req = db.req.filter(r => !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)));
+        save();
+        refresh();
+        alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ');
+        if (chatWith === userId) {
+            chatWith = null;
+            show('inbox');
+        }
+        renderBlockedUsers();
+    }
+
+    function unblockUser(userId) {
+        if (!me || !db) return;
+        db.blocked = db.blocked || {};
+        delete db.blocked[userId];
+        save();
+        refresh();
+        alert('✅ ဘလော့ဖြုတ်လိုက်ပါပြီ');
+        renderBlockedUsers();
+    }
+
+    function blockCurrentUser() {
+        if (!chatWith) { alert('စကားပြောနေတဲ့သူမရှိပါ'); return; }
+        if (isBlocked(chatWith)) { alert('ဒီသူကို ဘလော့လုပ်ထားပြီးသားပါ'); return; }
+        if (confirm('ဒီသုံးစွဲသူကို ဘလော့လုပ်မှာလား?')) {
+            blockUser(chatWith);
+        }
+        document.getElementById('chatMenu').style.display = 'none';
+        chatMenuVisible = false;
+    }
+
+    function toggleChatMenu() {
+        if (!chatWith) { alert('စကားပြောနေတဲ့သူမရှိပါ'); return; }
+        var menu = document.getElementById('chatMenu');
+        chatMenuVisible = !chatMenuVisible;
+        menu.style.display = chatMenuVisible ? 'block' : 'none';
+    }
+
+    function renderBlockedUsers() {
+        var container = document.getElementById('blockedUsersList');
+        if (!container) return;
+        var blockedIds = Object.keys(db.blocked || {}).filter(id => db.blocked[id] === true);
+        var badge = document.getElementById('blockedBadge');
+        if (badge) badge.textContent = blockedIds.length;
+
+        if (!blockedIds.length) {
+            container.innerHTML = '<div class="small">ဘလော့လုပ်ထားသူမရှိပါ</div>';
+            return;
+        }
+        container.innerHTML = '';
+        blockedIds.forEach(id => {
+            var u = db.users[id];
+            if (!u) return;
+            var d = document.createElement('div');
+            d.className = 'list';
+            d.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                '<div><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span></div>' +
+                '<button class="unblock-btn" onclick="unblockUser(\'' + id + '\')">ဖြုတ်မည်</button>' +
+                '</div>';
+            container.appendChild(d);
+        });
+    }
+
+    // Override search to exclude blocked
+    function searchUsers() {
+        var b = document.getElementById('searchResults');
+        var q = (val('userSearch') || '').trim().toLowerCase();
+        if (!b) return;
+        if (!q) { b.innerHTML = '<div class="small">အမည် သို့မဟုတ် ID ရိုက်ထည့်ပြီး ရှာပါ။</div>'; return; }
+        var found = Object.values(db.users || {}).filter(function(u) {
+            if (!u) return false;
+            if (u.id === me) return false;
+            if (isBlocked(u.id)) return false;
+            return ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q));
+        }).slice(0, 50);
+        if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
+        b.innerHTML = '';
+        found.forEach(function(u) {
+            var d = document.createElement('div');
+            d.className = 'list';
+            var friend = db.friends.some(function(x) { return (x.a === me && x.b === u.id) || (x.a === u.id && x.b === me); });
+            var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
+            var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
+            var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
+            var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
+            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
+            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
+                avatarHtml +
+                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div>'+
+                '</div><br>' + action;
+            b.appendChild(d);
+        });
     }
 
     function renderInbox() {
@@ -630,6 +768,8 @@
             req = document.getElementById('inboxRequests');
         if (!list || !req) return;
         var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
+        // Filter out blocked
+        friendIds = friendIds.filter(id => !isBlocked(id));
         list.innerHTML = '';
         if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။ Friends ထဲက Chat ကိုနှိပ်ပါ။</div>';
         friendIds.forEach(id => {
@@ -648,7 +788,7 @@
                 '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')">Chat ဖွင့်မည်</button>';
             list.appendChild(d);
         });
-        var incoming = db.req.filter(r => r.t === me);
+        var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
         req.innerHTML = '';
         if (!incoming.length) req.innerHTML = '<div class="small">Friend Request မရှိသေးပါ။</div>';
         incoming.forEach(r => {
@@ -663,6 +803,302 @@
         if (badge) badge.textContent = incoming.length ? '💬 ' + incoming.length : '💬';
     }
 
+    function friends() {
+        var b = document.getElementById('flist');
+        if (!b) return;
+        b.innerHTML = '';
+        db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); }).forEach(function(r) {
+            var u = db.users[r.f];
+            if (!u) return;
+            var d = document.createElement('div');
+            d.className = 'list';
+            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' + '<button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button>' + '<button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
+            b.appendChild(d);
+        });
+        db.friends.filter(function(x) { return (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a); }).forEach(function(x) {
+            var id = x.a === me ? x.b : x.a;
+            var u = db.users[id];
+            if (!u) return;
+            var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
+            var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
+            var d = document.createElement('div');
+            d.className = 'friend-user-card';
+            d.style.cursor = 'pointer';
+            d.onclick = function() { viewUserProfile(id); };
+            d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' +
+                '<div class="friend-info">' +
+                    '<b>' + esc(u.name) + '</b>' +
+                    '<div class="small">' + esc(u.id) + '</div>' +
+                    regionText +
+                    '<div class="friend-actions">' +
+                        '<button class="btn" onclick="event.stopPropagation();openChat(\'' + id + '\')">💬 Messenger</button>' +
+                        '<button class="btn gold" onclick="event.stopPropagation();viewUserProfile(\'' + id + '\')">👤 Friend</button>' +
+                        (isBlocked(id) ? '<span class="small" style="color:#e85d5d;">🚫 Blocked</span>' : '') +
+                    '</div>' +
+                '</div>';
+            b.appendChild(d);
+        });
+        if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
+    }
+
+    function viewUserProfile(id) {
+        var u = db.users[id];
+        if (!u) return;
+        if (isBlocked(id) && id !== me) {
+            alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။');
+            return;
+        }
+        window.viewingProfile = id;
+        show('userProfile');
+        var b = document.getElementById('userProfileBox');
+        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:110px;height:110px;border-radius:50%;object-fit:cover\">' : '👤';
+        var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
+        var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
+        var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
+        var blocked = isBlocked(id);
+        var userGroups = db.groups.filter(g => g.members.includes(id));
+        var groupsHtml = '';
+        if (userGroups.length) {
+            groupsHtml = '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
+            userGroups.forEach(g => {
+                groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
+            });
+            groupsHtml += '</div>';
+        } else {
+            groupsHtml = '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
+        }
+        var actionHtml = '';
+        if (id !== me) {
+            if (blocked) {
+                actionHtml = '<span style="color:#e85d5d;">🚫 ဘလော့လုပ်ထားပါသည်</span><br><button class="btn" onclick="unblockUser(\''+id+'\')">ဘလော့ဖြုတ်မည်</button>';
+            } else {
+                actionHtml = friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>';
+                actionHtml += '<br><button class="btn red" onclick="blockUser(\''+id+'\')">🚫 ဘလော့လုပ်မည်</button>';
+            }
+        } else {
+            actionHtml = '<span>👤 ကိုယ့် Profile</span>';
+        }
+        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
+            actionHtml +
+            groupsHtml +
+            '</div>';
+    }
+
+    function openChat(id) {
+        if (isBlocked(id)) {
+            alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။ စကားမပြောနိုင်ပါ။');
+            return;
+        }
+        chatWith = id;
+        document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
+        document.getElementById('chatMenu').style.display = 'none';
+        chatMenuVisible = false;
+        show('chat');
+    }
+
+    function send() {
+        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
+        if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        var i = document.getElementById('msg'),
+            t = i.value.trim();
+        if (!t) return;
+        if (!db.messages[ck()]) db.messages[ck()] = [];
+        db.messages[ck()].push({
+            f: me,
+            t: t,
+            seen: false,
+            time: Date.now(),
+            senderName: db.users[me].name,
+            senderPhoto: (db.users[me].photos || [])[0] || '',
+            image: null
+        });
+        i.value = '';
+        toggleSendButton();
+        save();
+        renderChat();
+    }
+
+    function renderChat() {
+        if (!chatWith) return;
+        if (isBlocked(chatWith)) {
+            document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#e85d5d;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>';
+            return;
+        }
+        var b = document.getElementById('chatbox');
+        b.innerHTML = '';
+        var msgs = db.messages[ck()] || [];
+        msgs.forEach(function(m) {
+            var u = db.users[m.f] || {};
+            var isMe = (m.f === me);
+            var avatarHtml = getUserAvatar(u);
+            var nameDisplay = esc(u.name || m.f || 'Unknown');
+            var msgText = esc(m.t || '');
+
+            var d = document.createElement('div');
+            d.className = 'msg' + (isMe ? ' me' : '');
+
+            var avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            avatarDiv.innerHTML = avatarHtml;
+            avatarDiv.onclick = function() {
+                if (m.f && db.users[m.f]) {
+                    viewUserProfile(m.f);
+                }
+            };
+
+            var bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'bubble';
+
+            var nameSpan = document.createElement('div');
+            nameSpan.className = 'name';
+            nameSpan.textContent = nameDisplay;
+            nameSpan.onclick = function() {
+                if (m.f && db.users[m.f]) {
+                    viewUserProfile(m.f);
+                }
+            };
+
+            var textSpan = document.createElement('div');
+            textSpan.className = 'text';
+            textSpan.textContent = msgText;
+
+            if (m.image) {
+                var imgDiv = document.createElement('div');
+                imgDiv.className = 'msg-image';
+                var img = document.createElement('img');
+                img.src = m.image;
+                img.alt = 'Image';
+                img.onclick = function() {
+                    window.open(m.image, '_blank');
+                };
+                imgDiv.appendChild(img);
+                textSpan.appendChild(imgDiv);
+            }
+
+            var seenSpan = document.createElement('div');
+            seenSpan.className = 'seen';
+            if (isMe) {
+                seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered';
+            } else {
+                m.seen = true;
+            }
+
+            bubbleDiv.appendChild(nameSpan);
+            bubbleDiv.appendChild(textSpan);
+            bubbleDiv.appendChild(seenSpan);
+
+            d.appendChild(avatarDiv);
+            d.appendChild(bubbleDiv);
+            b.appendChild(d);
+        });
+        save();
+        b.scrollTop = b.scrollHeight;
+    }
+
+    function getUserAvatar(user) {
+        if (!user) return '';
+        if (user.photos && user.photos[0]) {
+            return '<img src="' + user.photos[0] + '" alt="avatar">';
+        }
+        return '<span style="font-size:20px;">👤</span>';
+    }
+
+    function toggleSendButton() {
+        var msgInput = document.getElementById('msg');
+        var sendBtn = document.getElementById('sendBtn');
+        if (msgInput && sendBtn) {
+            if (msgInput.value.trim().length > 0) {
+                sendBtn.classList.add('show');
+            } else {
+                sendBtn.classList.remove('show');
+            }
+        }
+    }
+
+    function openCameraForChat() {
+        if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
+        if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        var input = document.getElementById('photoCamera');
+        if (input) {
+            input.value = '';
+            input.click();
+            input.onchange = function(e) {
+                var f = e.target.files && e.target.files[0];
+                if (!f) return;
+                var r = new FileReader();
+                r.onload = function() {
+                    var img = new Image();
+                    img.onload = function() {
+                        var max = 900,
+                            scale = Math.min(1, max / img.width);
+                        var c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * scale));
+                        c.height = Math.max(1, Math.round(img.height * scale));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        var data = c.toDataURL('image/jpeg', 0.62);
+                        sendChatImage(data);
+                        alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    };
+                    img.src = r.result;
+                };
+                r.readAsDataURL(f);
+                e.target.value = '';
+            };
+        }
+    }
+
+    function openGalleryForChat() {
+        if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
+        if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        var input = document.getElementById('photoGallery');
+        if (input) {
+            input.value = '';
+            input.onchange = function(e) {
+                var f = e.target.files && e.target.files[0];
+                if (!f) return;
+                var r = new FileReader();
+                r.onload = function() {
+                    var img = new Image();
+                    img.onload = function() {
+                        var max = 900,
+                            scale = Math.min(1, max / img.width);
+                        var c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * scale));
+                        c.height = Math.max(1, Math.round(img.height * scale));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        var data = c.toDataURL('image/jpeg', 0.62);
+                        sendChatImage(data);
+                        alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    };
+                    img.src = r.result;
+                };
+                r.readAsDataURL(f);
+                e.target.value = '';
+            };
+            input.click();
+        }
+    }
+
+    function sendChatImage(imageData) {
+        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
+        if (isBlocked(chatWith)) return;
+        if (!imageData) return;
+        if (!db.messages[ck()]) db.messages[ck()] = [];
+        db.messages[ck()].push({
+            f: me,
+            t: '📷 ဓာတ်ပုံ',
+            seen: false,
+            time: Date.now(),
+            senderName: db.users[me].name,
+            senderPhoto: (db.users[me].photos || [])[0] || '',
+            image: imageData
+        });
+        save();
+        renderChat();
+    }
+
+    function ck() { return [me, chatWith].sort().join('_'); }
+
     function show(id) {
         document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
         var el = document.getElementById(id);
@@ -674,27 +1110,8 @@
         if (id === 'chat' && chatWith) {
             renderChat();
         }
-        if (id === 'profile') {
-            renderProfileGroups();
-        }
-    }
-
-    function renderProfileGroups() {
-        if (!me || !db) return;
-        var container = document.getElementById('profileUserGroups');
-        if (!container) return;
-        var userGroups = db.groups.filter(g => g.members.includes(me));
-        if (userGroups.length) {
-            var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => {
-                html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
-            });
-            container.innerHTML = html;
-            container.style.display = 'block';
-        } else {
-            container.innerHTML = '<div class="small">📌 အသင်းမပါဝင်သေးပါ</div>';
-            container.style.display = 'block';
-        }
+        if (id === 'blockedUsers') renderBlockedUsers();
+        if (id === 'settings') renderBlockedUsers();
     }
 
     function refresh() {
@@ -747,7 +1164,27 @@
         searchUsers();
         groups();
         if (chatWith) renderChat();
+        renderBlockedUsers();
         renderProfileGroups();
+        renderMyAccount();
+    }
+
+    function renderProfileGroups() {
+        if (!me || !db) return;
+        var container = document.getElementById('profileUserGroups');
+        if (!container) return;
+        var userGroups = db.groups.filter(g => g.members.includes(me));
+        if (userGroups.length) {
+            var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
+            userGroups.forEach(g => {
+                html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
+            });
+            container.innerHTML = html;
+            container.style.display = 'block';
+        } else {
+            container.innerHTML = '<div class="small">📌 အသင်းမပါဝင်သေးပါ</div>';
+            container.style.display = 'block';
+        }
     }
 
     function enter() {
@@ -819,7 +1256,7 @@
         var q = (val('onboardSearch') || '').trim().toLowerCase();
         if (!b) return;
         if (!q) { b.innerHTML = ''; return; }
-        var found = Object.values(db.users || {}).filter(u => u && u.id !== me && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))).slice(0, 20);
+        var found = Object.values(db.users || {}).filter(u => u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))).slice(0, 20);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
         b.innerHTML = '';
         found.forEach(u => {
@@ -990,8 +1427,8 @@
         if (t) t.classList.toggle('on', notificationEnabled());
         var list = document.getElementById('notificationList');
         if (!list || !me || !db) return;
-        var incoming = db.req.filter(r => r.t === me);
-        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
+        var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
+        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
         var items = [];
         incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
         friendIds.forEach(id => { var u = db.users[id];
@@ -1126,7 +1563,6 @@
         if (!input) { alert('ကင်မရာခလုတ် မတွေ့ပါ'); return; }
         try {
             input.value = '';
-            input.setAttribute('capture', 'environment');
             input.click();
         } catch (e) {
             alert('ကင်မရာဖွင့်မရပါ။ Chrome/Android Camera Permission ကို Allow လုပ်ပါ။');
@@ -1228,6 +1664,7 @@
             var users = [];
             Object.keys(presence).forEach(function(id) {
                 if (id === me) return;
+                if (isBlocked(id)) return;
                 var u = presence[id];
                 if (u && u.online === true && typeof u.lat === 'number' && typeof u.lng === 'number') {
                     var km = distanceKm(my.lat, my.lng, u.lat, u.lng);
@@ -1291,108 +1728,13 @@
     }
 
     function requestFriend(id) {
+        if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
         if (!db.req.some(function(r) { return r.f === me && r.t === id; }) && !db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
             db.req.push({ f: me, t: id });
             save();
             refresh();
             alert('Friend request ပို့ပြီးပါပြီ');
         }
-    }
-
-    function searchUsers() {
-        var b = document.getElementById('searchResults');
-        var q = (val('userSearch') || '').trim().toLowerCase();
-        if (!b) return;
-        if (!q) { b.innerHTML = '<div class="small">အမည် သို့မဟုတ် ID ရိုက်ထည့်ပြီး ရှာပါ။ Friend ဖြစ်/မဖြစ် မသက်ဆိုင်ပါ။</div>'; return; }
-        var found = Object.values(db.users || {}).filter(function(u) { return u && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q)); }).slice(0, 50);
-        if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
-        b.innerHTML = '';
-        found.forEach(function(u) {
-            var d = document.createElement('div');
-            d.className = 'list';
-            if (u.id === me) {
-                d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + '</span><br><span>👤 ကိုယ့်အကောင့်</span>';
-                b.appendChild(d);
-                return;
-            }
-            var friend = db.friends.some(function(x) { return (x.a === me && x.b === u.id) || (x.a === u.id && x.b === me); });
-            var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
-            var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
-            var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
-            var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
-            d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
-                avatarHtml +
-                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div>'+
-                '</div><br>' + action;
-            b.appendChild(d);
-        });
-    }
-
-    function viewUserProfile(id) {
-        var u = db.users[id];
-        if (!u) return;
-        window.viewingProfile = id;
-        show('userProfile');
-        var b = document.getElementById('userProfileBox');
-        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:110px;height:110px;border-radius:50%;object-fit:cover\">' : '👤';
-        var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
-        var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
-        var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
-
-        var userGroups = db.groups.filter(g => g.members.includes(id));
-        var groupsHtml = '';
-        if (userGroups.length) {
-            groupsHtml = '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => {
-                groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>';
-            });
-            groupsHtml += '</div>';
-        } else {
-            groupsHtml = '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
-        }
-
-        b.innerHTML = '<div style=\"text-align:center\">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
-            (id !== me ? (friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class=\"btn\" onclick=\"requestFriend(\'' + id + '\')\">Add Friend</button>') : '<span>👤 ကိုယ့် Profile</span>') + 
-            groupsHtml +
-            '</div>';
-    }
-
-    function friends() {
-        var b = document.getElementById('flist');
-        if (!b) return;
-        b.innerHTML = '';
-        db.req.filter(function(r) { return r.t === me; }).forEach(function(r) {
-            var u = db.users[r.f];
-            if (!u) return;
-            var d = document.createElement('div');
-            d.className = 'list';
-            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' + '<button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button>' + '<button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
-            b.appendChild(d);
-        });
-        db.friends.filter(function(x) { return x.a === me || x.b === me; }).forEach(function(x) {
-            var id = x.a === me ? x.b : x.a;
-            var u = db.users[id];
-            if (!u) return;
-            var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
-            var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
-            var d = document.createElement('div');
-            d.className = 'friend-user-card';
-            d.style.cursor = 'pointer';
-            d.onclick = function() { viewUserProfile(id); };
-            d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' +
-                '<div class="friend-info">' +
-                    '<b>' + esc(u.name) + '</b>' +
-                    '<div class="small">' + esc(u.id) + '</div>' +
-                    regionText +
-                    '<div class="friend-actions">' +
-                        '<button class="btn" onclick="event.stopPropagation();openChat(\'' + id + '\')">💬 Messenger</button>' +
-                        '<button class="btn gold" onclick="event.stopPropagation();viewUserProfile(\'' + id + '\')">👤 Friend</button>' +
-                    '</div>' +
-                '</div>';
-            b.appendChild(d);
-        });
-        if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
     }
 
     function accept(id) {
@@ -1406,115 +1748,6 @@
         db.req = db.req.filter(function(r) { return !(r.f === id && r.t === me); });
         save();
         refresh();
-    }
-
-    function openChat(id) {
-        chatWith = id;
-        document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
-        show('chat');
-    }
-
-    function ck() { return [me, chatWith].sort().join('_'); }
-
-    function getUserAvatar(user) {
-        if (!user) return '';
-        if (user.photos && user.photos[0]) {
-            return '<img src="' + user.photos[0] + '" alt="avatar">';
-        }
-        return '<span style="font-size:20px;">👤</span>';
-    }
-
-    function renderChat() {
-        if (!chatWith) return;
-        var b = document.getElementById('chatbox');
-        b.innerHTML = '';
-        var msgs = db.messages[ck()] || [];
-        msgs.forEach(function(m) {
-            var u = db.users[m.f] || {};
-            var isMe = (m.f === me);
-            var avatarHtml = getUserAvatar(u);
-            var nameDisplay = esc(u.name || m.f || 'Unknown');
-            var msgText = esc(m.t || '');
-
-            var d = document.createElement('div');
-            d.className = 'msg' + (isMe ? ' me' : '');
-
-            var avatarDiv = document.createElement('div');
-            avatarDiv.className = 'avatar';
-            avatarDiv.innerHTML = avatarHtml;
-            avatarDiv.onclick = function() {
-                if (m.f && db.users[m.f]) {
-                    viewUserProfile(m.f);
-                }
-            };
-
-            var bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'bubble';
-
-            var nameSpan = document.createElement('div');
-            nameSpan.className = 'name';
-            nameSpan.textContent = nameDisplay;
-            nameSpan.onclick = function() {
-                if (m.f && db.users[m.f]) {
-                    viewUserProfile(m.f);
-                }
-            };
-
-            var textSpan = document.createElement('div');
-            textSpan.className = 'text';
-            textSpan.textContent = msgText;
-
-            if (m.image) {
-                var imgDiv = document.createElement('div');
-                imgDiv.className = 'msg-image';
-                var img = document.createElement('img');
-                img.src = m.image;
-                img.alt = 'Image';
-                img.onclick = function() {
-                    window.open(m.image, '_blank');
-                };
-                imgDiv.appendChild(img);
-                textSpan.appendChild(imgDiv);
-            }
-
-            var seenSpan = document.createElement('div');
-            seenSpan.className = 'seen';
-            if (isMe) {
-                seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered';
-            } else {
-                m.seen = true;
-            }
-
-            bubbleDiv.appendChild(nameSpan);
-            bubbleDiv.appendChild(textSpan);
-            bubbleDiv.appendChild(seenSpan);
-
-            d.appendChild(avatarDiv);
-            d.appendChild(bubbleDiv);
-            b.appendChild(d);
-        });
-        save();
-        b.scrollTop = b.scrollHeight;
-    }
-
-    function send() {
-        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
-        var i = document.getElementById('msg'),
-            t = i.value.trim();
-        if (!t) return;
-        if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({
-            f: me,
-            t: t,
-            seen: false,
-            time: Date.now(),
-            senderName: db.users[me].name,
-            senderPhoto: (db.users[me].photos || [])[0] || '',
-            image: null
-        });
-        i.value = '';
-        save();
-        renderChat();
     }
 
     function createGroup() {
@@ -1559,7 +1792,7 @@
         var members = g.members.map(function(id) { return db.users[id]; }).filter(Boolean);
         var myFriends = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; });
         var canInvite = owner && g.members.length < 20;
-        var candidates = myFriends.filter(function(id) { return !g.members.includes(id); });
+        var candidates = myFriends.filter(function(id) { return !g.members.includes(id) && !isBlocked(id); });
         box.innerHTML = '<h2>🏆 ' + esc(g.name) + '</h2>' + '<p class="small">Level ' + g.level + ' • Members ' + g.members.length + '/20</p>' + '<hr><h3>👥 အသင်းဝင်များ</h3>' + (members.length ? members.map(function(u) { return '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span>' + (u.id === g.owner ? ' — 👑 Owner' : '') + '</div>'; }).join('') : '<div class="small">Member မရှိသေးပါ</div>');
         if (canInvite) {
             var inviteHtml = '<hr><h3>📨 သူငယ်ချင်းကို အသင်းထဲဖိတ်ခေါ်မည်</h3>';
