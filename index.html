@@ -38,6 +38,15 @@
         .me .avatar { order: 2; }
         .me .bubble { order: 1; text-align: right; background: #e7f3ff; }
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
+        .badge-owner { background: #ffd700; color: #222; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+        .badge-admin { background: #007bff; color: #fff; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+        .badge-level { background: #6c757d; color: #fff; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+        .badge-rank { padding: 0 8px; border-radius: 12px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .rank-1 { background: #28a745; color: #fff; }  /* အသင်းသားသစ် */
+        .rank-2 { background: #17a2b8; color: #fff; }  /* တက်ကြွသူ */
+        .rank-3 { background: #ffc107; color: #222; }  /* အားထုတ်သူ */
+        .rank-4 { background: #fd7e14; color: #fff; }  /* ခေါင်းဆောင် */
+        .rank-5 { background: #dc3545; color: #fff; }  /* ဒဏ္ဍာရီ */
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
@@ -147,6 +156,17 @@
         .group-detail-header .group-actions button { background: transparent; border: 0; font-size: 22px; cursor: pointer; color: #555; padding: 4px; }
         .group-detail-avatar { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #aaa; margin-bottom: 8px; overflow: hidden; }
         .group-detail-avatar img { width: 100%; height: auto; max-height: 200px; object-fit: cover; }
+        .group-member-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .group-member-item .member-rank { font-size: 12px; color: #888; min-width: 30px; }
+        .group-member-item .member-name { flex: 1; font-weight: 500; }
+        .group-member-item .member-badge { font-size: 10px; padding: 2px 10px; border-radius: 12px; font-weight: bold; display: inline-block; }
+        .rank-1 { background: #28a745; color: #fff; }
+        .rank-2 { background: #17a2b8; color: #fff; }
+        .rank-3 { background: #ffc107; color: #222; }
+        .rank-4 { background: #fd7e14; color: #fff; }
+        .rank-5 { background: #dc3545; color: #fff; }
+        .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .badge-admin { background: #007bff; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
         @media (max-width: 520px) {
             .photos { grid-template-columns: repeat(2, 1fr); }
             .quick { grid-template-columns: 1fr; }
@@ -159,6 +179,7 @@
         .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .rank-label { font-size: 10px; margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -225,7 +246,7 @@
         </div>
     </section>
 
-    <!-- GROUP SEARCH (All Groups) -->
+    <!-- GROUP SEARCH -->
     <section id="groupSearch" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -595,6 +616,84 @@
     restoreLogin();
     firebaseInitPromise = initFirebase();
 
+    // ===== RANK SYSTEM =====
+    function getMemberRank(group, userId) {
+        if (!group.memberRanks) group.memberRanks = {};
+        if (group.memberRanks[userId]) return group.memberRanks[userId];
+        if (group.members && group.members.length) {
+            var idx = group.members.indexOf(userId);
+            if (idx !== -1) {
+                group.memberRanks[userId] = idx + 1;
+                return idx + 1;
+            }
+        }
+        return 0;
+    }
+
+    function getRankLabel(rank) {
+        var labels = {
+            1: 'အသင်းသားသစ်',
+            2: 'တက်ကြွသူ',
+            3: 'အားထုတ်သူ',
+            4: 'ခေါင်းဆောင်',
+            5: 'ဒဏ္ဍာရီ'
+        };
+        return labels[rank] || 'အဆင့် ' + rank;
+    }
+
+    function getRankBadgeClass(rank) {
+        return 'rank-' + rank;
+    }
+
+    function updateMemberRank(groupId, userId) {
+        var g = db.groups.find(x => x.id === groupId);
+        if (!g) return;
+        if (!g.memberActivity) g.memberActivity = {};
+        if (!g.memberRanks) g.memberRanks = {};
+        
+        var activity = g.memberActivity[userId] || 0;
+        var newRank = 1;
+        if (activity >= 100) newRank = 5;
+        else if (activity >= 50) newRank = 4;
+        else if (activity >= 25) newRank = 3;
+        else if (activity >= 10) newRank = 2;
+        
+        // If user is owner, rank is always 5 (Legend)
+        if (g.owner === userId) newRank = 5;
+        
+        g.memberRanks[userId] = newRank;
+        return newRank;
+    }
+
+    function addGroupActivity(groupId, userId, points) {
+        var g = db.groups.find(x => x.id === groupId);
+        if (!g) return;
+        if (!g.memberActivity) g.memberActivity = {};
+        g.memberActivity[userId] = (g.memberActivity[userId] || 0) + points;
+        updateMemberRank(groupId, userId);
+        save();
+    }
+
+    // Override sendGroupMessage to add activity
+    var originalSendGroupMessage = window.sendGroupMessage;
+    window.sendGroupMessage = function() {
+        var id = window.currentGroupChat;
+        var g = db.groups.find(function(x) { return x.id === id; });
+        if (!g || !(g.members && g.members.includes(me))) { alert('အသင်းဝင်မဟုတ်ပါ'); return; }
+        var input = document.getElementById('groupMsg');
+        var t = input.value.trim();
+        if (!t) return;
+        db.groupMessages = db.groupMessages || {};
+        db.groupMessages[id] = db.groupMessages[id] || [];
+        db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
+        // Add activity for sender
+        addGroupActivity(id, me, 1);
+        input.value = '';
+        save();
+        renderGroupChat();
+    };
+
+    // ===== NAVIGATION =====
     function navGo(id) {
         show(id);
         closeMenu();
@@ -1094,7 +1193,7 @@
         var allGroups = db.groups || [];
         var filtered = allGroups.filter(g => {
             if (!g) return false;
-            if (g.members && g.members.includes(me)) return false; // hide groups user already in
+            if (g.members && g.members.includes(me)) return false;
             var nameMatch = (g.name || '').toLowerCase().includes(q);
             var idMatch = (g.id || '').toLowerCase().includes(q);
             return nameMatch || idMatch;
@@ -1151,6 +1250,9 @@
             if (!g.members) g.members = [];
             if (!g.members.includes(me)) {
                 g.members.push(me);
+                // Initialize activity and rank for new member
+                if (!g.memberActivity) g.memberActivity = {};
+                g.memberActivity[me] = 0;
                 save();
                 alert('✅ အသင်းထဲ ဝင်ပြီးပါပြီ');
                 renderAllGroups();
@@ -1668,7 +1770,6 @@
             groups();
             return;
         }
-        // Generate unique 8-digit ID
         var newId = '';
         var exists = true;
         var attempts = 0;
@@ -1687,8 +1788,12 @@
             members: [me], 
             level: 1, 
             activity: 0,
-            avatar: tempGroupAvatar || null
+            avatar: tempGroupAvatar || null,
+            memberRanks: {},
+            memberActivity: {}
         };
+        group.memberRanks[me] = 5; // Owner is Legend
+        group.memberActivity[me] = 0;
         db.groups.push(group);
         document.getElementById('gname').value = '';
         tempGroupAvatar = null;
@@ -1766,10 +1871,25 @@
         html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;">✖️ ပိတ်မည်</button>';
         html += '</div>';
 
+        // Members with ranks and badges
         if (members.length) {
             members.forEach(function(u) {
-                html += '<div class="list"><b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span>' +
-                    (u.id === g.owner ? ' — 👑 Owner' : '') +
+                var rank = getMemberRank(g, u.id);
+                var isOwnerUser = u.id === g.owner;
+                var badgeHtml = '';
+                
+                if (isOwnerUser) {
+                    badgeHtml = '<span class="badge-owner">ပါမောခ</span>';
+                } else {
+                    var rankLabel = getRankLabel(rank);
+                    var rankClass = getRankBadgeClass(rank);
+                    badgeHtml = '<span class="member-badge ' + rankClass + '">' + rankLabel + '</span>';
+                }
+                
+                html += '<div class="group-member-item">' +
+                    '<span class="member-rank">#' + rank + '</span>' +
+                    '<span class="member-name">' + esc(u.name) + '</span>' +
+                    badgeHtml +
                     (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
                     '</div>';
             });
@@ -1797,6 +1917,8 @@
         if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
         if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
             g.owner = userId;
+            // Owner becomes Legend
+            g.memberRanks[userId] = 5;
             save();
             renderGroupDetail();
             alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
@@ -1810,6 +1932,8 @@
         if (!g.members || !g.members.includes(me)) return;
         if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
             g.members = g.members.filter(function(id) { return id !== me; });
+            delete g.memberRanks[me];
+            delete g.memberActivity[me];
             save();
             show('home');
             alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
@@ -1880,8 +2004,11 @@
             '<div id="groupChatBox" class="chat" style="height:40vh;">';
         msgs.forEach(function(m) {
             var u = db.users[m.f] || {};
+            var rank = getMemberRank(g, m.f);
+            var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
+            var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
             html += '<div class="msg ' + (m.f === me ? 'me' : '') + '">' +
-                '<div class="bubble"><b>' + esc(u.name || m.f) + '</b><br>' + esc(m.t) + '</div></div>';
+                '<div class="bubble"><b>' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div></div>';
         });
         html += '</div><div class="chat-input-area">' +
             '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">' +
@@ -1890,21 +2017,6 @@
         box.innerHTML = html;
         var cb = document.getElementById('groupChatBox');
         if (cb) cb.scrollTop = cb.scrollHeight;
-    }
-
-    function sendGroupMessage() {
-        var id = window.currentGroupChat;
-        var g = db.groups.find(function(x) { return x.id === id; });
-        if (!g || !(g.members && g.members.includes(me))) { alert('အသင်းဝင်မဟုတ်ပါ'); return; }
-        var input = document.getElementById('groupMsg');
-        var t = input.value.trim();
-        if (!t) return;
-        db.groupMessages = db.groupMessages || {};
-        db.groupMessages[id] = db.groupMessages[id] || [];
-        db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
-        input.value = '';
-        save();
-        renderGroupChat();
     }
 
     function grant() {
@@ -1931,4 +2043,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-                                   </html>
+    </html>
