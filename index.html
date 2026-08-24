@@ -239,6 +239,9 @@
         .report-status.success { background: #28a745; color: #fff; display: block; }
         .report-status.error { background: #dc3545; color: #fff; display: block; }
         .report-status.loading { background: #ffc107; color: #222; display: block; }
+        .connection-status { font-size: 12px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-left: 8px; }
+        .connection-status.online { background: #28a745; color: #fff; }
+        .connection-status.offline { background: #dc3545; color: #fff; }
     </style>
 </head>
 <body>
@@ -248,7 +251,8 @@
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
         <div id="pageTitle" class="page-title"></div>
         <div class="header-spacer"></div>
-        <b>💬 My Social Chat</b><span id="head">Guest</span>
+        <span id="head">Guest</span>
+        <span id="connectionStatus" class="connection-status online">🟢</span>
     </header>
 
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
@@ -262,12 +266,11 @@
         <button class="menu-item" onclick="menuGo('settings')"><span class="mi">⚙️</span>Setting</button>
     </aside>
 
-    <!-- LOGIN -->
+    <!-- LOGIN (FIXED) -->
     <section id="login" class="screen active">
         <div class="card">
             <h2>အကောင့်ဝင်ရန်</h2>
             <input id="loginId" placeholder="Account ID ဥပမာ Aung1001">
-            <input id="loginName" class="hidden" placeholder="အမည်">
             <input id="loginPassword" type="password" placeholder="Password">
             <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
             <button id="registerBtn" type="button" class="btn green" onclick="register()">အကောင့်အသစ်ဖွင့်မည်</button>
@@ -415,7 +418,7 @@
         </div>
     </section>
 
-    <!-- ===== FEEDBACK / REPORT (FIXED) ===== -->
+    <!-- FEEDBACK / REPORT -->
     <section id="feedback" class="screen">
         <div class="report-page">
             <div class="report-card">
@@ -555,6 +558,7 @@
     var presenceRef = null, locationWatchId = null;
     var firebaseInitPromise = null;
     var chatMenuVisible = false;
+    var authInitialized = false;
 
     function byId(id) { return document.getElementById(id); }
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
@@ -618,91 +622,29 @@
 
     function setStatus(t) { var el = document.getElementById('loginStatus'); if (el) el.textContent = t; }
 
-    // ===== REPORT SYSTEM (FIXED) =====
-    function previewReportImage(e) {
-        var f = (e.target.files && e.target.files[0]), img = document.getElementById('reportImagePreview');
-        if (!f || !img) return;
-        var r = new FileReader();
-        r.onload = function() { img.src = r.result; img.style.display = 'block'; };
-        r.readAsDataURL(f);
-    }
-
-    async function submitReport() {
-        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
-        if (!db) { alert('ခဏစောင့်ပါ'); return; }
-
-        var title = (val('reportTitle') || '').trim();
-        var text = (val('reportText') || '').trim();
-        var fileInput = document.getElementById('reportImageInput');
-        var file = fileInput.files && fileInput.files[0];
-        var st = document.getElementById('reportStatus');
-
-        if (!title && !text && !file) {
-            st.className = 'report-status error';
-            st.textContent = '⚠️ အကြောင်းအရာ သို့မဟုတ် ပုံတစ်ခုခု ထည့်ပါ';
-            st.style.display = 'block';
-            return;
-        }
-
-        st.className = 'report-status loading';
-        st.textContent = '⏳ ပို့နေပါသည်...';
-        st.style.display = 'block';
-
-        try {
-            var image = '';
-            if (file) {
-                image = await new Promise(function(res, rej) {
-                    var r = new FileReader();
-                    r.onload = function() { res(String(r.result)); };
-                    r.onerror = rej;
-                    r.readAsDataURL(file);
-                });
-            }
-
-            var report = {
-                id: 'RPT' + Date.now() + Math.random().toString(36).slice(2, 6),
-                from: me,
-                fromName: (db.users[me] && db.users[me].name) || me,
-                title: title,
-                text: text,
-                image: image,
-                time: Date.now(),
-                status: 'pending'
-            };
-
-            db.reports = db.reports || [];
-            db.reports.push(report);
-            await save();
-
-            st.className = 'report-status success';
-            st.textContent = '✅ Report ပို့ပြီးပါပြီ။ Admin က စစ်ဆေးပါလိမ့်မယ်။';
-            st.style.display = 'block';
-
-            document.getElementById('reportTitle').value = '';
-            document.getElementById('reportText').value = '';
-            document.getElementById('reportImageInput').value = '';
-            var img = document.getElementById('reportImagePreview');
-            if (img) { img.src = ''; img.style.display = 'none'; }
-
-        } catch (e) {
-            console.error('Report error:', e);
-            st.className = 'report-status error';
-            st.textContent = '❌ Report ပို့မရပါ။ Error: ' + e.message;
-            st.style.display = 'block';
+    // ===== CONNECTION STATUS =====
+    function updateConnectionStatus(connected) {
+        var el = document.getElementById('connectionStatus');
+        if (!el) return;
+        if (connected) {
+            el.textContent = '🟢';
+            el.className = 'connection-status online';
+        } else {
+            el.textContent = '🔴';
+            el.className = 'connection-status offline';
         }
     }
 
-    // ===== INIT FIREBASE =====
+    // ===== INIT FIREBASE (NO AUTH REQUIRED - Rules are .read: true) =====
     async function initFirebase() {
         db = localLoad();
         if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
-            try {
-                if (firebaseAuth) {
-                    try { await firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE); } catch (e) {}
-                    if (!firebaseAuth.currentUser) { try { await firebaseAuth.signInAnonymously(); } catch (e) {} }
-                }
-            } catch (e) { console.warn('Auth init:', e); }
+            // Monitor connection
+            var connectedRef = firebaseDB.ref('.info/connected');
+            connectedRef.on('value', function(snap) {
+                updateConnectionStatus(snap.val() === true);
+            });
 
             var ref = firebaseDB.ref('appData');
             var snap = await ref.once('value');
@@ -754,6 +696,102 @@
     }
     restoreLogin();
     firebaseInitPromise = initFirebase();
+
+    // ===== LOGIN SYSTEM (FIXED - No Firebase Auth dependency) =====
+    function makeBaseName(name) {
+        var base = name.trim().replace(/\s+/g, '');
+        base = base.replace(/[^a-zA-Z0-9\u1000-\u109F]/g, '');
+        return base || 'User';
+    }
+
+    async function register() {
+        if (firebaseInitPromise) await firebaseInitPromise;
+        if (!db) { alert('ခဏစောင့်ပါ'); return; }
+        if (!fbReady || !firebaseDB) {
+            alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
+            return;
+        }
+        var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
+        if (n === null) return;
+        var name = n.trim();
+        if (!name) { alert('အမည်ထည့်ပါ'); return; }
+        var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
+        if (p === null) return;
+        if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
+        var base = makeBaseName(name);
+        var num = 1001, id = '';
+        do { id = base + num; num++; } while (db.users[id]);
+        var user = {
+            id: id, name: name, accountName: name, bio: '', dob: '', gender: '',
+            photos: [], photoLimit: 4, lat: null, lng: null, password: p, region: ''
+        };
+        try {
+            await firebaseDB.ref('appData/users/' + id).set(user);
+            var verify = await firebaseDB.ref('appData/users/' + id).once('value');
+            if (!verify.exists()) throw new Error('Firebase account verification failed');
+            db.users[id] = user;
+            localSave();
+            me = id;
+            try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
+            alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\nဒီ ID နဲ့ Password ကို ဘယ် Browser/ဖုန်းကမဆို ဝင်နိုင်ပါတယ်။');
+            enter();
+            setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
+        } catch (e) {
+            console.error('Register:', e);
+            alert('❌ အကောင့်ဖွင့်မရပါ။ Firebase Database Rules / Internet ကိုစစ်ပါ။');
+        }
+    }
+
+    async function login() {
+        if (firebaseInitPromise) await firebaseInitPromise;
+        if (!db) { alert('ခဏစောင့်ပါ'); return; }
+        var id = String(val('loginId')).trim().replace(/\s+/g, '');
+        var p = String(val('loginPassword'));
+        if (!id) { alert('Account ID ထည့်ပါ'); return; }
+        if (!p) { alert('Password ထည့်ပါ'); return; }
+        var u = null;
+        var remoteError = null;
+        if (firebaseDB) {
+            try {
+                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
+                if (snap.exists()) u = snap.val();
+            } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
+        }
+        if (!u && db.users) u = db.users[id];
+        if (!u) {
+            if (remoteError) {
+                alert('❌ Server မှ Account ကို စစ်မရသေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်စမ်းပါ။');
+            } else {
+                alert('ဒီ Account ID မတွေ့ပါ။');
+            }
+            return;
+        }
+        if (u.password && String(u.password) !== p) { alert('Password မမှန်ပါ'); return; }
+        db.users[id] = u;
+        localSave();
+        me = id;
+        try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
+        enter();
+        setStatus('✅ ' + id + ' ဝင်ထားပါပြီ — Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်');
+    }
+
+    // ===== OTHER FUNCTIONS =====
+    function enter() {
+        document.getElementById('login').classList.remove('active');
+        document.getElementById('nav').classList.remove('hidden');
+        navGo('onboarding');
+        startPresence();
+    }
+
+    function logout() {
+        stopPresence();
+        try { localStorage.removeItem('my_social_logged_in'); } catch (e) {}
+        me = null; chatWith = null;
+        document.getElementById('nav').classList.add('hidden');
+        document.getElementById('head').textContent = 'Guest';
+        closeMenu();
+        show('login');
+    }
 
     // ===== NAVIGATION =====
     function navGo(id) {
@@ -994,7 +1032,6 @@
         html += '<div class="small" style="color:#2a6f8f;">📍 ' + regionText + '</div>';
         html += '<p>' + esc(u.bio || '') + '</p>';
 
-        // Groups
         var userGroups = db.groups.filter(function(g) { return g.members && g.members.includes(id); });
         if (userGroups.length) {
             html += '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
@@ -1002,7 +1039,6 @@
             html += '</div>';
         }
 
-        // Actions
         html += '<div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;">';
         if (isMe) {
             html += '<button class="btn gold" onclick="show(\'profile\')">✏️ Edit Profile</button>';
@@ -1802,312 +1838,81 @@
         renderNotifications();
     }
 
-    // ===== OTHER FUNCTIONS =====
-    function enter() {
-        document.getElementById('login').classList.remove('active');
-        document.getElementById('nav').classList.remove('hidden');
-        navGo('onboarding');
-        startPresence();
-    }
-
-    async function fetchRegion(lat, lng) {
-        if (!lat || !lng) return '';
-        try {
-            var url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=10&accept-language=en';
-            var resp = await fetch(url);
-            var data = await resp.json();
-            if (data && data.address) {
-                var addr = data.address;
-                var parts = [];
-                if (addr.city) parts.push(addr.city);
-                else if (addr.town) parts.push(addr.town);
-                else if (addr.village) parts.push(addr.village);
-                if (addr.state) parts.push(addr.state);
-                else if (addr.region) parts.push(addr.region);
-                if (addr.country) parts.push(addr.country);
-                if (parts.length) return parts.join(', ');
-            }
-            return '';
-        } catch (e) { console.warn('Reverse geocode error', e); return ''; }
-    }
-
-    window.locate = function() {
-        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
-        if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
-        navigator.geolocation.getCurrentPosition(async function(p) {
-            var lat = p.coords.latitude, lng = p.coords.longitude;
-            db.users[me].lat = lat; db.users[me].lng = lng;
-            localSave();
-            if (fbReady) {
-                await firebaseDB.ref('presence/' + me).update({ id: me, name: db.users[me].name || me, online: true, lat: lat, lng: lng, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
-            }
-            if (!db.users[me].region || db.users[me].region.trim() === '') {
-                var region = await fetchRegion(lat, lng);
-                if (region) { db.users[me].region = region; await save(); }
-            }
-            startPresence();
-            await nearby();
-            refresh();
-        }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
-    };
-
-    function searchOnboardUsers() {
-        var b = document.getElementById('onboardResults');
-        var q = (val('onboardSearch') || '').trim().toLowerCase();
-        if (!b) return;
-        if (!q) { b.innerHTML = ''; return; }
-        var found = Object.values(db.users || {}).filter(function(u) { return u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q)); }).slice(0, 20);
-        if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
-        b.innerHTML = '';
-        found.forEach(function(u) {
-            var d = document.createElement('div');
-            d.className = 'onboard-user-card';
-            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '👤';
-            d.innerHTML =
-                '<div class="avatar">'+avatarHtml+'</div>'+
-                '<div class="info">'+
-                    '<div class="name">'+esc(u.name)+'</div>'+
-                    '<div class="id">ID: '+esc(u.id)+'</div>'+
-                '</div>'+
-                '<div class="actions">'+
-                    '<button class="btn" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
-                    '<button class="btn green" onclick="event.stopPropagation();requestFriend(\''+u.id+'\')">+ Friend</button>'+
-                '</div>';
-            d.onclick = function() { viewUserProfile(u.id); };
-            b.appendChild(d);
-        });
-    }
-
-    function makeBaseName(name) {
-        var base = name.trim().replace(/\s+/g, '');
-        base = base.replace(/[^a-zA-Z0-9\u1000-\u109F]/g, '');
-        return base || 'User';
-    }
-
-    async function register() {
-        if (firebaseInitPromise) await firebaseInitPromise;
-        if (!db) { alert('ခဏစောင့်ပါ'); return; }
-        if (!fbReady || !firebaseDB) {
-            alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
-            return;
-        }
-        var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
-        if (n === null) return;
-        var name = n.trim();
-        if (!name) { alert('အမည်ထည့်ပါ'); return; }
-        var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
-        if (p === null) return;
-        if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
-        var base = makeBaseName(name);
-        var num = 1001, id = '';
-        do { id = base + num; num++; } while (db.users[id]);
-        var user = { id: id, name: name, accountName: name, bio: '', dob: '', gender: '', photos: [], photoLimit: 4, lat: null, lng: null, password: p, region: '' };
-        try {
-            await firebaseDB.ref('appData/users/' + id).set(user);
-            var verify = await firebaseDB.ref('appData/users/' + id).once('value');
-            if (!verify.exists()) throw new Error('Firebase account verification failed');
-            db.users[id] = user;
-            localSave();
-            me = id;
-            try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
-            alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\nဒီ ID နဲ့ Password ကို ဘယ် Browser/ဖုန်းကမဆို ဝင်နိုင်ပါတယ်။');
-            enter();
-            setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
-        } catch (e) {
-            console.error('Register:', e);
-            alert('❌ အကောင့်ဖွင့်မရပါ။ Firebase Database Rules / Internet ကိုစစ်ပါ။');
-        }
-    }
-
-    async function login() {
-        if (firebaseInitPromise) await firebaseInitPromise;
-        if (!db) { alert('ခဏစောင့်ပါ'); return; }
-        var id = String(val('loginId')).trim().replace(/\s+/g, '');
-        var p = String(val('loginPassword'));
-        if (!id) { alert('Account ID ထည့်ပါ'); return; }
-        if (!p) { alert('Password ထည့်ပါ'); return; }
-        var u = null;
-        var remoteError = null;
-        if (firebaseDB) {
-            try {
-                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
-                if (snap.exists()) u = snap.val();
-            } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
-        }
-        if (!u && db.users) u = db.users[id];
-        if (!u) {
-            if (remoteError) {
-                alert('❌ Server မှ Account ကို စစ်မရသေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်စမ်းပါ။');
-            } else {
-                alert('ဒီ Account ID မတွေ့ပါ။');
-            }
-            return;
-        }
-        if (u.password && String(u.password) !== p) { alert('Password မမှန်ပါ'); return; }
-        db.users[id] = u;
-        localSave();
-        me = id;
-        try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
-        enter();
-        setStatus('✅ ' + id + ' ဝင်ထားပါပြီ — Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်');
-    }
-
-    function logout() {
-        stopPresence();
-        try { localStorage.removeItem('my_social_logged_in'); } catch (e) {}
-        me = null; chatWith = null;
-        document.getElementById('nav').classList.add('hidden');
-        document.getElementById('head').textContent = 'Guest';
-        closeMenu();
-        show('login');
-    }
-
-    function toggleMenu() {
-        var d = document.getElementById('menuDrawer'), o = document.getElementById('menuOverlay');
-        if (d) d.classList.toggle('open');
-        if (o) o.classList.toggle('open');
-    }
-
-    function closeMenu() {
-        var d = document.getElementById('menuDrawer');
-        if (d) d.classList.remove('open');
-        var o = document.getElementById('menuOverlay');
-        if (o) o.classList.remove('open');
-    }
-
-    function menuGo(id) { if (!me) return; navGo(id); }
-
-    function renderMyAccount() {
-        if (!me || !(db && db.users && db.users[me])) return;
-        var u = db.users[me];
-        var n = document.getElementById('myAccountName');
-        if (n) n.textContent = u.name || '-';
-        var id = document.getElementById('myAccountId');
-        if (id) id.textContent = 'ID: ' + (u.id || me);
-        var box = document.getElementById('myAccountPhoto');
-        if (!box) return;
-        box.innerHTML = '';
-        if (u.photos && u.photos[0]) {
-            var im = document.createElement('img');
-            im.src = u.photos[0];
-            im.style.cssText = 'width:100%;height:100%;object-fit:cover';
-            box.appendChild(im);
-        } else box.textContent = '👤';
-    }
-
-    function renderPhotos() {
-        var u = db.users[me], g = document.getElementById('photos');
-        if (!u || !g) return;
-        g.innerHTML = '';
-        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
-        for (var i = 0; i < 4; i++) {
-            var d = document.createElement('div');
-            d.className = 'profile-photo ' + (u.photos[i] ? '' : 'empty');
-            d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
-            if (u.photos[i]) {
-                var im = document.createElement('img');
-                im.src = u.photos[i];
-                im.alt = 'Profile photo ' + (i + 1);
-                d.appendChild(im);
-                var c = document.createElement('span');
-                c.className = 'change';
-                c.textContent = 'ပြောင်းမည်';
-                d.appendChild(c);
-            } else {
-                var s = document.createElement('span');
-                s.textContent = '＋';
-                d.appendChild(s);
-            }
-            var n = document.createElement('span');
-            n.className = 'slot-num';
-            n.textContent = (i + 1) + '/4';
-            d.appendChild(n);
-            g.appendChild(d);
-        }
-        var lim = document.getElementById('limit');
-        if (lim) lim.textContent = 'ပုံ ' + u.photos.length + '/4 ပုံ';
-    }
-
-    function pickPhoto(i) {
-        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
-        photoSlot = i;
-        var box = document.getElementById('photoChoiceBackdrop');
-        if (box) box.style.display = 'flex';
-    }
-
-    function closePhotoChoice() { var box = document.getElementById('photoChoiceBackdrop'); if (box) box.style.display = 'none'; }
-
-    var cameraStream = null;
-    async function openCamera() {
-        closePhotoChoice();
-        var input = document.getElementById('photoCamera');
-        if (!input) { alert('ကင်မရာခလုတ် မတွေ့ပါ'); return; }
-        try { input.value = ''; input.click(); } catch (e) { alert('ကင်မရာဖွင့်မရပါ။'); }
-    }
-
-    function closeCamera() {
-        var back = document.getElementById('cameraBackdrop');
-        var video = document.getElementById('cameraVideo');
-        if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); cameraStream = null; }
-        if (video) video.srcObject = null;
-        if (back) back.style.display = 'none';
-    }
-
-    function takeCameraPhoto() {
-        var video = document.getElementById('cameraVideo');
-        if (!video || !video.videoWidth) { alert('ကင်မရာမဖွင့်သေးပါ'); return; }
-        var canvas = document.createElement('canvas');
-        var max = 900, scale = Math.min(1, max / video.videoWidth);
-        canvas.width = Math.round(video.videoWidth * scale);
-        canvas.height = Math.round(video.videoHeight * scale);
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        var data = canvas.toDataURL('image/jpeg', 0.62);
-        var u = db.users[me];
-        if (!u) { closeCamera(); alert('Account မတွေ့ပါ'); return; }
-        u.photos = Array.isArray(u.photos) ? u.photos : [];
-        u.photos[photoSlot] = data;
-        u.photos = u.photos.slice(0, 4);
-        save();
-        closeCamera();
-        refresh();
-        alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
-    }
-
-    function openGallery() {
-        closePhotoChoice();
-        var input = document.getElementById('photoGallery');
-        if (input) { input.value = ''; input.click(); }
-    }
-
-    function addPhotoToSlot(e) {
-        var f = e.target.files && e.target.files[0];
-        if (!f) return;
-        if (!f.type.startsWith('image/')) { alert('ဓာတ်ပုံဖိုင်ကိုသာ ရွေးပါ'); e.target.value = ''; return; }
-        var u = db.users[me];
-        if (!u) { alert('Account မတွေ့ပါ'); e.target.value = ''; return; }
+    // ===== REPORT =====
+    function previewReportImage(e) {
+        var f = (e.target.files && e.target.files[0]), img = document.getElementById('reportImagePreview');
+        if (!f || !img) return;
         var r = new FileReader();
-        r.onload = function() {
-            var img = new Image();
-            img.onload = function() {
-                var max = 900, scale = Math.min(1, max / img.width);
-                var c = document.createElement('canvas');
-                c.width = Math.max(1, Math.round(img.width * scale));
-                c.height = Math.max(1, Math.round(img.height * scale));
-                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                var data = c.toDataURL('image/jpeg', 0.62);
-                u.photos = Array.isArray(u.photos) ? u.photos : [];
-                u.photos[photoSlot] = data;
-                u.photos = u.photos.slice(0, 4);
-                save();
-                refresh();
-                alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
-            };
-            img.src = r.result;
-        };
+        r.onload = function() { img.src = r.result; img.style.display = 'block'; };
         r.readAsDataURL(f);
-        e.target.value = '';
     }
 
+    async function submitReport() {
+        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
+        if (!db) { alert('ခဏစောင့်ပါ'); return; }
+
+        var title = (val('reportTitle') || '').trim();
+        var text = (val('reportText') || '').trim();
+        var fileInput = document.getElementById('reportImageInput');
+        var file = fileInput.files && fileInput.files[0];
+        var st = document.getElementById('reportStatus');
+
+        if (!title && !text && !file) {
+            st.className = 'report-status error';
+            st.textContent = '⚠️ အကြောင်းအရာ သို့မဟုတ် ပုံတစ်ခုခု ထည့်ပါ';
+            st.style.display = 'block';
+            return;
+        }
+
+        st.className = 'report-status loading';
+        st.textContent = '⏳ ပို့နေပါသည်...';
+        st.style.display = 'block';
+
+        try {
+            var image = '';
+            if (file) {
+                image = await new Promise(function(res, rej) {
+                    var r = new FileReader();
+                    r.onload = function() { res(String(r.result)); };
+                    r.onerror = rej;
+                    r.readAsDataURL(file);
+                });
+            }
+
+            var report = {
+                id: 'RPT' + Date.now() + Math.random().toString(36).slice(2, 6),
+                from: me,
+                fromName: (db.users[me] && db.users[me].name) || me,
+                title: title,
+                text: text,
+                image: image,
+                time: Date.now(),
+                status: 'pending'
+            };
+
+            db.reports = db.reports || [];
+            db.reports.push(report);
+            await save();
+
+            st.className = 'report-status success';
+            st.textContent = '✅ Report ပို့ပြီးပါပြီ။ Admin က စစ်ဆေးပါလိမ့်မယ်။';
+            st.style.display = 'block';
+
+            document.getElementById('reportTitle').value = '';
+            document.getElementById('reportText').value = '';
+            document.getElementById('reportImageInput').value = '';
+            var img = document.getElementById('reportImagePreview');
+            if (img) { img.src = ''; img.style.display = 'none'; }
+
+        } catch (e) {
+            console.error('Report error:', e);
+            st.className = 'report-status error';
+            st.textContent = '❌ Report ပို့မရပါ။ Error: ' + e.message;
+            st.style.display = 'block';
+        }
+    }
+
+    // ===== OTHER FUNCTIONS =====
     function nearby() {
         var onboardingActive = document.getElementById('onboarding') && document.getElementById('onboarding').classList.contains('active');
         var b = onboardingActive ? document.getElementById('onboardResults') : document.getElementById('near');
@@ -2257,6 +2062,187 @@
         r.readAsDataURL(f);
     }
 
+    function renderPhotos() {
+        var u = db.users[me], g = document.getElementById('photos');
+        if (!u || !g) return;
+        g.innerHTML = '';
+        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
+        for (var i = 0; i < 4; i++) {
+            var d = document.createElement('div');
+            d.className = 'profile-photo ' + (u.photos[i] ? '' : 'empty');
+            d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
+            if (u.photos[i]) {
+                var im = document.createElement('img');
+                im.src = u.photos[i];
+                im.alt = 'Profile photo ' + (i + 1);
+                d.appendChild(im);
+                var c = document.createElement('span');
+                c.className = 'change';
+                c.textContent = 'ပြောင်းမည်';
+                d.appendChild(c);
+            } else {
+                var s = document.createElement('span');
+                s.textContent = '＋';
+                d.appendChild(s);
+            }
+            var n = document.createElement('span');
+            n.className = 'slot-num';
+            n.textContent = (i + 1) + '/4';
+            d.appendChild(n);
+            g.appendChild(d);
+        }
+        var lim = document.getElementById('limit');
+        if (lim) lim.textContent = 'ပုံ ' + u.photos.length + '/4 ပုံ';
+    }
+
+    function pickPhoto(i) {
+        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
+        photoSlot = i;
+        var box = document.getElementById('photoChoiceBackdrop');
+        if (box) box.style.display = 'flex';
+    }
+
+    function closePhotoChoice() { var box = document.getElementById('photoChoiceBackdrop'); if (box) box.style.display = 'none'; }
+
+    var cameraStream = null;
+    async function openCamera() {
+        closePhotoChoice();
+        var input = document.getElementById('photoCamera');
+        if (!input) { alert('ကင်မရာခလုတ် မတွေ့ပါ'); return; }
+        try { input.value = ''; input.click(); } catch (e) { alert('ကင်မရာဖွင့်မရပါ။'); }
+    }
+
+    function closeCamera() {
+        var back = document.getElementById('cameraBackdrop');
+        var video = document.getElementById('cameraVideo');
+        if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); cameraStream = null; }
+        if (video) video.srcObject = null;
+        if (back) back.style.display = 'none';
+    }
+
+    function takeCameraPhoto() {
+        var video = document.getElementById('cameraVideo');
+        if (!video || !video.videoWidth) { alert('ကင်မရာမဖွင့်သေးပါ'); return; }
+        var canvas = document.createElement('canvas');
+        var max = 900, scale = Math.min(1, max / video.videoWidth);
+        canvas.width = Math.round(video.videoWidth * scale);
+        canvas.height = Math.round(video.videoHeight * scale);
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        var data = canvas.toDataURL('image/jpeg', 0.62);
+        var u = db.users[me];
+        if (!u) { closeCamera(); alert('Account မတွေ့ပါ'); return; }
+        u.photos = Array.isArray(u.photos) ? u.photos : [];
+        u.photos[photoSlot] = data;
+        u.photos = u.photos.slice(0, 4);
+        save();
+        closeCamera();
+        refresh();
+        alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
+    }
+
+    function openGallery() {
+        closePhotoChoice();
+        var input = document.getElementById('photoGallery');
+        if (input) { input.value = ''; input.click(); }
+    }
+
+    function addPhotoToSlot(e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        if (!f.type.startsWith('image/')) { alert('ဓာတ်ပုံဖိုင်ကိုသာ ရွေးပါ'); e.target.value = ''; return; }
+        var u = db.users[me];
+        if (!u) { alert('Account မတွေ့ပါ'); e.target.value = ''; return; }
+        var r = new FileReader();
+        r.onload = function() {
+            var img = new Image();
+            img.onload = function() {
+                var max = 900, scale = Math.min(1, max / img.width);
+                var c = document.createElement('canvas');
+                c.width = Math.max(1, Math.round(img.width * scale));
+                c.height = Math.max(1, Math.round(img.height * scale));
+                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                var data = c.toDataURL('image/jpeg', 0.62);
+                u.photos = Array.isArray(u.photos) ? u.photos : [];
+                u.photos[photoSlot] = data;
+                u.photos = u.photos.slice(0, 4);
+                save();
+                refresh();
+                alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
+            };
+            img.src = r.result;
+        };
+        r.readAsDataURL(f);
+        e.target.value = '';
+    }
+
+    function searchOnboardUsers() {
+        var b = document.getElementById('onboardResults');
+        var q = (val('onboardSearch') || '').trim().toLowerCase();
+        if (!b) return;
+        if (!q) { b.innerHTML = ''; return; }
+        var found = Object.values(db.users || {}).filter(function(u) { return u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q)); }).slice(0, 20);
+        if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
+        b.innerHTML = '';
+        found.forEach(function(u) {
+            var d = document.createElement('div');
+            d.className = 'onboard-user-card';
+            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '👤';
+            d.innerHTML =
+                '<div class="avatar">'+avatarHtml+'</div>'+
+                '<div class="info">'+
+                    '<div class="name">'+esc(u.name)+'</div>'+
+                    '<div class="id">ID: '+esc(u.id)+'</div>'+
+                '</div>'+
+                '<div class="actions">'+
+                    '<button class="btn" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
+                    '<button class="btn green" onclick="event.stopPropagation();requestFriend(\''+u.id+'\')">+ Friend</button>'+
+                '</div>';
+            d.onclick = function() { viewUserProfile(u.id); };
+            b.appendChild(d);
+        });
+    }
+
+    window.locate = function() {
+        if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
+        if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; }
+        navigator.geolocation.getCurrentPosition(async function(p) {
+            var lat = p.coords.latitude, lng = p.coords.longitude;
+            db.users[me].lat = lat; db.users[me].lng = lng;
+            localSave();
+            if (fbReady) {
+                await firebaseDB.ref('presence/' + me).update({ id: me, name: db.users[me].name || me, online: true, lat: lat, lng: lng, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
+            }
+            if (!db.users[me].region || db.users[me].region.trim() === '') {
+                var region = await fetchRegion(lat, lng);
+                if (region) { db.users[me].region = region; await save(); }
+            }
+            startPresence();
+            await nearby();
+            refresh();
+        }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+    };
+
+    async function fetchRegion(lat, lng) {
+        if (!lat || !lng) return '';
+        try {
+            var url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=10&accept-language=en';
+            var resp = await fetch(url);
+            var data = await resp.json();
+            if (data && data.address) {
+                var addr = data.address;
+                var parts = [];
+                if (addr.city) parts.push(addr.city);
+                else if (addr.town) parts.push(addr.town);
+                else if (addr.village) parts.push(addr.village);
+                if (addr.state) parts.push(addr.state);
+                else if (addr.region) parts.push(addr.region);
+                if (addr.country) parts.push(addr.country);
+                if (parts.length) return parts.join(', ');
+            }
+            return '';
+        } catch (e) { console.warn('Reverse geocode error', e); return ''; }
+    }
+
     document.addEventListener('click', function(e) {
         var el = e.target;
         while (el && el !== document && el.tagName !== 'BUTTON') el = el.parentNode;
@@ -2269,4 +2255,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+                </html>
