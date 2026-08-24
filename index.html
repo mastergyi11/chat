@@ -22,6 +22,9 @@
         .btn.red { background: #dc3545; color: #fff; }
         .btn.outline { background: transparent; border: 1px solid #ddd; color: #555; }
         .btn.small { padding: 4px 10px; font-size: 12px; }
+        .btn.follow-btn { background: #0d6efd; color: #fff; }
+        .btn.following-btn { background: #6c757d; color: #fff; }
+        .btn.block-btn { background: #dc3545; color: #fff; }
         .small { font-size: 12px; color: #777; }
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: #fff; }
         .list:last-child { border-bottom: 0; }
@@ -38,19 +41,11 @@
         .me .avatar { order: 2; }
         .me .bubble { order: 1; text-align: right; background: #e7f3ff; }
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
-        .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .badge-admin { background: #007bff; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .badge-level { background: #6c757d; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .badge-rank { padding: 0 10px; border-radius: 12px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .rank-1 { background: #28a745; color: #fff; }
-        .rank-2 { background: #17a2b8; color: #fff; }
-        .rank-3 { background: #ffc107; color: #222; }
-        .rank-4 { background: #fd7e14; color: #fff; }
-        .rank-5 { background: #dc3545; color: #fff; }
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
         .nav button span { font-size: 22px; }
+        .badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 11px; font-weight: bold; display: none; margin-left: 4px; min-width: 18px; text-align: center; }
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick .btn { min-height: 50px; font-size: 14px; }
         .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: #fff; }
@@ -166,22 +161,27 @@
         .rank-4 { background: #fd7e14; color: #fff; }
         .rank-5 { background: #dc3545; color: #fff; }
         .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .badge-admin { background: #007bff; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
-        @media (max-width: 520px) {
-            .photos { grid-template-columns: repeat(2, 1fr); }
-            .quick { grid-template-columns: 1fr; }
-            .nav { grid-template-columns: repeat(6, 1fr); }
-            .nav button { font-size: 10px; }
-            .profile-row label { min-width: 90px; font-size: 13px; }
-            .group-horizontal-scroll .group-card { min-width: 150px; max-width: 170px; }
-            .my-groups-horizontal .group-card { min-width: 140px; max-width: 160px; }
-        }
+        .profile-create-group-section { margin: 12px 0; padding: 12px 18px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
+        .profile-create-group-section .btn { width: 100%; }
         .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .rank-label { font-size: 10px; margin-left: 4px; }
-        .profile-create-group-section { margin: 12px 0; padding: 12px 18px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
-        .profile-create-group-section .btn { width: 100%; }
+        .user-profile-card { text-align: center; padding: 16px; }
+        .user-profile-card .avatar { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .user-profile-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-profile-card .name { font-size: 20px; font-weight: bold; }
+        .user-profile-card .id { font-size: 14px; color: #777; }
+        .user-profile-card .bio { font-size: 14px; color: #555; margin: 6px 0; }
+        .user-profile-card .stats { display: flex; justify-content: center; gap: 30px; padding: 12px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; margin: 10px 0; }
+        .user-profile-card .stats div { text-align: center; }
+        .user-profile-card .stats b { font-size: 18px; display: block; }
+        .user-profile-card .stats span { font-size: 12px; color: #777; }
+        .user-profile-card .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+        .user-profile-card .actions .btn { min-width: 100px; }
+        .user-profile-card .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+        .user-profile-card .info-row .label { color: #777; }
+        .user-profile-card .info-row .value { font-weight: 500; }
     </style>
 </head>
 <body>
@@ -301,7 +301,6 @@
             <div id="limit" class="profile-limit"></div>
             <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;"></div>
             
-            <!-- ===== NEW: Create Group Section on Profile ===== -->
             <div id="profileCreateGroupSection" class="profile-create-group-section">
                 <div id="profileCreateGroupBtn">
                     <button class="btn gold" onclick="showGroupCreation()">➕ အသင်းသစ်တည်ထောင်ရန်</button>
@@ -421,11 +420,11 @@
 
     <!-- INBOX -->
     <section id="inbox" class="screen">
-        <div class="card"><h3>💬 Inbox</h3><div id="inboxList"></div></div>
-        <div class="card"><h3>📨 Friend Requests</h3><div id="inboxRequests"></div></div>
+        <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
+        <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
-    <!-- USER PROFILE -->
+    <!-- USER PROFILE (Improved) -->
     <section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 
     <!-- GROUPS (Create - fallback) -->
@@ -715,11 +714,59 @@
         renderGroupChat();
     };
 
+    // ===== NOTIFICATION BADGE SYSTEM =====
+    function updateBadges() {
+        if (!me || !db) return;
+
+        // Friend Requests
+        var incomingRequests = db.req.filter(r => r.t === me && !r.seen);
+        var requestCount = incomingRequests.length;
+        var reqBadge = document.getElementById('requestCount');
+        if (reqBadge) {
+            reqBadge.textContent = requestCount > 0 ? requestCount : '';
+            reqBadge.style.display = requestCount > 0 ? 'inline-block' : 'none';
+        }
+
+        // Unread Messages (Inbox)
+        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
+        var unreadCount = 0;
+        friendIds.forEach(function(id) {
+            var key = [me, id].sort().join('_');
+            var msgs = db.messages[key] || [];
+            msgs.forEach(function(m) {
+                if (m.f !== me && !m.seen) unreadCount++;
+            });
+        });
+
+        // Group Messages
+        var myGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); });
+        myGroups.forEach(function(g) {
+            var msgs = db.groupMessages[g.id] || [];
+            msgs.forEach(function(m) {
+                if (m.f !== me && !m.seen) unreadCount++;
+            });
+        });
+
+        // Total Badge
+        var total = requestCount + unreadCount;
+        var inboxBadge = document.getElementById('inboxBadge');
+        if (inboxBadge) {
+            inboxBadge.textContent = total > 0 ? total : '';
+            inboxBadge.style.display = total > 0 ? 'inline-block' : 'none';
+        }
+
+        var inboxCount = document.getElementById('inboxCount');
+        if (inboxCount) {
+            inboxCount.textContent = total > 0 ? total : '';
+            inboxCount.style.display = total > 0 ? 'inline-block' : 'none';
+        }
+    }
+
     // ===== NAVIGATION =====
     function navGo(id) {
         show(id);
         closeMenu();
-        ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(x => {
+        ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(function(x) {
             var el = document.getElementById(x);
             if (el) el.classList.remove('active-nav');
         });
@@ -739,6 +786,7 @@
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
+        if (id === 'userProfile') renderUserProfile();
     }
 
     function isBlocked(userId) {
@@ -751,8 +799,8 @@
         if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; }
         db.blocked = db.blocked || {};
         db.blocked[userId] = true;
-        db.friends = db.friends.filter(f => !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)));
-        db.req = db.req.filter(r => !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)));
+        db.friends = db.friends.filter(function(f) { return !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)); });
+        db.req = db.req.filter(function(r) { return !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)); });
         save();
         refresh();
         alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ');
@@ -790,7 +838,7 @@
     function renderBlockedUsers() {
         var container = document.getElementById('blockedUsersList');
         if (!container) return;
-        var blockedIds = Object.keys(db.blocked || {}).filter(id => db.blocked[id] === true);
+        var blockedIds = Object.keys(db.blocked || {}).filter(function(id) { return db.blocked[id] === true; });
         var badge = document.getElementById('blockedBadge');
         if (badge) badge.textContent = blockedIds.length;
         if (!blockedIds.length) {
@@ -798,7 +846,7 @@
             return;
         }
         container.innerHTML = '';
-        blockedIds.forEach(id => {
+        blockedIds.forEach(function(id) {
             var u = db.users[id];
             if (!u) return;
             var d = document.createElement('div');
@@ -845,10 +893,10 @@
         if (!me || !db) return;
         var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
         if (!list || !req) return;
-        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
+        var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id); });
         list.innerHTML = '';
         if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
-        friendIds.forEach(id => {
+        friendIds.forEach(function(id) {
             var u = db.users[id];
             if (!u) return;
             var key = [me, id].sort().join('_'), msgs = db.messages[key] || [], last = msgs[msgs.length - 1];
@@ -862,19 +910,23 @@
                 '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
             list.appendChild(d);
         });
-        var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
+        var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
         req.innerHTML = '';
-        if (!incoming.length) req.innerHTML = '<div class="small">Friend Request မရှိသေးပါ။</div>';
-        incoming.forEach(r => {
-            var u = db.users[r.f];
-            if (!u) return;
-            var d = document.createElement('div');
-            d.className = 'list';
-            d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br><button class="btn green" onclick="accept(\'' + u.id + '\');renderInbox()">လက်ခံ</button><button class="btn red" onclick="decline(\'' + u.id + '\');renderInbox()">ငြင်း</button>';
-            req.appendChild(d);
-        });
-        var badge = document.getElementById('inboxBadge');
-        if (badge) badge.textContent = incoming.length ? '💬 ' + incoming.length : '💬';
+        if (!incoming.length) {
+            req.innerHTML = '<div class="small">Friend Request မရှိသေးပါ။</div>';
+        } else {
+            incoming.forEach(function(r) {
+                var u = db.users[r.f];
+                if (!u) return;
+                var d = document.createElement('div');
+                d.className = 'list';
+                d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' +
+                    '<button class="btn green" onclick="accept(\'' + u.id + '\');renderInbox()">လက်ခံ</button>' +
+                    '<button class="btn red" onclick="decline(\'' + u.id + '\');renderInbox()">ငြင်း</button>';
+                req.appendChild(d);
+            });
+        }
+        updateBadges();
     }
 
     function friends() {
@@ -915,6 +967,7 @@
         if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
     }
 
+    // ===== IMPROVED USER PROFILE (Like Screenshot 3) =====
     function viewUserProfile(id) {
         var u = db.users[id];
         if (!u) return;
@@ -924,36 +977,72 @@
         }
         window.viewingProfile = id;
         show('userProfile');
-        var b = document.getElementById('userProfileBox');
-        var photo = (u.photos && u.photos[0]) ? '<img src=\"' + u.photos[0] + '\" style=\"width:90px;height:90px;border-radius:50%;object-fit:cover\">' : '👤';
-        var friend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
-        var sent = db.req.some(function(r) { return r.f === me && r.t === id; });
-        var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
-        var blocked = isBlocked(id);
-        var userGroups = db.groups.filter(g => g.members.includes(id));
-        var groupsHtml = '';
-        if (userGroups.length) {
-            groupsHtml = '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => { groupsHtml += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
-            groupsHtml += '</div>';
-        } else {
-            groupsHtml = '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
+        renderUserProfile(id);
+    }
+
+    function renderUserProfile(id) {
+        var box = document.getElementById('userProfileBox');
+        if (!box) return;
+        var u = db.users[id];
+        if (!u) {
+            box.innerHTML = '<div class="small">သုံးစွဲသူမရှိပါ</div>';
+            return;
         }
-        var actionHtml = '';
-        if (id !== me) {
-            if (blocked) {
-                actionHtml = '<span style="color:#dc3545;">🚫 ဘလော့လုပ်ထားပါသည်</span><br><button class="btn" onclick="unblockUser(\''+id+'\')">ဘလော့ဖြုတ်မည်</button>';
-            } else {
-                actionHtml = friend ? '<span>✅ Friend</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + id + '\')">Add Friend</button>';
-                actionHtml += '<br><button class="btn red" onclick="blockUser(\''+id+'\')">🚫 ဘလော့လုပ်မည်</button>';
-            }
-        } else {
-            actionHtml = '<span>👤 ကိုယ့် Profile</span>';
-        }
-        b.innerHTML = '<div style="text-align:center">' + photo + '<h2>' + esc(u.name || '-') + '</h2><div>ID: ' + esc(id) + '</div>' + regionText + '<p>' + esc(u.bio || '') + '</p>' + 
-            actionHtml +
-            groupsHtml +
+
+        var isMe = id === me;
+        var isFriend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
+        var isBlockedUser = isBlocked(id);
+        var hasRequested = db.req.some(function(r) { return r.f === me && r.t === id; });
+        var hasIncoming = db.req.some(function(r) { return r.f === id && r.t === me; });
+
+        var avatarHtml = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
+        var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
+
+        var html = '<div class="user-profile-card">';
+        html += '<div class="avatar">' + avatarHtml + '</div>';
+        html += '<div class="name">' + esc(u.name || '-') + '</div>';
+        html += '<div class="id">ID: ' + esc(u.id) + '</div>';
+        html += '<div class="bio">' + esc(u.bio || '') + '</div>';
+        html += '<div class="stats">' +
+            '<div><b>' + (db.friends.filter(function(x) { return x.a === id || x.b === id; }).length || 0) + '</b><span>Friends</span></div>' +
+            '<div><b>' + (db.groups.filter(function(g) { return g.members && g.members.includes(id); }).length || 0) + '</b><span>Groups</span></div>' +
             '</div>';
+        
+        // Info rows
+        html += '<div class="info-row"><span class="label">📍 Region</span><span class="value">' + regionText + '</span></div>';
+        html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
+        
+        // Actions
+        html += '<div class="actions">';
+        if (isMe) {
+            html += '<button class="btn gold" onclick="show(\'profile\')">✏️ Edit Profile</button>';
+        } else if (isBlockedUser) {
+            html += '<button class="btn block-btn" onclick="unblockUser(\'' + id + '\')">🚫 Unblock</button>';
+        } else if (isFriend) {
+            html += '<button class="btn green" onclick="openChat(\'' + id + '\')">💬 Message</button>';
+            html += '<button class="btn block-btn" onclick="blockUser(\'' + id + '\')">🚫 Block</button>';
+        } else if (hasRequested) {
+            html += '<button class="btn" disabled>📨 Request Sent</button>';
+        } else if (hasIncoming) {
+            html += '<button class="btn green" onclick="acceptFriendFromProfile(\'' + id + '\')">✅ Accept</button>';
+            html += '<button class="btn red" onclick="declineFriendFromProfile(\'' + id + '\')">❌ Decline</button>';
+        } else {
+            html += '<button class="btn follow-btn" onclick="requestFriend(\'' + id + '\')">➕ Add Friend</button>';
+        }
+        html += '</div>';
+        html += '</div>';
+
+        box.innerHTML = html;
+    }
+
+    function acceptFriendFromProfile(id) {
+        accept(id);
+        renderUserProfile(id);
+    }
+
+    function declineFriendFromProfile(id) {
+        decline(id);
+        renderUserProfile(id);
     }
 
     function openChat(id) {
@@ -979,6 +1068,7 @@
         toggleSendButton();
         save();
         renderChat();
+        updateBadges();
     }
 
     function renderChat() {
@@ -1033,6 +1123,7 @@
         });
         save();
         b.scrollTop = b.scrollHeight;
+        updateBadges();
     }
 
     function getUserAvatar(user) {
@@ -1128,7 +1219,7 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(function(x) { x.classList.remove('active'); });
         var el = document.getElementById(id);
         if (el) el.classList.add('active');
         refresh();
@@ -1141,6 +1232,7 @@
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
+        if (id === 'userProfile') renderUserProfile(window.viewingProfile);
     }
 
     function refresh() {
@@ -1177,9 +1269,9 @@
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; }
         var fc = document.getElementById('followersCount');
-        if (fc) fc.textContent = db.req.filter(r => r.t === me).length + db.friends.filter(x => x.a === me || x.b === me).length;
+        if (fc) fc.textContent = db.req.filter(function(r) { return r.t === me; }).length + db.friends.filter(function(x) { return x.a === me || x.b === me; }).length;
         var fwc = document.getElementById('followingCount');
-        if (fwc) fwc.textContent = db.friends.filter(x => x.a === me || x.b === me).length;
+        if (fwc) fwc.textContent = db.friends.filter(function(x) { return x.a === me || x.b === me; }).length;
         renderPhotos();
         nearby();
         friends();
@@ -1192,16 +1284,17 @@
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
+        updateBadges();
     }
 
     function renderProfileGroups() {
         if (!me || !db) return;
         var container = document.getElementById('profileUserGroups');
         if (!container) return;
-        var userGroups = db.groups.filter(g => g.members.includes(me));
+        var userGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); });
         if (userGroups.length) {
             var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(g => { html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
+            userGroups.forEach(function(g) { html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
             container.innerHTML = html;
             container.style.display = 'block';
         } else {
@@ -1216,7 +1309,7 @@
         if (!container) return;
         var q = (document.getElementById('groupSearchInput')?.value || '').trim().toLowerCase();
         var allGroups = db.groups || [];
-        var filtered = allGroups.filter(g => {
+        var filtered = allGroups.filter(function(g) {
             if (!g) return false;
             if (g.members && g.members.includes(me)) return false;
             var nameMatch = (g.name || '').toLowerCase().includes(q);
@@ -1228,7 +1321,7 @@
             return;
         }
         container.innerHTML = '';
-        filtered.forEach(g => {
+        filtered.forEach(function(g) {
             var card = document.createElement('div');
             card.className = 'group-card';
             card.onclick = function() { viewPublicGroup(g.id); };
@@ -1247,13 +1340,13 @@
         var container = document.getElementById('myGroupsList');
         if (!container) return;
         if (!me) { container.innerHTML = '<div class="small">အကောင့်ဝင်ပါ</div>'; return; }
-        var myGroups = db.groups.filter(g => g.members && g.members.includes(me));
+        var myGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); });
         if (!myGroups.length) {
             container.innerHTML = '<div class="small">အသင်းမပါဝင်သေးပါ</div>';
             return;
         }
         container.innerHTML = '';
-        myGroups.forEach(g => {
+        myGroups.forEach(function(g) {
             var card = document.createElement('div');
             card.className = 'group-card';
             card.onclick = function() { openGroup(g.id); };
@@ -1268,7 +1361,7 @@
     }
 
     function viewPublicGroup(groupId) {
-        var g = db.groups.find(x => x.id === groupId);
+        var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g) { alert('အသင်းမရှိပါ'); return; }
         if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
         if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
@@ -1292,7 +1385,7 @@
         var container = document.getElementById('profileCreateGroupSection');
         if (!container) return;
         
-        var myGroup = db.groups.find(g => g.owner === me);
+        var myGroup = db.groups.find(function(g) { return g.owner === me; });
         var btnDiv = document.getElementById('profileCreateGroupBtn');
         var formDiv = document.getElementById('profileCreateGroupForm');
         var myGroupDiv = document.getElementById('profileMyGroupDisplay');
@@ -1375,7 +1468,7 @@
     }
 
     function openMyGroupFromProfile() {
-        var myGroup = db.groups.find(g => g.owner === me);
+        var myGroup = db.groups.find(function(g) { return g.owner === me; });
         if (myGroup) openGroup(myGroup.id);
     }
 
@@ -1432,10 +1525,10 @@
         var q = (val('onboardSearch') || '').trim().toLowerCase();
         if (!b) return;
         if (!q) { b.innerHTML = ''; return; }
-        var found = Object.values(db.users || {}).filter(u => u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))).slice(0, 20);
+        var found = Object.values(db.users || {}).filter(function(u) { return u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q)); }).slice(0, 20);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
         b.innerHTML = '';
-        found.forEach(u => {
+        found.forEach(function(u) {
             var d = document.createElement('div');
             d.className = 'onboard-user-card';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '👤';
@@ -1583,12 +1676,12 @@
         if (t) t.classList.toggle('on', notificationEnabled());
         var list = document.getElementById('notificationList');
         if (!list || !me || !db) return;
-        var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
-        var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
+        var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
+        var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id); });
         var items = [];
-        incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
-        friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
-        list.innerHTML = items.length ? items.map(x => '<div class="list">' + x + '</div>').join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
+        incoming.forEach(function(r) { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
+        friendIds.forEach(function(id) { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
+        list.innerHTML = items.length ? items.map(function(x) { return '<div class="list">' + x + '</div>'; }).join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
     }
 
     function previewReportImage(e) {
@@ -2161,4 +2254,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-</html>
+    </html>
