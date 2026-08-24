@@ -38,15 +38,15 @@
         .me .avatar { order: 2; }
         .me .bubble { order: 1; text-align: right; background: #e7f3ff; }
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
-        .badge-owner { background: #ffd700; color: #222; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
-        .badge-admin { background: #007bff; color: #fff; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
-        .badge-level { background: #6c757d; color: #fff; padding: 0 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
-        .badge-rank { padding: 0 8px; border-radius: 12px; font-weight: bold; font-size: 10px; display: inline-block; }
-        .rank-1 { background: #28a745; color: #fff; }  /* အသင်းသားသစ် */
-        .rank-2 { background: #17a2b8; color: #fff; }  /* တက်ကြွသူ */
-        .rank-3 { background: #ffc107; color: #222; }  /* အားထုတ်သူ */
-        .rank-4 { background: #fd7e14; color: #fff; }  /* ခေါင်းဆောင် */
-        .rank-5 { background: #dc3545; color: #fff; }  /* ဒဏ္ဍာရီ */
+        .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .badge-admin { background: #007bff; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .badge-level { background: #6c757d; color: #fff; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .badge-rank { padding: 0 10px; border-radius: 12px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .rank-1 { background: #28a745; color: #fff; }
+        .rank-2 { background: #17a2b8; color: #fff; }
+        .rank-3 { background: #ffc107; color: #222; }
+        .rank-4 { background: #fd7e14; color: #fff; }
+        .rank-5 { background: #dc3545; color: #fff; }
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
@@ -180,6 +180,8 @@
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .rank-label { font-size: 10px; margin-left: 4px; }
+        .profile-create-group-section { margin: 12px 0; padding: 12px 18px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
+        .profile-create-group-section .btn { width: 100%; }
     </style>
 </head>
 <body>
@@ -298,6 +300,28 @@
             <input id="photoGallery" type="file" accept="image/*" class="hidden" onchange="addPhotoToSlot(event)">
             <div id="limit" class="profile-limit"></div>
             <div id="profileUserGroups" class="user-groups-section" style="padding:12px 18px;"></div>
+            
+            <!-- ===== NEW: Create Group Section on Profile ===== -->
+            <div id="profileCreateGroupSection" class="profile-create-group-section">
+                <div id="profileCreateGroupBtn">
+                    <button class="btn gold" onclick="showGroupCreation()">➕ အသင်းသစ်တည်ထောင်ရန်</button>
+                    <p class="small">အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။</p>
+                </div>
+                <div id="profileCreateGroupForm" style="display:none;">
+                    <input id="profileGname" placeholder="အသင်းအမည်">
+                    <div class="group-avatar-upload">
+                        <label for="profileGroupAvatarUpload">📷 အသင်းပုံတင်ရန်</label>
+                        <input type="file" id="profileGroupAvatarUpload" accept="image/*" onchange="previewProfileGroupAvatar(event)">
+                        <span id="profileGroupAvatarStatus" class="small">ပုံမရွေးရသေးပါ</span>
+                    </div>
+                    <button class="btn gold" onclick="createGroupFromProfile()">ဖန်တီးမည်</button>
+                    <button class="btn outline small" onclick="document.getElementById('profileCreateGroupForm').style.display='none';document.getElementById('profileCreateGroupBtn').style.display='block';">✖️ ပိတ်မည်</button>
+                </div>
+                <div id="profileMyGroupDisplay" style="display:none; padding:8px 0;">
+                    <div class="small">📌 သင်၏အသင်း</div>
+                    <div id="profileMyGroupCard" style="background:#f8f9fa; padding:10px; border-radius:8px; margin-top:6px; cursor:pointer;" onclick="openMyGroupFromProfile()"></div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -404,10 +428,10 @@
     <!-- USER PROFILE -->
     <section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 
-    <!-- GROUPS (Create) -->
+    <!-- GROUPS (Create - fallback) -->
     <section id="groups" class="screen">
         <div id="groupCreateCard" class="card">
-            <h3>👥 Group တည်ထောင်ရန်</h3>
+            <h3>👥 အသင်းအသစ်တည်ထောင်ရန်</h3>
             <input id="gname" placeholder="Group အမည်">
             <div class="group-avatar-upload">
                 <label for="groupAvatarUpload">📷 အသင်းပုံတင်ရန်</label>
@@ -499,6 +523,7 @@
     var firebaseInitPromise = null;
     var chatMenuVisible = false;
     var tempGroupAvatar = null;
+    var tempProfileGroupAvatar = null;
 
     function byId(id) { return document.getElementById(id); }
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
@@ -658,9 +683,7 @@
         else if (activity >= 25) newRank = 3;
         else if (activity >= 10) newRank = 2;
         
-        // If user is owner, rank is always 5 (Legend)
         if (g.owner === userId) newRank = 5;
-        
         g.memberRanks[userId] = newRank;
         return newRank;
     }
@@ -686,7 +709,6 @@
         db.groupMessages = db.groupMessages || {};
         db.groupMessages[id] = db.groupMessages[id] || [];
         db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
-        // Add activity for sender
         addGroupActivity(id, me, 1);
         input.value = '';
         save();
@@ -716,6 +738,7 @@
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
+        if (id === 'profile') renderProfileCreateGroup();
     }
 
     function isBlocked(userId) {
@@ -1117,6 +1140,7 @@
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
+        if (id === 'profile') renderProfileCreateGroup();
     }
 
     function refresh() {
@@ -1167,6 +1191,7 @@
         renderMyAccount();
         renderAllGroups();
         renderMyGroups();
+        renderProfileCreateGroup();
     }
 
     function renderProfileGroups() {
@@ -1250,7 +1275,6 @@
             if (!g.members) g.members = [];
             if (!g.members.includes(me)) {
                 g.members.push(me);
-                // Initialize activity and rank for new member
                 if (!g.memberActivity) g.memberActivity = {};
                 g.memberActivity[me] = 0;
                 save();
@@ -1260,6 +1284,99 @@
                 openGroup(groupId);
             }
         }
+    }
+
+    // ===== PROFILE CREATE GROUP =====
+    function renderProfileCreateGroup() {
+        if (!me || !db) return;
+        var container = document.getElementById('profileCreateGroupSection');
+        if (!container) return;
+        
+        var myGroup = db.groups.find(g => g.owner === me);
+        var btnDiv = document.getElementById('profileCreateGroupBtn');
+        var formDiv = document.getElementById('profileCreateGroupForm');
+        var myGroupDiv = document.getElementById('profileMyGroupDisplay');
+        var myGroupCard = document.getElementById('profileMyGroupCard');
+        
+        if (myGroup) {
+            btnDiv.style.display = 'none';
+            formDiv.style.display = 'none';
+            myGroupDiv.style.display = 'block';
+            var avatarHtml = myGroup.avatar ? '<img src="'+myGroup.avatar+'" style="width:50px;height:50px;border-radius:50%;object-fit:cover;margin-right:10px;">' : '🏆 ';
+            myGroupCard.innerHTML = avatarHtml + '<b>' + esc(myGroup.name) + '</b> <span class="small">('+esc(myGroup.id)+')</span><br><span class="small">Members: '+(myGroup.members ? myGroup.members.length : 0)+'/20</span>';
+        } else {
+            btnDiv.style.display = 'block';
+            formDiv.style.display = 'none';
+            myGroupDiv.style.display = 'none';
+        }
+    }
+
+    function showGroupCreation() {
+        document.getElementById('profileCreateGroupBtn').style.display = 'none';
+        document.getElementById('profileCreateGroupForm').style.display = 'block';
+        document.getElementById('profileMyGroupDisplay').style.display = 'none';
+    }
+
+    function previewProfileGroupAvatar(e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function() {
+            tempProfileGroupAvatar = r.result;
+            document.getElementById('profileGroupAvatarStatus').textContent = '✅ ပုံရွေးပြီးပါပြီ';
+        };
+        r.readAsDataURL(f);
+    }
+
+    function createGroupFromProfile() {
+        if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
+        var n = document.getElementById('profileGname').value.trim();
+        if (!n) { alert('အသင်းအမည်ထည့်ပါ'); return; }
+        if (db.groups.some(function(g) { return g.owner === me; })) {
+            alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
+            return;
+        }
+        var newId = '';
+        var exists = true;
+        var attempts = 0;
+        while (exists && attempts < 100) {
+            var num = Math.floor(10000000 + Math.random() * 90000000);
+            newId = String(num);
+            exists = db.groups.some(function(g) { return g.id === newId; });
+            attempts++;
+        }
+        if (exists) { alert('ID ထုတ်လို့မရပါ၊ ထပ်စမ်းပါ'); return; }
+
+        var group = { 
+            id: newId, 
+            name: n, 
+            owner: me, 
+            members: [me], 
+            level: 1, 
+            activity: 0,
+            avatar: tempProfileGroupAvatar || null,
+            memberRanks: {},
+            memberActivity: {}
+        };
+        group.memberRanks[me] = 5;
+        group.memberActivity[me] = 0;
+        db.groups.push(group);
+        document.getElementById('profileGname').value = '';
+        tempProfileGroupAvatar = null;
+        document.getElementById('profileGroupAvatarStatus').textContent = 'ပုံမရွေးရသေးပါ';
+        document.getElementById('profileCreateGroupForm').style.display = 'none';
+        document.getElementById('profileCreateGroupBtn').style.display = 'block';
+        save();
+        refresh();
+        alert('✅ အသင်းဖန်တီးပြီးပါပြီ\nID: '+newId);
+        renderAllGroups();
+        renderMyGroups();
+        renderProfileCreateGroup();
+    }
+
+    function openMyGroupFromProfile() {
+        var myGroup = db.groups.find(g => g.owner === me);
+        if (myGroup) openGroup(myGroup.id);
     }
 
     function enter() {
@@ -1792,7 +1909,7 @@
             memberRanks: {},
             memberActivity: {}
         };
-        group.memberRanks[me] = 5; // Owner is Legend
+        group.memberRanks[me] = 5;
         group.memberActivity[me] = 0;
         db.groups.push(group);
         document.getElementById('gname').value = '';
@@ -1803,6 +1920,7 @@
         alert('✅ အသင်းဖန်တီးပြီးပါပြီ\nID: '+newId);
         renderAllGroups();
         renderMyGroups();
+        renderProfileCreateGroup();
     }
 
     function groups() {
@@ -1825,6 +1943,7 @@
         if (!b.innerHTML) b.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>';
         renderAllGroups();
         renderMyGroups();
+        renderProfileCreateGroup();
     }
 
     function openGroup(groupId) {
@@ -1859,7 +1978,6 @@
             '<p class="small">ID: '+esc(g.id)+' • Level ' + g.level + ' • Members '+(g.members ? g.members.length : 0)+'/20</p>' +
             '<hr><h3>👥 အသင်းဝင်များ</h3>';
 
-        // Group settings menu
         html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 0;">';
         if (isOwner) {
             html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
@@ -1871,7 +1989,6 @@
         html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;">✖️ ပိတ်မည်</button>';
         html += '</div>';
 
-        // Members with ranks and badges
         if (members.length) {
             members.forEach(function(u) {
                 var rank = getMemberRank(g, u.id);
@@ -1917,7 +2034,6 @@
         if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
         if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
             g.owner = userId;
-            // Owner becomes Legend
             g.memberRanks[userId] = 5;
             save();
             renderGroupDetail();
@@ -1939,6 +2055,7 @@
             alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
             renderAllGroups();
             renderMyGroups();
+            renderProfileCreateGroup();
         }
     }
 
@@ -1953,6 +2070,7 @@
             alert('✅ အသင်းဖျက်ပြီးပါပြီ');
             renderAllGroups();
             renderMyGroups();
+            renderProfileCreateGroup();
         }
     }
 
@@ -2043,4 +2161,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+</html>
