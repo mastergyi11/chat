@@ -12,6 +12,8 @@
         .menu-btn { background: transparent; border: 0; color: #222; font-size: 24px; cursor: pointer; padding: 0 8px; }
         .header-title { font-size: 18px; font-weight: bold; flex: 1; text-align: center; }
         #head { font-size: 14px; }
+        .notif-btn { background: transparent; border: 0; font-size: 22px; cursor: pointer; position: relative; padding: 0 6px; }
+        .notif-badge { position: absolute; top: -6px; right: -6px; background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; min-width: 18px; text-align: center; display: none; }
         .screen { display: none; padding: 15px; background: #fff; }
         .screen.active { display: block; }
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
@@ -93,11 +95,12 @@
         .settings-item .sicon { width: 28px; text-align: center; font-size: 20px; flex: 0 0 28px; }
         .settings-item .blocked-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 11px; margin-left: auto; }
         .settings-logout { width: 100%; height: 52px; margin-top: 18px; border: 0; border-radius: 10px; background: #e7ad21; color: #172130; font-size: 16px; cursor: pointer; }
-        .profile-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .profile-photo { aspect-ratio: 1; border-radius: 12px; background: #f8f9fa; border: 1px solid #eee; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #aaa; }
+        .profile-photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .profile-photo { aspect-ratio: 1; border-radius: 8px; background: #f8f9fa; border: 1px solid #eee; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #aaa; }
         .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-photo .slot-num { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 10px; }
-        .profile-photo .change { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 8px; padding: 2px 8px; font-size: 10px; }
+        .profile-photo .slot-num { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 9px; }
+        .profile-photo .change { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 8px; padding: 2px 8px; font-size: 9px; }
+        .profile-photo .admin-badge { position: absolute; left: 4px; top: 4px; background: rgba(244,180,0,0.8); color: #222; border-radius: 8px; padding: 2px 8px; font-size: 9px; font-weight: bold; }
         .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #eee; }
         .profile-stats b { font-size: 20px; }
         .profile-stats span { font-size: 13px; color: #777; }
@@ -129,7 +132,7 @@
         .toggle.on::after { left: 25px; }
         .searchbar { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
         .searchbar input { margin: 0; border: 0; background: transparent; padding: 8px; flex: 1; }
-        .location-center { text-align: center; margin-top: 20vh; }
+        .location-center { text-align: center; margin-top: 5vh; }
         .location-icon { font-size: 48px; }
         .group-horizontal-scroll { display: flex; overflow-x: auto; gap: 12px; padding: 8px 0; scroll-snap-type: x mandatory; }
         .group-horizontal-scroll .group-card { min-width: 180px; max-width: 200px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px; scroll-snap-align: start; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex-shrink: 0; cursor: pointer; }
@@ -182,6 +185,12 @@
         .user-profile-card .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
         .user-profile-card .info-row .label { color: #777; }
         .user-profile-card .info-row .value { font-weight: 500; }
+        /* Admin Messages */
+        .admin-msg-item { padding: 10px; border-bottom: 1px solid #f0f0f0; }
+        .admin-msg-item .msg-title { font-weight: bold; font-size: 16px; }
+        .admin-msg-item .msg-body { color: #555; margin: 4px 0; }
+        .admin-msg-item .msg-time { font-size: 11px; color: #999; }
+        .admin-msg-item.unread { background: #f0f7ff; border-left: 3px solid #0d6efd; }
     </style>
 </head>
 <body>
@@ -191,6 +200,10 @@
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
         <div id="pageTitle" class="header-title">My Social Chat</div>
         <span id="head">Guest</span>
+        <button class="notif-btn" onclick="openAdminMessages()" id="notifBell" title="Admin Messages">
+            🔔
+            <span class="notif-badge" id="notifBadge">0</span>
+        </button>
     </header>
 
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
@@ -217,10 +230,9 @@
         </div>
     </section>
 
-    <!-- ONBOARDING -->
+    <!-- ONBOARDING (search bar removed) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန်" oninput="searchOnboardUsers()"></div>
             <div class="location-center">
                 <div class="location-icon">📍</div>
                 <h2>တည်နေရာဖြင့် ရှာရန်</h2>
@@ -276,7 +288,7 @@
         <div class="profile-page">
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
-                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
+                <div class="profile-photo-note">* သင် ၄ ပုံသာ တင်နိုင်ပြီး ကျန်ပုံများကို Admin မှ တင်ပေးပါသည်။</div>
             </div>
             <div class="profile-stats">
                 <div><b id="followingCount">0</b><span>Following</span></div>
@@ -456,6 +468,17 @@
         <div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div>
     </section>
 
+    <!-- ADMIN MESSAGES (User reads only) -->
+    <section id="adminMessages" class="screen">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>📢 Admin Messages</h3>
+                <button class="btn outline small" onclick="show('home')">✖️</button>
+            </div>
+            <div id="adminMsgList"><div class="small">Loading...</div></div>
+        </div>
+    </section>
+
     <!-- CAMERA BACKDROPS -->
     <div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center">
         <div class="photo-choice" style="border-radius:18px;max-width:520px">
@@ -523,6 +546,12 @@
     var chatMenuVisible = false;
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
+    var USER_UPLOAD_LIMIT = 4;
+    var MAX_PHOTOS = 32;
+
+    // Admin messages
+    var adminMessages = [];
+    var adminMsgListener = null;
 
     function byId(id) { return document.getElementById(id); }
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
@@ -563,7 +592,7 @@
                 u.accountName = u.accountName || u.name || id;
                 u.dob = u.dob || '';
                 u.gender = u.gender || '';
-                u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
+                u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 32) : [];
                 if (u.region === undefined) u.region = '';
             }
         });
@@ -611,8 +640,12 @@
                 db = incoming;
                 localSave();
                 if (me && db.users[me]) refresh();
+                // update admin messages badge
+                loadAdminMessages();
             });
             setStatus('✅ ချိတ်ဆက်ပြီးပါပြီ');
+            // Load admin messages after login
+            loadAdminMessages();
         } catch (e) {
             console.error('Firebase:', e);
             fbReady = false;
@@ -632,6 +665,7 @@
                 document.getElementById('nav').classList.remove('hidden');
                 navGo('home');
                 startPresence();
+                loadAdminMessages();
                 return true;
             }
         } catch (e) {}
@@ -639,6 +673,90 @@
     }
     restoreLogin();
     firebaseInitPromise = initFirebase();
+
+    // ===== Admin Messages =====
+    function loadAdminMessages() {
+        if (!firebaseDB || !me) return;
+        if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
+        adminMsgListener = firebaseDB.ref('appData/adminMessages').on('value', function(snap) {
+            var data = snap.val() || {};
+            adminMessages = [];
+            Object.keys(data).forEach(function(key) {
+                var msg = data[key];
+                if (msg) {
+                    msg.id = key;
+                    adminMessages.push(msg);
+                }
+            });
+            // sort by timestamp descending
+            adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+            updateNotifBadge();
+            if (document.getElementById('adminMessages').classList.contains('active')) {
+                renderAdminMessages();
+            }
+        });
+    }
+
+    function updateNotifBadge() {
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        if (!me) { badge.style.display = 'none'; return; }
+        var unread = adminMessages.filter(function(msg) {
+            return !(msg.readBy && msg.readBy[me] === true);
+        });
+        var count = unread.length;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function openAdminMessages() {
+        if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
+        show('adminMessages');
+        renderAdminMessages();
+        // Mark all as read
+        var unread = adminMessages.filter(function(msg) {
+            return !(msg.readBy && msg.readBy[me] === true);
+        });
+        if (unread.length > 0 && firebaseDB) {
+            var updates = {};
+            unread.forEach(function(msg) {
+                if (!msg.readBy) msg.readBy = {};
+                msg.readBy[me] = true;
+                updates['appData/adminMessages/' + msg.id + '/readBy/' + me] = true;
+            });
+            firebaseDB.ref().update(updates).catch(function(e) { console.error('Mark read error', e); });
+            // Update local db
+            adminMessages.forEach(function(m) {
+                if (!m.readBy) m.readBy = {};
+                m.readBy[me] = true;
+            });
+            updateNotifBadge();
+        }
+    }
+
+    function renderAdminMessages() {
+        var container = document.getElementById('adminMsgList');
+        if (!container) return;
+        if (!adminMessages.length) {
+            container.innerHTML = '<div class="text-muted">📭 No admin messages yet.</div>';
+            return;
+        }
+        var html = '';
+        adminMessages.forEach(function(msg) {
+            var isUnread = !(msg.readBy && msg.readBy[me] === true);
+            var time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+            html += '<div class="admin-msg-item ' + (isUnread ? 'unread' : '') + '">';
+            html += '<div class="msg-title">' + esc(msg.title || 'No title') + '</div>';
+            html += '<div class="msg-body">' + esc(msg.body || '') + '</div>';
+            html += '<div class="msg-time">' + time + '</div>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    }
 
     // ===== RANK SYSTEM =====
     function getMemberRank(group, userId) {
@@ -782,7 +900,8 @@
             onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile',
             settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account',
             notifications:'Notifications', feedback:'Feedback / Report', groups:'Groups',
-            groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups'
+            groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups',
+            adminMessages:'Admin Messages'
         };
         var pt = document.getElementById('pageTitle');
         if (pt) pt.textContent = titles[id] || '';
@@ -792,6 +911,7 @@
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile();
+        if (id === 'adminMessages') renderAdminMessages();
     }
 
     function isBlocked(userId) {
@@ -1003,21 +1123,37 @@
         var avatarHtml = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
 
+        // 🔥 Photo Gallery (32 photos)
+        var photos = u.photos || [];
+        var photoHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;">';
+        for (var i = 0; i < MAX_PHOTOS; i++) {
+            if (i < photos.length && photos[i]) {
+                photoHtml += `<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #eee;position:relative;">
+                    <img src="${photos[i]}" style="width:100%;height:100%;object-fit:cover;">
+                    ${i >= USER_UPLOAD_LIMIT ? '<span style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#ffd700;padding:1px 6px;border-radius:4px;font-size:9px;">👑</span>' : ''}
+                </div>`;
+            } else {
+                photoHtml += `<div style="aspect-ratio:1;border-radius:8px;background:#f8f9fa;border:1px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ccc;">
+                    ${i < USER_UPLOAD_LIMIT ? '➕' : '📌'}
+                </div>`;
+            }
+        }
+        photoHtml += '</div>';
+        var photoCount = '<div class="small" style="color:#888;text-align:center;">📸 ' + photos.length + '/' + MAX_PHOTOS + ' (User ကိုယ်တိုင် ' + USER_UPLOAD_LIMIT + ' ပုံသာ တင်နိုင်သည်)</div>';
+
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
         html += '<div class="name">' + esc(u.name || '-') + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
+        html += photoHtml;
+        html += photoCount;
         html += '<div class="stats">' +
             '<div><b>' + (db.friends.filter(function(x) { return x.a === id || x.b === id; }).length || 0) + '</b><span>Friends</span></div>' +
             '<div><b>' + (db.groups.filter(function(g) { return g.members && g.members.includes(id); }).length || 0) + '</b><span>Groups</span></div>' +
             '</div>';
-        
-        // Info rows
         html += '<div class="info-row"><span class="label">📍 Region</span><span class="value">' + regionText + '</span></div>';
         html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
-        
-        // Actions
         html += '<div class="actions">';
         if (isMe) {
             html += '<button class="btn gold" onclick="show(\'profile\')">✏️ Edit Profile</button>';
@@ -1244,6 +1380,7 @@
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
+        if (id === 'adminMessages') renderAdminMessages();
     }
 
     function refresh() {
@@ -1296,6 +1433,7 @@
         renderMyGroups();
         renderProfileCreateGroup();
         updateBadges();
+        loadAdminMessages();
     }
 
     function renderProfileGroups() {
@@ -1640,6 +1778,8 @@
         document.getElementById('head').textContent = 'Guest';
         closeMenu();
         show('login');
+        // remove admin messages listener
+        if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
     }
 
     function toggleMenu() {
@@ -1760,41 +1900,65 @@
 
     var photoSlot = 0;
 
+    // ===== PHOTOS: 32 slots, user can upload only first 4 =====
     function renderPhotos() {
         var u = db.users[me], g = document.getElementById('photos');
         if (!u || !g) return;
         g.innerHTML = '';
-        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
-        for (var i = 0; i < 4; i++) {
+        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, MAX_PHOTOS) : [];
+        for (var i = 0; i < MAX_PHOTOS; i++) {
             var d = document.createElement('div');
             d.className = 'profile-photo ' + (u.photos[i] ? '' : 'empty');
-            d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
+            // Only allow click for first 4 slots
+            if (i < USER_UPLOAD_LIMIT) {
+                d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
+            } else {
+                d.style.cursor = 'default';
+                d.title = 'Admin ကတင်ပေးထားတဲ့ပုံ (ပြောင်းလို့မရပါ)';
+            }
             if (u.photos[i]) {
                 var im = document.createElement('img');
                 im.src = u.photos[i];
                 im.alt = 'Profile photo ' + (i + 1);
                 d.appendChild(im);
-                var c = document.createElement('span');
-                c.className = 'change';
-                c.textContent = 'ပြောင်းမည်';
-                d.appendChild(c);
+                if (i < USER_UPLOAD_LIMIT) {
+                    var c = document.createElement('span');
+                    c.className = 'change';
+                    c.textContent = 'ပြောင်းမည်';
+                    d.appendChild(c);
+                } else {
+                    var badge = document.createElement('span');
+                    badge.className = 'admin-badge';
+                    badge.textContent = '👑';
+                    d.appendChild(badge);
+                }
             } else {
-                var s = document.createElement('span');
-                s.textContent = '＋';
-                d.appendChild(s);
+                if (i < USER_UPLOAD_LIMIT) {
+                    var s = document.createElement('span');
+                    s.textContent = '＋';
+                    d.appendChild(s);
+                } else {
+                    var s = document.createElement('span');
+                    s.textContent = '📌';
+                    d.appendChild(s);
+                }
             }
             var n = document.createElement('span');
             n.className = 'slot-num';
-            n.textContent = (i + 1) + '/4';
+            n.textContent = (i + 1) + '/' + MAX_PHOTOS;
             d.appendChild(n);
             g.appendChild(d);
         }
         var lim = document.getElementById('limit');
-        if (lim) lim.textContent = 'ပုံ ' + u.photos.length + '/4 ပုံ';
+        if (lim) lim.textContent = '📸 ပုံ ' + u.photos.length + '/' + MAX_PHOTOS + ' (သင်ကိုယ်တိုင် ' + USER_UPLOAD_LIMIT + ' ပုံသာ တင်နိုင်သည်)';
     }
 
     function pickPhoto(i) {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
+        if (i >= USER_UPLOAD_LIMIT) {
+            alert('📸 သင်ကိုယ်တိုင် ပုံ ' + USER_UPLOAD_LIMIT + ' ပုံသာ တင်နိုင်ပါသည်။\nကျန်ပုံများကို Admin မှ တင်ပေးထားခြင်းဖြစ်ပါသည်။');
+            return;
+        }
         photoSlot = i;
         var box = document.getElementById('photoChoiceBackdrop');
         if (box) box.style.display = 'flex';
@@ -1831,7 +1995,7 @@
         if (!u) { closeCamera(); alert('Account မတွေ့ပါ'); return; }
         u.photos = Array.isArray(u.photos) ? u.photos : [];
         u.photos[photoSlot] = data;
-        u.photos = u.photos.slice(0, 4);
+        u.photos = u.photos.slice(0, MAX_PHOTOS);
         save();
         closeCamera();
         refresh();
@@ -1862,7 +2026,7 @@
                 var data = c.toDataURL('image/jpeg', 0.62);
                 u.photos = Array.isArray(u.photos) ? u.photos : [];
                 u.photos[photoSlot] = data;
-                u.photos = u.photos.slice(0, 4);
+                u.photos = u.photos.slice(0, MAX_PHOTOS);
                 save();
                 refresh();
                 alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
@@ -1912,7 +2076,14 @@
                 var f = db.friends.some(function(z) { return (z.a === me && z.b === x.id) || (z.a === x.id && z.b === me); });
                 var q = db.req.some(function(r) { return r.f === me && r.t === x.id; });
                 var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' + (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
+                // Profile photo
+                var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '👤';
+                d.innerHTML = avatarHtml +
+                    '<b>' + esc(u.name || x.u.name || x.id) + '</b>' +
+                    '<div class="small">ID: ' + esc(x.id) + ' • ' + 
+                    (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + 
+                    (regionText ? ' • ' + regionText : '') + '</div>' + 
+                    (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
             });
         } catch (e) { console.error(e); b.innerHTML = '<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။</div>'; }
@@ -2265,4 +2436,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-</html>
+                </html>
