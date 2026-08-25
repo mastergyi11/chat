@@ -478,7 +478,7 @@
     </div>
 
     <!-- NAVIGATION -->
-    <div id="nav" class="nav">
+    <div id="nav" class="nav hidden">
         <button id="navLocation" onclick="navGo('onboarding')"><span>📍</span><span>Location</span></button>
         <button id="navHome" onclick="navGo('home')"><span>⌂</span><span>Home</span></button>
         <button id="navFriends" onclick="navGo('friends')"><span>♧</span><span>Friends</span></button>
@@ -496,88 +496,16 @@
 
 <script>
     // ===== Firebase Config =====
- // ===== Firebase Config =====
-const firebaseConfig = {
-    apiKey: 'AIzaSyBMtwQBUCHm0kzum4L-TM87jEBnqageybU',
-    authDomain: 'chat-50dd8.firebaseapp.com',
-    databaseURL: 'https://chat-50dd8-default-rtdb.firebaseio.com',
-    projectId: 'chat-50dd8',
-    storageBucket: 'chat-50dd8.firebasestorage.app',
-    messagingSenderId: '136560761031',
-    appId: '1:136560761031:web:3cb27a0baa8efe5cc506e2',
-    measurementId: 'G-1DT23E8DV8'
-};
-
-// ===== Report Functions =====
-function previewReportImage(e) {
-    var f = (e.target.files && e.target.files[0]);
-    var img = document.getElementById('reportImagePreview');
-    if (!f || !img) return;
-    var r = new FileReader();
-    r.onload = function() {
-        img.src = r.result;
-        img.style.display = 'block';
+    const firebaseConfig = {
+        apiKey: 'AIzaSyBMtwQBUCHm0kzum4L-TM87jEBnqageybU',
+        authDomain: 'chat-50dd8.firebaseapp.com',
+        databaseURL: 'https://chat-50dd8-default-rtdb.firebaseio.com',
+        projectId: 'chat-50dd8',
+        storageBucket: 'chat-50dd8.firebasestorage.app',
+        messagingSenderId: '136560761031',
+        appId: '1:136560761031:web:3cb27a0baa8efe5cc506e2',
+        measurementId: 'G-1DT23E8DV8'
     };
-    r.readAsDataURL(f);
-}
-
-async function submitReport() {
-    if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
-    
-    var title = document.getElementById('reportTitle').value.trim();
-    var text = document.getElementById('reportText').value.trim();
-    var fileInput = document.getElementById('reportImageInput');
-    var file = fileInput.files && fileInput.files[0];
-    var st = document.getElementById('reportStatus');
-    
-    if (!title && !text && !file) {
-        st.textContent = '⚠️ အကြောင်းအရာ သို့မဟုတ် ပုံတစ်ခုခု ထည့်ပါ';
-        st.style.display = 'block';
-        return;
-    }
-    
-    st.textContent = '⏳ ပို့နေပါသည်...';
-    st.style.display = 'block';
-    
-    try {
-        var image = '';
-        if (file) {
-            image = await new Promise(function(resolve) {
-                var r = new FileReader();
-                r.onload = function() { resolve(r.result); };
-                r.readAsDataURL(file);
-            });
-        }
-        
-        var report = {
-            id: 'RPT' + Date.now() + Math.random().toString(36).slice(2, 6),
-            from: me,
-            fromName: (db.users[me] && db.users[me].name) || me,
-            title: title,
-            text: text,
-            image: image,
-            time: Date.now(),
-            status: 'pending'
-        };
-        
-        db.reports = db.reports || [];
-        db.reports.push(report);
-        await save();
-        
-        st.textContent = '✅ Report ပို့ပြီးပါပြီ။ Admin က စစ်ဆေးပါလိမ့်မယ်။';
-        st.style.display = 'block';
-        
-        document.getElementById('reportTitle').value = '';
-        document.getElementById('reportText').value = '';
-        document.getElementById('reportImageInput').value = '';
-        document.getElementById('reportImagePreview').src = '';
-        document.getElementById('reportImagePreview').style.display = 'none';
-        
-    } catch (e) {
-        st.textContent = '❌ Report ပို့မရပါ။ Error: ' + e.message;
-        st.style.display = 'block';
-    }
-}
     var firebaseAuth = null, firebaseDB = null, firebaseSDKReady = false;
     try {
         if (typeof firebase !== 'undefined') {
@@ -836,6 +764,11 @@ async function submitReport() {
 
     // ===== NAVIGATION =====
     function navGo(id) {
+        if (!me) {
+            alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
+            show('login');
+            return;
+        }
         show(id);
         closeMenu();
         ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(function(x) {
@@ -1291,6 +1224,12 @@ async function submitReport() {
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
+        if (id === 'login') {
+            // Always allow showing login
+        } else if (!me) {
+            alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
+            return;
+        }
         document.querySelectorAll('.screen').forEach(function(x) { x.classList.remove('active'); });
         var el = document.getElementById(id);
         if (el) el.classList.add('active');
@@ -1308,8 +1247,8 @@ async function submitReport() {
     }
 
     function refresh() {
+        if (!me || !db || !db.users[me]) return;
         db = normalize(db);
-        if (!me || !db.users[me]) return;
         var u = db.users[me];
         u.accountName = u.accountName || u.name;
         u.dob = u.dob || '';
@@ -1716,7 +1655,7 @@ async function submitReport() {
         if (o) o.classList.remove('open');
     }
 
-    function menuGo(id) { if (!me) return; navGo(id); }
+    function menuGo(id) { if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); return; } navGo(id); }
 
     function renderMyAccount() {
         if (!me || !(db && db.users && db.users[me])) return;
@@ -2326,4 +2265,4 @@ async function submitReport() {
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+</html>
