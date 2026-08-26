@@ -89,7 +89,7 @@
         .user-profile-card .info-row .value { font-weight: 500; }
         .admin-msg-item { padding: 10px; border-bottom: 1px solid #f0f0f0; }
         .admin-msg-item .msg-title { font-weight: bold; font-size: 16px; }
-        .admin-msg-item .msg-body { color: #555; margin: 4px 0; }
+        .admin-msg-item .msg-body { color: #555; margin: 4px 0; word-wrap: break-word; }
         .admin-msg-item .msg-time { font-size: 11px; color: #999; }
         .admin-msg-item.unread { background: #f0f7ff; border-left: 3px solid #0d6efd; }
         .hidden { display: none !important; }
@@ -182,6 +182,10 @@
         .onboard-user-card .info .name { font-weight: 600; }
         .onboard-user-card .info .id { font-size: 12px; color: #777; }
         .onboard-user-card .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .profile-region-row { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; }
+        .profile-region-row label { font-size: 14px; min-width: 110px; color: #555; }
+        .profile-region-value { flex: 1; font-weight: 500; color: #222; }
+        .profile-value { flex: 1; font-weight: 500; color: #222; padding: 6px 4px; }
     </style>
 </head>
 <body>
@@ -341,7 +345,7 @@
                 <h3>📢 System Notifications</h3>
                 <button class="btn outline small" onclick="show('home')">✖️</button>
             </div>
-            <div id="adminMsgList"><div class="small">Loading...</div></div>
+            <div id="adminMsgList"><div class="small">Loading notifications...</div></div>
         </div>
     </section>
 
@@ -486,20 +490,33 @@
         }
     }
 
-    // ===== ADMIN MESSAGES =====
+    // ===== ADMIN MESSAGES - FIXED =====
     function loadAdminMessages() {
         if (!firebaseDB || !me) return;
         if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
+        
+        // Listen to both system messages and admin messages
         adminMsgListener = firebaseDB.ref('appData/adminMessages').on('value', function(snap) {
             var data = snap.val() || {};
             adminMessages = [];
             Object.keys(data).forEach(function(key) {
                 var msg = data[key];
-                if (msg) { msg.id = key; adminMessages.push(msg); }
+                if (msg) {
+                    // Ensure consistent structure
+                    msg.id = key;
+                    // Check if message has required fields
+                    if (!msg.title) msg.title = 'System Notification';
+                    if (!msg.body) msg.body = 'No details provided';
+                    if (!msg.timestamp) msg.timestamp = Date.now();
+                    if (!msg.readBy) msg.readBy = {};
+                    if (!msg.sender) msg.sender = 'admin';
+                    adminMessages.push(msg);
+                }
             });
+            // Sort by newest first
             adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
             updateNotifBadge();
-            // 🔥 FIX: Always re-render if the adminMessages screen is active
+            // Re-render if adminMessages screen is active
             if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
                 renderAdminMessages();
             }
@@ -518,10 +535,9 @@
 
     function openAdminMessages() {
         if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
-        // 🔥 FIX: Show screen first, then render
         show('adminMessages');
         renderAdminMessages();
-        // Mark as read
+        // Mark all as read
         var unread = adminMessages.filter(function(msg) { return !(msg.readBy && msg.readBy[me] === true); });
         if (unread.length > 0 && firebaseDB) {
             var updates = {};
@@ -542,19 +558,20 @@
             console.error('adminMsgList not found!');
             return;
         }
-        if (!adminMessages.length) {
+        if (!adminMessages || adminMessages.length === 0) {
             container.innerHTML = '<div class="small">📭 No notifications yet.</div>';
             return;
         }
         var html = '';
         adminMessages.forEach(function(msg) {
             var isUnread = !(msg.readBy && msg.readBy[me] === true);
-            var isSystem = msg.sender === 'system';
             var time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
-            var title = isSystem ? '🔔 System Notification' : (msg.title || 'Admin Message');
+            var title = msg.title || 'System Notification';
+            var body = msg.body || 'No details provided';
+            var senderLabel = msg.sender === 'system' ? '🔔 System' : '📢 Admin';
             html += '<div class="admin-msg-item ' + (isUnread ? 'unread' : '') + '">';
-            html += '<div class="msg-title">' + esc(title) + '</div>';
-            html += '<div class="msg-body">' + esc(msg.body || '') + '</div>';
+            html += '<div class="msg-title">' + esc(senderLabel + ' - ' + title) + '</div>';
+            html += '<div class="msg-body">' + esc(body) + '</div>';
             html += '<div class="msg-time">' + time + '</div>';
             html += '</div>';
         });
@@ -632,7 +649,7 @@
     function sendChatImage(imageData) { if (!chatWith || isBlocked(chatWith) || !imageData) return; if (!db.messages[ck()]) db.messages[ck()] = []; db.messages[ck()].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData }); save(); renderChat(); }
     function ck() { return [me, chatWith].sort().join('_'); }
 
-    // ===== SHOW FUNCTION (FIXED: adminMessages renders properly) =====
+    // ===== SHOW FUNCTION =====
     function show(id) {
         if (id === 'login') { } else if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); return; }
         document.querySelectorAll('.screen').forEach(function(x) { x.classList.remove('active'); });
@@ -649,7 +666,6 @@
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
-        // 🔥 FIX: Ensure admin messages render when tab is shown
         if (id === 'adminMessages') renderAdminMessages();
     }
 
@@ -747,8 +763,28 @@
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
 
+    // Additional function to send group message from input
+    function sendGroupMessage() {
+        var input = document.getElementById('groupMsg');
+        if (!input) return;
+        var t = input.value.trim();
+        if (!t) return;
+        var id = window.currentGroupChat;
+        var g = db.groups.find(function(x) { return x.id === id; });
+        if (!g || !(g.members && g.members.includes(me))) { alert('အသင်းဝင်မဟုတ်ပါ'); return; }
+        db.groupMessages = db.groupMessages || {};
+        db.groupMessages[id] = db.groupMessages[id] || [];
+        db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
+        addGroupActivity(id, me, 1);
+        input.value = '';
+        save();
+        renderGroupChat();
+    }
+
     document.addEventListener('click', function(e) { var el = e.target; while (el && el !== document && el.tagName !== 'BUTTON') el = el.parentNode; if (!el || !el.id || el.getAttribute('onclick')) return; if (el.id === 'loginBtn' && typeof login === 'function') login(); else if (el.id === 'registerBtn' && typeof register === 'function') register(); else if (el.id === 'locateBtn' && typeof locate === 'function') locate(); }, false);
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
+
+    console.log('✅ BeeChat User App - Admin Messages Fixed');
 </script>
 </body>
-    </html>
+            </html>
