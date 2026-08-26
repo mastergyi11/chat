@@ -185,7 +185,6 @@
         .user-profile-card .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
         .user-profile-card .info-row .label { color: #777; }
         .user-profile-card .info-row .value { font-weight: 500; }
-        /* Admin Messages */
         .admin-msg-item { padding: 10px; border-bottom: 1px solid #f0f0f0; }
         .admin-msg-item .msg-title { font-weight: bold; font-size: 16px; }
         .admin-msg-item .msg-body { color: #555; margin: 4px 0; }
@@ -230,7 +229,7 @@
         </div>
     </section>
 
-    <!-- ONBOARDING (search bar removed) -->
+    <!-- ONBOARDING -->
     <section id="onboarding" class="screen">
         <div class="onboard">
             <div class="location-center">
@@ -436,10 +435,21 @@
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
-    <!-- USER PROFILE (Improved) -->
+    <!-- USER PROFILE -->
     <section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 
-    <!-- GROUPS (Create - fallback) -->
+    <!-- ADMIN MESSAGES -->
+    <section id="adminMessages" class="screen">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>📢 Admin Messages</h3>
+                <button class="btn outline small" onclick="show('home')">✖️</button>
+            </div>
+            <div id="adminMsgList"><div class="small">Loading...</div></div>
+        </div>
+    </section>
+
+    <!-- GROUPS -->
     <section id="groups" class="screen">
         <div id="groupCreateCard" class="card">
             <h3>👥 အသင်းအသစ်တည်ထောင်ရန်</h3>
@@ -466,17 +476,6 @@
     <!-- ADMIN -->
     <section id="admin" class="screen">
         <div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div>
-    </section>
-
-    <!-- ADMIN MESSAGES (User reads only) -->
-    <section id="adminMessages" class="screen">
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>📢 Admin Messages</h3>
-                <button class="btn outline small" onclick="show('home')">✖️</button>
-            </div>
-            <div id="adminMsgList"><div class="small">Loading...</div></div>
-        </div>
     </section>
 
     <!-- CAMERA BACKDROPS -->
@@ -546,12 +545,10 @@
     var chatMenuVisible = false;
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
-    var USER_UPLOAD_LIMIT = 4;
-    var MAX_PHOTOS = 32;
-
-    // Admin messages
     var adminMessages = [];
     var adminMsgListener = null;
+    var USER_UPLOAD_LIMIT = 4;
+    var MAX_PHOTOS = 32;
 
     function byId(id) { return document.getElementById(id); }
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
@@ -640,11 +637,9 @@
                 db = incoming;
                 localSave();
                 if (me && db.users[me]) refresh();
-                // update admin messages badge
                 loadAdminMessages();
             });
             setStatus('✅ ချိတ်ဆက်ပြီးပါပြီ');
-            // Load admin messages after login
             loadAdminMessages();
         } catch (e) {
             console.error('Firebase:', e);
@@ -674,7 +669,7 @@
     restoreLogin();
     firebaseInitPromise = initFirebase();
 
-    // ===== Admin Messages =====
+    // ===== ADMIN MESSAGES =====
     function loadAdminMessages() {
         if (!firebaseDB || !me) return;
         if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
@@ -688,10 +683,9 @@
                     adminMessages.push(msg);
                 }
             });
-            // sort by timestamp descending
             adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
             updateNotifBadge();
-            if (document.getElementById('adminMessages').classList.contains('active')) {
+            if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
                 renderAdminMessages();
             }
         });
@@ -717,7 +711,6 @@
         if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
         show('adminMessages');
         renderAdminMessages();
-        // Mark all as read
         var unread = adminMessages.filter(function(msg) {
             return !(msg.readBy && msg.readBy[me] === true);
         });
@@ -729,7 +722,6 @@
                 updates['appData/adminMessages/' + msg.id + '/readBy/' + me] = true;
             });
             firebaseDB.ref().update(updates).catch(function(e) { console.error('Mark read error', e); });
-            // Update local db
             adminMessages.forEach(function(m) {
                 if (!m.readBy) m.readBy = {};
                 m.readBy[me] = true;
@@ -742,7 +734,7 @@
         var container = document.getElementById('adminMsgList');
         if (!container) return;
         if (!adminMessages.length) {
-            container.innerHTML = '<div class="text-muted">📭 No admin messages yet.</div>';
+            container.innerHTML = '<div class="small">📭 No admin messages yet.</div>';
             return;
         }
         var html = '';
@@ -814,7 +806,6 @@
         save();
     }
 
-    // Override sendGroupMessage to add activity
     var originalSendGroupMessage = window.sendGroupMessage;
     window.sendGroupMessage = function() {
         var id = window.currentGroupChat;
@@ -832,11 +823,9 @@
         renderGroupChat();
     };
 
-    // ===== NOTIFICATION BADGE SYSTEM =====
     function updateBadges() {
         if (!me || !db) return;
 
-        // Friend Requests
         var incomingRequests = db.req.filter(r => r.t === me && !r.seen);
         var requestCount = incomingRequests.length;
         var reqBadge = document.getElementById('requestCount');
@@ -845,7 +834,6 @@
             reqBadge.style.display = requestCount > 0 ? 'inline-block' : 'none';
         }
 
-        // Unread Messages (Inbox)
         var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
         var unreadCount = 0;
         friendIds.forEach(function(id) {
@@ -856,7 +844,6 @@
             });
         });
 
-        // Group Messages
         var myGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); });
         myGroups.forEach(function(g) {
             var msgs = db.groupMessages[g.id] || [];
@@ -865,7 +852,6 @@
             });
         });
 
-        // Total Badge
         var total = requestCount + unreadCount;
         var inboxBadge = document.getElementById('inboxBadge');
         if (inboxBadge) {
@@ -880,7 +866,6 @@
         }
     }
 
-    // ===== NAVIGATION =====
     function navGo(id) {
         if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
@@ -1092,7 +1077,6 @@
         if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
     }
 
-    // ===== IMPROVED USER PROFILE (Like Screenshot 3) =====
     function viewUserProfile(id) {
         var u = db.users[id];
         if (!u) return;
@@ -1123,7 +1107,6 @@
         var avatarHtml = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
 
-        // 🔥 Photo Gallery (32 photos)
         var photos = u.photos || [];
         var photoHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;">';
         for (var i = 0; i < MAX_PHOTOS; i++) {
@@ -1452,7 +1435,6 @@
         }
     }
 
-    // ===== GROUP SEARCH =====
     function renderAllGroups() {
         var container = document.getElementById('allGroupsList');
         if (!container) return;
@@ -1484,7 +1466,6 @@
         });
     }
 
-    // ===== MY GROUPS =====
     function renderMyGroups() {
         var container = document.getElementById('myGroupsList');
         if (!container) return;
@@ -1528,7 +1509,6 @@
         }
     }
 
-    // ===== PROFILE CREATE GROUP =====
     function renderProfileCreateGroup() {
         if (!me || !db) return;
         var container = document.getElementById('profileCreateGroupSection');
@@ -1778,7 +1758,6 @@
         document.getElementById('head').textContent = 'Guest';
         closeMenu();
         show('login');
-        // remove admin messages listener
         if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
     }
 
@@ -1900,7 +1879,6 @@
 
     var photoSlot = 0;
 
-    // ===== PHOTOS: 32 slots, user can upload only first 4 =====
     function renderPhotos() {
         var u = db.users[me], g = document.getElementById('photos');
         if (!u || !g) return;
@@ -1909,7 +1887,6 @@
         for (var i = 0; i < MAX_PHOTOS; i++) {
             var d = document.createElement('div');
             d.className = 'profile-photo ' + (u.photos[i] ? '' : 'empty');
-            // Only allow click for first 4 slots
             if (i < USER_UPLOAD_LIMIT) {
                 d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
             } else {
@@ -2076,7 +2053,6 @@
                 var f = db.friends.some(function(z) { return (z.a === me && z.b === x.id) || (z.a === x.id && z.b === me); });
                 var q = db.req.some(function(r) { return r.f === me && r.t === x.id; });
                 var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-                // Profile photo
                 var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '👤';
                 d.innerHTML = avatarHtml +
                     '<b>' + esc(u.name || x.u.name || x.id) + '</b>' +
@@ -2141,7 +2117,6 @@
         refresh();
     }
 
-    // ===== Group Functions =====
     function previewGroupAvatar(e) {
         var f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -2436,4 +2411,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-                </html>
+</html>
