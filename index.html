@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>My Social Chat</title>
+    <title>Bee Chat</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #fff; color: #222; font-family: Arial, sans-serif; }
@@ -77,8 +77,7 @@
         .chat-input-area .input-actions { display: flex; gap: 4px; align-items: center; }
         .chat-input-area .input-actions button { background: transparent; border: 0; font-size: 20px; padding: 4px; cursor: pointer; color: #777; }
         .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #222; outline: none; }
-        .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; color: #172130; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        .chat-input-area .send-btn.show { display: flex; }
+        .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; color: #172130; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
         .chat-header-actions { display: flex; align-items: center; gap: 6px; }
         .chat-header-actions button { background: transparent; border: 0; color: #222; font-size: 20px; cursor: pointer; padding: 4px; }
         #chatMenu { display: none; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 0; margin: 6px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
@@ -108,7 +107,7 @@
         .profile-save { width: 100%; border: 0; border-radius: 10px; padding: 12px; background: #e7ad21; color: #172130; font-size: 16px; font-weight: bold; cursor: pointer; }
         .profile-page { background: #fff; color: #222; min-height: calc(100vh - 30px); padding: 0 0 90px; }
         .profile-gallery-wrap { padding: 14px; background: #fafafa; }
-        .profile-photo-note { color: #888; font-size: 12px; padding: 8px 4px 2px; }
+        .profile-photo-note { color: #888; font-size: 12px; padding: 8px 4px 2px; display: none; }
         .profile-limit { color: #888; text-align: center; padding: 8px; font-size: 12px; }
         .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
@@ -129,7 +128,7 @@
         .toggle.on::after { left: 25px; }
         .searchbar { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; }
         .searchbar input { margin: 0; border: 0; background: transparent; padding: 8px; flex: 1; }
-        .location-center { text-align: center; margin-top: 20vh; }
+        .location-center { text-align: center; margin-top: 10vh; }
         .location-icon { font-size: 48px; }
         .group-horizontal-scroll { display: flex; overflow-x: auto; gap: 12px; padding: 8px 0; scroll-snap-type: x mandatory; }
         .group-horizontal-scroll .group-card { min-width: 180px; max-width: 200px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px; scroll-snap-align: start; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex-shrink: 0; cursor: pointer; }
@@ -182,12 +181,24 @@
         .user-profile-card .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
         .user-profile-card .info-row .label { color: #777; }
         .user-profile-card .info-row .value { font-weight: 500; }
-        /* Admin-only photo slots (white background, no text) */
-        .profile-photo.admin-slot { background: #ffffff; border: 1px solid #e0e0e0; }
+        /* Admin-only photo slots - white background only */
+        .profile-photo.admin-slot { background: #ffffff; border: 1px solid #e0e0e0; cursor: default; }
         .profile-photo.admin-slot .slot-num { display: none; }
         .profile-photo.admin-slot .change { display: none; }
-        .profile-photo.admin-slot .admin-only-badge { display: block !important; }
-        .admin-only-badge { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: #ccc; pointer-events: none; }
+        .profile-photo.admin-slot .admin-only-badge { display: none !important; }
+        /* Filter section for Location page */
+        .filter-section { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
+        .filter-section select, .filter-section input { flex: 1; min-width: 80px; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; }
+        .filter-section .btn { padding: 6px 14px; font-size: 13px; }
+        /* System Message Box */
+        .system-msg-box { background: #f8f9fa; border: 1px solid #e7ad21; border-radius: 10px; padding: 12px 14px; margin: 6px 0; color: #222; font-size: 14px; }
+        .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; }
+        .system-msg-box .sys-time { font-size: 11px; color: #999; float: right; }
+        /* Gender icons on location page */
+        .gender-filter-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
+        .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
+        /* Onboarding search result with gender/age */
+        .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
     </style>
 </head>
 <body>
@@ -195,7 +206,7 @@
 
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-        <div id="pageTitle" class="header-title">My Social Chat</div>
+        <div id="pageTitle" class="header-title">Bee Chat</div>
         <span id="head">Guest</span>
     </header>
 
@@ -223,10 +234,36 @@
         </div>
     </section>
 
-    <!-- ONBOARDING -->
+    <!-- ONBOARDING (Location + Search) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန်" oninput="searchOnboardUsers()"></div>
+            <!-- System Message Box (Admin can send messages) -->
+            <div id="systemMsgBox" class="system-msg-box">
+                <span class="sys-title">📢 Bee Chat Admin</span>
+                <span class="sys-time" id="sysTimeDisplay"></span>
+                <div id="systemMsgContent" style="margin-top:4px;">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
+            </div>
+            
+            <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
+            
+            <!-- Filter Section: Gender + Age -->
+            <div class="filter-section">
+                <select id="filterGender" onchange="searchOnboardUsers()" style="flex:1;">
+                    <option value="">ကျား/မ အားလုံး</option>
+                    <option value="Male">♂️ အမျိုးသား</option>
+                    <option value="Female">♀️ အမျိုးသမီး</option>
+                    <option value="Other">⚧️ အခြား</option>
+                </select>
+                <select id="filterAge" onchange="searchOnboardUsers()" style="flex:1;">
+                    <option value="">အသက်အားလုံး</option>
+                    <option value="18-25">၁၈-၂၅ နှစ်</option>
+                    <option value="26-35">၂၆-၃၅ နှစ်</option>
+                    <option value="36-45">၃၆-၄၅ နှစ်</option>
+                    <option value="46+">၄၆ နှစ်အထက်</option>
+                </select>
+                <button class="btn gold small" onclick="resetFilters()">ပြန်ဖြုတ်</button>
+            </div>
+            
             <div class="location-center">
                 <div class="location-icon">📍</div>
                 <h2>တည်နေရာဖြင့် ရှာရန်</h2>
@@ -282,7 +319,7 @@
         <div class="profile-page">
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
-                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။ ကျန် ၂၈ ပုံကို Admin မှသာ တင်ပေးနိုင်ပါသည်။</div>
+                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
             </div>
             <div class="profile-stats">
                 <div><b id="followingCount">0</b><span>Following</span></div>
@@ -298,7 +335,7 @@
                 <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value">-</div></div>
                 <div class="profile-row"><label>မွေးနေ့</label><input id="profileDob" type="date"></div>
                 <div class="profile-row"><label>What's Up</label><textarea id="bio" placeholder="Looking for friends!"></textarea></div>
-                <div class="profile-row"><label>Gender</label><select id="profileGender"><option value="">ရွေးပါ</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                <div class="profile-row"><label>Gender</label><select id="profileGender"><option value="">ရွေးပါ</option><option value="Male">♂️ အမျိုးသား</option><option value="Female">♀️ အမျိုးသမီး</option><option value="Other">⚧️ အခြား</option></select></div>
                 <div class="profile-row"><label>အသက်</label><div id="profileAge" class="profile-value">-</div></div>
                 <div class="profile-save-wrap"><button class="profile-save" onclick="saveProfileForm()">သိမ်းမည်</button></div>
             </div>
@@ -340,7 +377,7 @@
                 <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
                 <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
                 <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
-                <div class="settings-item" onclick="alert('My Social Chat\nVersion 1.0')"><span class="sicon">ⓘ</span><span>About</span></div>
+                <div class="settings-item" onclick="alert('Bee Chat\nVersion 2.0')"><span class="sicon">ⓘ</span><span>About</span></div>
             </div>
             <button class="settings-logout" onclick="logout()">Logout</button>
         </div>
@@ -400,7 +437,19 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- CHAT -->
+    <!-- INBOX (Chats) -->
+    <section id="inbox" class="screen">
+        <!-- System Message Box replaced "Inbox" title -->
+        <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
+            <span class="sys-title">📢 Bee Chat Admin</span>
+            <span class="sys-time" id="sysTimeDisplayInbox"></span>
+            <div id="systemMsgContentInbox" style="margin-top:4px;">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
+        </div>
+        <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
+        <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
+    </section>
+
+    <!-- CHAT (with Send button always visible) -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -420,15 +469,9 @@
                     <button onclick="alert('Sticker မကြာမီ ထည့်ပေးပါမယ်')" title="စတစ်ကာ">😊</button>
                 </div>
                 <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()" oninput="toggleSendButton()">
-                <button class="send-btn" id="sendBtn" onclick="send()">➤</button>
+                <button class="send-btn show" id="sendBtn" onclick="send()">➤</button>
             </div>
         </div>
-    </section>
-
-    <!-- INBOX -->
-    <section id="inbox" class="screen">
-        <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
-        <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
     <!-- USER PROFILE -->
@@ -522,7 +565,7 @@
         }
     } catch (e) { console.error('Firebase init error', e); }
 
-    var KEY = 'my_social_chat_v1';
+    var KEY = 'beechat_v2';
     var NEARBY_RADIUS_KM = 5;
     var me = null, chatWith = null, db = null, fbReady = false;
     var presenceRef = null, locationWatchId = null;
@@ -531,7 +574,10 @@
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
     
-    // Device info tracking
+    // System message
+    var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။';
+    var systemMessageTime = Date.now();
+
     var deviceInfo = {};
 
     function getDeviceInfo() {
@@ -557,9 +603,9 @@
 
     var DEFAULT = {
         users: {
-            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [] },
-            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [] },
-            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [] }
+            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01' },
+            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15' },
+            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20' }
         },
         req: [],
         friends: [],
@@ -567,7 +613,8 @@
         groups: [],
         groupMessages: {},
         blocked: {},
-        groupInvites: []
+        groupInvites: [],
+        usedNames: ['မောင်မောင်', 'လှလှ', 'Aung']
     };
 
     function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -583,6 +630,7 @@
         x.groupMessages = x.groupMessages || {};
         x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
         x.blocked = x.blocked || {};
+        x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
         Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
         Object.keys(x.users).forEach(id => {
             var u = x.users[id];
@@ -655,21 +703,19 @@
 
     function restoreLogin() {
         try {
-            var saved = localStorage.getItem('my_social_logged_in');
+            var saved = localStorage.getItem('beechat_logged_in');
             if (saved && db.users[saved]) {
                 me = saved;
-                // Check device
                 var currentDevice = getDeviceInfo();
                 var user = db.users[me];
                 if (user.currentDevice && user.currentDevice !== JSON.stringify(currentDevice)) {
                     alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။\nဖုန်းအမျိုးအစား: ' + user.currentDevice);
-                    // Auto logout
                     logout();
                     return false;
                 }
                 document.getElementById('login').classList.remove('active');
                 document.getElementById('nav').classList.remove('hidden');
-                navGo('home');
+                navGo('onboarding');
                 startPresence();
                 return true;
             }
@@ -752,7 +798,30 @@
         renderGroupChat();
     };
 
-    // ===== NOTIFICATION BADGE SYSTEM =====
+    // ===== UPDATE SYSTEM MESSAGE =====
+    function updateSystemMessage(msg, time) {
+        systemMessage = msg || systemMessage;
+        systemMessageTime = time || Date.now();
+        var displayTime = new Date(systemMessageTime).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+        
+        var contentEl = document.getElementById('systemMsgContent');
+        var timeEl = document.getElementById('sysTimeDisplay');
+        if (contentEl) contentEl.textContent = systemMessage;
+        if (timeEl) timeEl.textContent = displayTime;
+        
+        var contentEl2 = document.getElementById('systemMsgContentInbox');
+        var timeEl2 = document.getElementById('sysTimeDisplayInbox');
+        if (contentEl2) contentEl2.textContent = systemMessage;
+        if (timeEl2) timeEl2.textContent = displayTime;
+    }
+
+    // Admin can call this from console: setSystemMessage("Hello", Date.now())
+    window.setSystemMessage = function(msg, time) {
+        updateSystemMessage(msg, time);
+        save();
+    };
+
+    // ===== UPDATE BADGES =====
     function updateBadges() {
         if (!me || !db) return;
 
@@ -819,7 +888,7 @@
             groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups'
         };
         var pt = document.getElementById('pageTitle');
-        if (pt) pt.textContent = titles[id] || '';
+        if (pt) pt.textContent = titles[id] || 'Bee Chat';
         if (id === 'blockedUsers') renderBlockedUsers();
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
@@ -827,6 +896,9 @@
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile();
         if (id === 'myAccount') renderMyAccount();
+        if (id === 'inbox') renderInbox();
+        // Update system message on inbox
+        updateSystemMessage(systemMessage, systemMessageTime);
     }
 
     function isBlocked(userId) {
@@ -919,11 +991,15 @@
             var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
             var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
+            var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
+            var age = calcAge(u.dob);
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
             d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
                 avatarHtml +
-                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span></div>'+
+                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span>' +
+                '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' +
+                '</div>'+
                 '</div><br>' + action;
             b.appendChild(d);
         });
@@ -1037,6 +1113,8 @@
 
         var avatarHtml = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
+        var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
+        var age = calcAge(u.dob);
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
@@ -1049,6 +1127,8 @@
             '</div>';
         
         html += '<div class="info-row"><span class="label">📍 Region</span><span class="value">' + regionText + '</span></div>';
+        html += '<div class="info-row"><span class="label">⚧️ Gender</span><span class="value">' + genderIcon + ' ' + (u.gender || 'မသိ') + '</span></div>';
+        html += '<div class="info-row"><span class="label">🎂 Age</span><span class="value">' + (age || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
         
         html += '<div class="actions">';
@@ -1103,7 +1183,6 @@
         if (!db.messages[ck()]) db.messages[ck()] = [];
         db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
         i.value = '';
-        toggleSendButton();
         save();
         renderChat();
         updateBadges();
@@ -1173,15 +1252,7 @@
     }
 
     function toggleSendButton() {
-        var msgInput = document.getElementById('msg');
-        var sendBtn = document.getElementById('sendBtn');
-        if (msgInput && sendBtn) {
-            if (msgInput.value.trim().length > 0) {
-                sendBtn.classList.add('show');
-            } else {
-                sendBtn.classList.remove('show');
-            }
-        }
+        // Send button always visible in chat
     }
 
     function openCameraForChat() {
@@ -1277,6 +1348,7 @@
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
+        if (id === 'onboarding') updateSystemMessage(systemMessage, systemMessageTime);
     }
 
     function refresh() {
@@ -1330,7 +1402,6 @@
         renderProfileCreateGroup();
         updateBadges();
         
-        // Device info on My Account
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
         if (deviceDisplay && u.currentDevice) {
             deviceDisplay.textContent = 'Device: ' + u.currentDevice;
@@ -1529,6 +1600,7 @@
         document.getElementById('nav').classList.remove('hidden');
         navGo('onboarding');
         startPresence();
+        updateSystemMessage(systemMessage, systemMessageTime);
     }
 
     async function fetchRegion(lat, lng) {
@@ -1572,27 +1644,70 @@
         }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
     };
 
+    // Reset filters
+    function resetFilters() {
+        document.getElementById('filterGender').value = '';
+        document.getElementById('filterAge').value = '';
+        document.getElementById('onboardSearch').value = '';
+        searchOnboardUsers();
+    }
+
     function searchOnboardUsers() {
         var b = document.getElementById('onboardResults');
         var q = (val('onboardSearch') || '').trim().toLowerCase();
+        var genderFilter = document.getElementById('filterGender').value;
+        var ageFilter = document.getElementById('filterAge').value;
         if (!b) return;
-        if (!q) { b.innerHTML = ''; return; }
-        var found = Object.values(db.users || {}).filter(function(u) { return u && u.id !== me && !isBlocked(u.id) && ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q)); }).slice(0, 20);
+        
+        var found = Object.values(db.users || {}).filter(function(u) { 
+            if (!u) return false;
+            if (u.id === me) return false;
+            if (isBlocked(u.id)) return false;
+            // Name/ID search
+            if (q && !((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))) return false;
+            // Gender filter
+            if (genderFilter && u.gender !== genderFilter) return false;
+            // Age filter
+            if (ageFilter) {
+                var age = calcAge(u.dob);
+                if (!age) return false;
+                var ageNum = parseInt(age);
+                if (ageFilter === '18-25' && (ageNum < 18 || ageNum > 25)) return false;
+                if (ageFilter === '26-35' && (ageNum < 26 || ageNum > 35)) return false;
+                if (ageFilter === '36-45' && (ageNum < 36 || ageNum > 45)) return false;
+                if (ageFilter === '46+' && ageNum < 46) return false;
+            }
+            return true;
+        }).slice(0, 50);
+        
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
         b.innerHTML = '';
         found.forEach(function(u) {
             var d = document.createElement('div');
             d.className = 'onboard-user-card';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '👤';
+            var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
+            var age = calcAge(u.dob);
+            var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
+            var friend = db.friends.some(function(x) { return (x.a === me && x.b === u.id) || (x.a === u.id && x.b === me); });
+            var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
+            var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
+            var action = '';
+            if (friend) action = '<span class="small" style="color:#28a745;">✅ Friend</span>';
+            else if (sent) action = '<span class="small" style="color:#ffc107;">📨 Sent</span>';
+            else if (incoming) action = '<span class="small" style="color:#0d6efd;">📩 Request</span>';
+            else action = '<button class="btn green small" onclick="event.stopPropagation();requestFriend(\''+u.id+'\')">+ Friend</button>';
+            
             d.innerHTML = 
                 '<div class="avatar">'+avatarHtml+'</div>'+
                 '<div class="info">'+
                     '<div class="name">'+esc(u.name)+'</div>'+
                     '<div class="id">ID: '+esc(u.id)+'</div>'+
+                    '<div class="gender-age">'+genderIcon+' '+ (u.gender||'မသိ') + (age ? ' • အသက် '+age : '') + (regionText ? ' • '+regionText : '') + '</div>'+
                 '</div>'+
                 '<div class="actions">'+
-                    '<button class="btn" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
-                    '<button class="btn green" onclick="event.stopPropagation();requestFriend(\''+u.id+'\')">+ Friend</button>'+
+                    '<button class="btn small" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
+                    action +
                 '</div>';
             d.onclick = function() { viewUserProfile(u.id); };
             b.appendChild(d);
@@ -1616,6 +1731,13 @@
         if (n === null) return;
         var name = n.trim();
         if (!name) { alert('အမည်ထည့်ပါ'); return; }
+        
+        // Check if name already exists
+        if (db.usedNames && db.usedNames.includes(name)) {
+            alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။ ကျေးဇူးပြုပြီး အခြားအမည်တစ်ခုကို ရွေးချယ်ပါ။');
+            return;
+        }
+        
         var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
         if (p === null) return;
         if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
@@ -1626,20 +1748,40 @@
             id = base + (1000 + num); 
             num++; 
         } while (db.users[id]);
-        var user = { id: id, name: name, accountName: name, bio: '', dob: '', gender: '', photos: [], photoLimit: 4, lat: null, lng: null, password: p, region: '', adminPhotos: [], deviceHistory: [], currentDevice: null };
+        
+        var user = { 
+            id: id, 
+            name: name, 
+            accountName: name, 
+            bio: '', 
+            dob: '', 
+            gender: '', 
+            photos: [], 
+            photoLimit: 4, 
+            lat: null, 
+            lng: null, 
+            password: p, 
+            region: '', 
+            adminPhotos: [], 
+            deviceHistory: [], 
+            currentDevice: null,
+            joined: new Date().toLocaleDateString('my-MM')
+        };
         try {
             await firebaseDB.ref('appData/users/' + id).set(user);
             var verify = await firebaseDB.ref('appData/users/' + id).once('value');
             if (!verify.exists()) throw new Error('Firebase account verification failed');
             db.users[id] = user;
+            // Add name to usedNames
+            if (!db.usedNames) db.usedNames = [];
+            db.usedNames.push(name);
             localSave();
             me = id;
-            // Set device
             var device = getDeviceInfo();
             db.users[me].currentDevice = JSON.stringify(device);
             await save();
-            try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
-            alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\nဒီ ID နဲ့ Password ကို ဘယ် Browser/ဖုန်းကမဆို ဝင်နိုင်ပါတယ်။\nသတိပြုရန်: အကောင့်တစ်ခုကို ဖုန်းတစ်လုံးတည်းမှသာ ဝင်ခွင့်ရှိပြီး အခြားဖုန်းမှ ဝင်ပါက ပထမဖုန်းတွင် အကြောင်းကြားပြီး အလိုအလျောက် ထွက်သွားပါမည်။');
+            try { localStorage.setItem('beechat_logged_in', id); } catch (e) {}
+            alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\n\n⚠️ သတိပြုရန်:\n• အကောင့်တစ်ခုကို ဖုန်းတစ်လုံးတည်းမှသာ ဝင်ခွင့်ရှိသည်။\n• အခြားဖုန်းမှ ဝင်ပါက ပထမဖုန်းတွင် အကြောင်းကြားပြီး အလိုအလျောက် ထွက်သွားပါမည်။\n• ID နံပါတ်တစ်ခုကို သုံးစွဲသူတစ်ယောက်တည်းသာ သုံးခွင့်ရှိသည်။');
             enter();
             setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
         } catch (e) {
@@ -1677,30 +1819,27 @@
         localSave();
         me = id;
         
-        // Check device
         var currentDevice = getDeviceInfo();
         var deviceKey = JSON.stringify(currentDevice);
         if (u.currentDevice && u.currentDevice !== deviceKey) {
-            alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။\nဖုန်းအမျိုးအစား: ' + u.currentDevice + '\nသင်သည် ဤဖုန်းမှ ဝင်ခွင့်မရှိပါ။');
-            // Auto logout
+            alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။\nဖုန်းအမျိုးအစား: ' + u.currentDevice + '\n\nသင်သည် ဤဖုန်းမှ ဝင်ခွင့်မရှိပါ။');
             logout();
             return;
         }
         
-        // Update device info
         u.currentDevice = deviceKey;
         if (!u.deviceHistory) u.deviceHistory = [];
         u.deviceHistory.push({ device: deviceKey, timestamp: Date.now() });
         await save();
         
-        try { localStorage.setItem('my_social_logged_in', id); } catch (e) {}
+        try { localStorage.setItem('beechat_logged_in', id); } catch (e) {}
         enter();
-        setStatus('✅ ' + id + ' ဝင်ထားပါပြီ — Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်');
+        setStatus('✅ ' + id + ' ဝင်ထားပါပြီ');
     }
 
     function logout() {
         stopPresence();
-        try { localStorage.removeItem('my_social_logged_in'); } catch (e) {}
+        try { localStorage.removeItem('beechat_logged_in'); } catch (e) {}
         me = null; chatWith = null;
         document.getElementById('nav').classList.add('hidden');
         document.getElementById('head').textContent = 'Guest';
@@ -1740,7 +1879,6 @@
             box.appendChild(im);
         } else box.textContent = '👤';
         
-        // Device info
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
         if (deviceDisplay) {
             if (u.currentDevice) {
@@ -1756,10 +1894,10 @@
         }
     }
 
-    function notificationEnabled() { return localStorage.getItem('my_social_notifications') !== 'off'; }
+    function notificationEnabled() { return localStorage.getItem('beechat_notifications') !== 'off'; }
     function toggleNotifications() {
         var on = !notificationEnabled();
-        localStorage.setItem('my_social_notifications', on ? 'on' : 'off');
+        localStorage.setItem('beechat_notifications', on ? 'on' : 'off');
         renderNotifications();
     }
 
@@ -1829,6 +1967,19 @@
         var u = db.users[me];
         var name = (val('profileName') || '').trim();
         if (!name) { alert('အမည်ထည့်ပါ'); return; }
+        
+        // Check if name already used by another user
+        if (db.usedNames && db.usedNames.includes(name) && u.name !== name) {
+            alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။ ကျေးဇူးပြုပြီး အခြားအမည်တစ်ခုကို ရွေးချယ်ပါ။');
+            return;
+        }
+        
+        // Update usedNames
+        if (!db.usedNames) db.usedNames = [];
+        var oldNameIndex = db.usedNames.indexOf(u.name);
+        if (oldNameIndex !== -1) db.usedNames.splice(oldNameIndex, 1);
+        db.usedNames.push(name);
+        
         u.name = name;
         u.bio = val('bio') || '';
         u.dob = val('profileDob') || '';
@@ -1873,7 +2024,7 @@
             g.appendChild(d);
         }
         
-        // Admin photos (28 slots) - white background, no text
+        // Admin photos (28 slots) - white background only, no icons
         u.adminPhotos = Array.isArray(u.adminPhotos) ? u.adminPhotos.slice(0, 28) : [];
         for (var j = 0; j < 28; j++) {
             var d2 = document.createElement('div');
@@ -1884,14 +2035,8 @@
                 im2.alt = 'Admin photo ' + (j + 1);
                 d2.appendChild(im2);
             } else {
-                // White background with no text
                 d2.style.background = '#ffffff';
             }
-            // Admin-only badge (hidden)
-            var badge = document.createElement('span');
-            badge.className = 'admin-only-badge';
-            badge.textContent = '🔒';
-            d2.appendChild(badge);
             g.appendChild(d2);
         }
         
@@ -2021,8 +2166,12 @@
                 d.className = 'list';
                 var f = db.friends.some(function(z) { return (z.a === me && z.b === x.id) || (z.a === x.id && z.b === me); });
                 var q = db.req.some(function(r) { return r.f === me && r.t === x.id; });
+                var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
+                var age = calcAge(u.dob);
                 var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' + (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
+                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' +
+                    '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' + 
+                    (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
             });
         } catch (e) { console.error(e); b.innerHTML = '<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။</div>'; }
@@ -2388,7 +2537,7 @@
         else if (el.id === 'locateBtn' && typeof locate === 'function') locate();
     }, false);
 
-    window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
+    window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
     </html>
