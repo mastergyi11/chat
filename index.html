@@ -29,7 +29,7 @@
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: #fff; }
         .list:last-child { border-bottom: 0; }
         .chat { height: 55vh; overflow: auto; background: #f7f7f7; padding: 10px; border-radius: 12px; }
-        .msg { max-width: 78%; padding: 9px 14px; border-radius: 18px; margin: 7px 0; background: #e9ecef; color: #222; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; }
+        .msg { max-width: 78%; padding: 9px 14px; border-radius: 18px; margin: 7px 0; background: #e9ecef; color: #222; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; position: relative; }
         .msg .avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
         .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .msg .bubble { flex: 1; }
@@ -41,6 +41,8 @@
         .me .avatar { order: 2; }
         .me .bubble { order: 1; text-align: right; background: #e7f3ff; }
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
+        .msg .delete-msg-btn { position: absolute; top: 2px; right: 2px; background: rgba(220,53,69,0.8); color: #fff; border: 0; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1; }
+        .msg:hover .delete-msg-btn { display: flex; }
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
@@ -59,7 +61,8 @@
         .profile-region-row label { font-size: 15px; min-width: 120px; color: #555; }
         .profile-region-value { flex: 1; text-align: right; font-size: 15px; word-break: break-word; }
         .user-groups-section { margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; }
-        .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; }
+        .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; cursor: pointer; }
+        .user-groups-section .group-chip:hover { background: #e7ad21; }
         .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
         .onboard-user-card .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -190,15 +193,25 @@
         .filter-section { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
         .filter-section select, .filter-section input { flex: 1; min-width: 80px; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; }
         .filter-section .btn { padding: 6px 14px; font-size: 13px; }
-        /* System Message Box */
+        /* System Message Box - like screenshot 2 */
         .system-msg-box { background: #f8f9fa; border: 1px solid #e7ad21; border-radius: 10px; padding: 12px 14px; margin: 6px 0; color: #222; font-size: 14px; }
-        .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; }
+        .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; font-size: 16px; }
         .system-msg-box .sys-time { font-size: 11px; color: #999; float: right; }
+        .system-msg-box .sys-msg-text { margin-top: 4px; font-size: 14px; }
         /* Gender icons on location page */
         .gender-filter-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
         .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
         /* Onboarding search result with gender/age */
         .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
+        /* Sticker section in profile */
+        .sticker-section { padding: 10px 16px; border-bottom: 1px solid #eee; }
+        .sticker-section .sticker-grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
+        .sticker-section .sticker-grid .sticker-btn { font-size: 28px; padding: 4px 8px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff; transition: all 0.2s; }
+        .sticker-section .sticker-grid .sticker-btn:hover { border-color: #e7ad21; transform: scale(1.1); }
+        .sticker-section .sticker-grid .sticker-btn.selected { border-color: #e7ad21; background: #fff8e1; }
+        .sticker-section .current-sticker-display { text-align: center; font-size: 48px; padding: 8px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
+        /* Profile nav button slight right shift */
+        #navProfile { margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -237,11 +250,11 @@
     <!-- ONBOARDING (Location + Search) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <!-- System Message Box (Admin can send messages) -->
+            <!-- System Message Box like screenshot 2 -->
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
-                <div id="systemMsgContent" style="margin-top:4px;">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
+                <div id="systemMsgContent" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
             </div>
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
@@ -317,6 +330,30 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
+            <!-- Sticker Section -->
+            <div class="sticker-section">
+                <div class="current-sticker-display" id="currentStickerDisplay">😊</div>
+                <div style="font-size:12px;color:#777;text-align:center;margin-bottom:4px;">သင့်စတစ်ကာကို ရွေးပါ (သိမ်းရန် အောက်ဆုံးခလုပ်)</div>
+                <div class="sticker-grid" id="stickerGrid">
+                    <button class="sticker-btn" onclick="selectSticker('😊')">😊</button>
+                    <button class="sticker-btn" onclick="selectSticker('❤️')">❤️</button>
+                    <button class="sticker-btn" onclick="selectSticker('😂')">😂</button>
+                    <button class="sticker-btn" onclick="selectSticker('😍')">😍</button>
+                    <button class="sticker-btn" onclick="selectSticker('🤩')">🤩</button>
+                    <button class="sticker-btn" onclick="selectSticker('😘')">😘</button>
+                    <button class="sticker-btn" onclick="selectSticker('🥰')">🥰</button>
+                    <button class="sticker-btn" onclick="selectSticker('😁')">😁</button>
+                    <button class="sticker-btn" onclick="selectSticker('🙏')">🙏</button>
+                    <button class="sticker-btn" onclick="selectSticker('🤗')">🤗</button>
+                    <button class="sticker-btn" onclick="selectSticker('👍')">👍</button>
+                    <button class="sticker-btn" onclick="selectSticker('🔥')">🔥</button>
+                    <button class="sticker-btn" onclick="selectSticker('💯')">💯</button>
+                    <button class="sticker-btn" onclick="selectSticker('⭐')">⭐</button>
+                    <button class="sticker-btn" onclick="selectSticker('✨')">✨</button>
+                    <button class="sticker-btn" onclick="selectSticker('💪')">💪</button>
+                </div>
+            </div>
+            
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
                 <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
@@ -437,19 +474,19 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX (Chats) -->
+    <!-- INBOX (Chats) with System Message like screenshot 2 -->
     <section id="inbox" class="screen">
-        <!-- System Message Box replaced "Inbox" title -->
+        <!-- System Message Box like screenshot 2 -->
         <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
             <span class="sys-title">📢 Bee Chat Admin</span>
             <span class="sys-time" id="sysTimeDisplayInbox"></span>
-            <div id="systemMsgContentInbox" style="margin-top:4px;">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
+            <div id="systemMsgContentInbox" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
         </div>
         <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
-    <!-- CHAT (with Send button always visible) -->
+    <!-- CHAT (with Send button always visible and delete message) -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -468,7 +505,7 @@
                     <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
                     <button onclick="alert('Sticker မကြာမီ ထည့်ပေးပါမယ်')" title="စတစ်ကာ">😊</button>
                 </div>
-                <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()" oninput="toggleSendButton()">
+                <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()">
                 <button class="send-btn show" id="sendBtn" onclick="send()">➤</button>
             </div>
         </div>
@@ -573,9 +610,10 @@
     var chatMenuVisible = false;
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
+    var selectedSticker = '😊';
     
-    // System message
-    var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။';
+    // System message like screenshot 2
+    var systemMessage = 'ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!';
     var systemMessageTime = Date.now();
 
     var deviceInfo = {};
@@ -603,9 +641,9 @@
 
     var DEFAULT = {
         users: {
-            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01' },
-            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15' },
-            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20' }
+            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', sticker: '😊' },
+            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', sticker: '❤️' },
+            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20', sticker: '😊' }
         },
         req: [],
         friends: [],
@@ -643,6 +681,7 @@
                 if (u.region === undefined) u.region = '';
                 if (!u.deviceHistory) u.deviceHistory = [];
                 if (!u.currentDevice) u.currentDevice = null;
+                if (u.sticker === undefined) u.sticker = '😊';
             }
         });
         return x;
@@ -821,6 +860,61 @@
         save();
     };
 
+    // ===== STICKER FUNCTIONS =====
+    function selectSticker(sticker) {
+        selectedSticker = sticker;
+        // Update display
+        var display = document.getElementById('currentStickerDisplay');
+        if (display) display.textContent = sticker;
+        // Highlight selected
+        document.querySelectorAll('.sticker-btn').forEach(function(btn) {
+            btn.classList.toggle('selected', btn.textContent === sticker);
+        });
+    }
+
+    function saveStickerToProfile() {
+        if (!me || !db.users[me]) return;
+        db.users[me].sticker = selectedSticker;
+        save();
+        alert('✅ စတစ်ကာကို သိမ်းပြီးပါပြီ!');
+    }
+
+    // ===== DELETE MESSAGE FUNCTIONS =====
+    function deleteMessage(chatKey, msgIndex) {
+        if (!me) return;
+        if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+        var msgs = db.messages[chatKey] || [];
+        if (msgIndex >= 0 && msgIndex < msgs.length) {
+            // Only allow deleting own messages or group messages (for group, we handle separately)
+            if (msgs[msgIndex].f === me) {
+                msgs.splice(msgIndex, 1);
+                db.messages[chatKey] = msgs;
+                save();
+                renderChat();
+                alert('✅ စာကို ဖျက်ပြီးပါပြီ');
+            } else {
+                alert('❌ ကိုယ်ပိုင်စာကိုသာ ဖျက်ခွင့်ရှိပါတယ်');
+            }
+        }
+    }
+
+    function deleteGroupMessage(groupId, msgIndex) {
+        if (!me) return;
+        if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+        var msgs = db.groupMessages[groupId] || [];
+        if (msgIndex >= 0 && msgIndex < msgs.length) {
+            if (msgs[msgIndex].f === me) {
+                msgs.splice(msgIndex, 1);
+                db.groupMessages[groupId] = msgs;
+                save();
+                renderGroupChat();
+                alert('✅ စာကို ဖျက်ပြီးပါပြီ');
+            } else {
+                alert('❌ ကိုယ်ပိုင်စာကိုသာ ဖျက်ခွင့်ရှိပါတယ်');
+            }
+        }
+    }
+
     // ===== UPDATE BADGES =====
     function updateBadges() {
         if (!me || !db) return;
@@ -897,7 +991,6 @@
         if (id === 'userProfile') renderUserProfile();
         if (id === 'myAccount') renderMyAccount();
         if (id === 'inbox') renderInbox();
-        // Update system message on inbox
         updateSystemMessage(systemMessage, systemMessageTime);
     }
 
@@ -1115,10 +1208,11 @@
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
         var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
         var age = calcAge(u.dob);
+        var sticker = u.sticker || '😊';
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + '</div>';
+        html += '<div class="name">' + esc(u.name || '-') + ' <span style="font-size:28px;">' + sticker + '</span></div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
         html += '<div class="stats">' +
@@ -1180,8 +1274,9 @@
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
         var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
-        if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
+        var key = ck();
+        if (!db.messages[key]) db.messages[key] = [];
+        db.messages[key].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
         i.value = '';
         save();
         renderChat();
@@ -1196,8 +1291,9 @@
         }
         var b = document.getElementById('chatbox');
         b.innerHTML = '';
-        var msgs = db.messages[ck()] || [];
-        msgs.forEach(function(m) {
+        var key = ck();
+        var msgs = db.messages[key] || [];
+        msgs.forEach(function(m, idx) {
             var u = db.users[m.f] || {};
             var isMe = (m.f === me);
             var avatarHtml = getUserAvatar(u);
@@ -1236,6 +1332,18 @@
             bubbleDiv.appendChild(seenSpan);
             d.appendChild(avatarDiv);
             d.appendChild(bubbleDiv);
+            // Delete button for own messages
+            if (isMe) {
+                var delBtn = document.createElement('button');
+                delBtn.className = 'delete-msg-btn';
+                delBtn.textContent = '✕';
+                delBtn.title = 'ဖျက်မည်';
+                delBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteMessage(key, idx);
+                };
+                d.appendChild(delBtn);
+            }
             b.appendChild(d);
         });
         save();
@@ -1249,10 +1357,6 @@
             return '<img src="' + user.photos[0] + '" alt="avatar">';
         }
         return '<span style="font-size:20px;">👤</span>';
-    }
-
-    function toggleSendButton() {
-        // Send button always visible in chat
     }
 
     function openCameraForChat() {
@@ -1319,8 +1423,9 @@
 
     function sendChatImage(imageData) {
         if (!chatWith || isBlocked(chatWith) || !imageData) return;
-        if (!db.messages[ck()]) db.messages[ck()] = [];
-        db.messages[ck()].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData });
+        var key = ck();
+        if (!db.messages[key]) db.messages[key] = [];
+        db.messages[key].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData });
         save();
         renderChat();
     }
@@ -1346,9 +1451,20 @@
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
-        if (id === 'profile') renderProfileCreateGroup();
+        if (id === 'profile') { renderProfileCreateGroup(); renderSticker(); }
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
         if (id === 'onboarding') updateSystemMessage(systemMessage, systemMessageTime);
+    }
+
+    function renderSticker() {
+        if (!me || !db.users[me]) return;
+        var sticker = db.users[me].sticker || '😊';
+        selectedSticker = sticker;
+        var display = document.getElementById('currentStickerDisplay');
+        if (display) display.textContent = sticker;
+        document.querySelectorAll('.sticker-btn').forEach(function(btn) {
+            btn.classList.toggle('selected', btn.textContent === sticker);
+        });
     }
 
     function refresh() {
@@ -1359,6 +1475,7 @@
         u.dob = u.dob || '';
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
+        if (u.sticker === undefined) u.sticker = '😊';
         document.getElementById('head').textContent = u.name;
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
@@ -1400,6 +1517,7 @@
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
+        renderSticker();
         updateBadges();
         
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
@@ -1416,8 +1534,10 @@
         if (!container) return;
         var userGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); });
         if (userGroups.length) {
-            var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
-            userGroups.forEach(function(g) { html += '<span class="group-chip">🏆 '+esc(g.name)+'</span>'; });
+            var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ (နှိပ်၍ဝင်ရန်):</div>';
+            userGroups.forEach(function(g) { 
+                html += '<span class="group-chip" onclick="openGroup(\'' + g.id + '\')">🏆 '+esc(g.name)+'</span>'; 
+            });
             container.innerHTML = html;
             container.style.display = 'block';
         } else {
@@ -1644,7 +1764,6 @@
         }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
     };
 
-    // Reset filters
     function resetFilters() {
         document.getElementById('filterGender').value = '';
         document.getElementById('filterAge').value = '';
@@ -1663,11 +1782,8 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
-            // Name/ID search
             if (q && !((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))) return false;
-            // Gender filter
             if (genderFilter && u.gender !== genderFilter) return false;
-            // Age filter
             if (ageFilter) {
                 var age = calcAge(u.dob);
                 if (!age) return false;
@@ -1732,7 +1848,6 @@
         var name = n.trim();
         if (!name) { alert('အမည်ထည့်ပါ'); return; }
         
-        // Check if name already exists
         if (db.usedNames && db.usedNames.includes(name)) {
             alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။ ကျေးဇူးပြုပြီး အခြားအမည်တစ်ခုကို ရွေးချယ်ပါ။');
             return;
@@ -1765,14 +1880,14 @@
             adminPhotos: [], 
             deviceHistory: [], 
             currentDevice: null,
-            joined: new Date().toLocaleDateString('my-MM')
+            joined: new Date().toLocaleDateString('my-MM'),
+            sticker: '😊'
         };
         try {
             await firebaseDB.ref('appData/users/' + id).set(user);
             var verify = await firebaseDB.ref('appData/users/' + id).once('value');
             if (!verify.exists()) throw new Error('Firebase account verification failed');
             db.users[id] = user;
-            // Add name to usedNames
             if (!db.usedNames) db.usedNames = [];
             db.usedNames.push(name);
             localSave();
@@ -1968,13 +2083,11 @@
         var name = (val('profileName') || '').trim();
         if (!name) { alert('အမည်ထည့်ပါ'); return; }
         
-        // Check if name already used by another user
         if (db.usedNames && db.usedNames.includes(name) && u.name !== name) {
             alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။ ကျေးဇူးပြုပြီး အခြားအမည်တစ်ခုကို ရွေးချယ်ပါ။');
             return;
         }
         
-        // Update usedNames
         if (!db.usedNames) db.usedNames = [];
         var oldNameIndex = db.usedNames.indexOf(u.name);
         if (oldNameIndex !== -1) db.usedNames.splice(oldNameIndex, 1);
@@ -1985,9 +2098,13 @@
         u.dob = val('profileDob') || '';
         u.gender = val('profileGender') || '';
         u.accountName = u.accountName || name;
+        
+        // Save sticker
+        u.sticker = selectedSticker;
+        
         save();
         refresh();
-        alert('✅ Profile ကို သိမ်းပြီးပါပြီ');
+        alert('✅ Profile နှင့် စတစ်ကာကို သိမ်းပြီးပါပြီ');
     }
 
     var photoSlot = 0;
@@ -1997,7 +2114,6 @@
         if (!u || !g) return;
         g.innerHTML = '';
         
-        // User photos (4 slots)
         u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
         for (var i = 0; i < 4; i++) {
             var d = document.createElement('div');
@@ -2024,7 +2140,6 @@
             g.appendChild(d);
         }
         
-        // Admin photos (28 slots) - white background only, no icons
         u.adminPhotos = Array.isArray(u.adminPhotos) ? u.adminPhotos.slice(0, 28) : [];
         for (var j = 0; j < 28; j++) {
             var d2 = document.createElement('div');
@@ -2483,13 +2598,18 @@
         var html = '<div class="group-detail-header"><h3 class="group-title">🏆 ' + esc(g.name) + '</h3><div class="group-actions"><button onclick="renderGroupDetail()" title="ပြန်">✖️</button></div></div>' +
             '<div class="small">အသင်းဝင် '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
             '<div id="groupChatBox" class="chat" style="height:40vh;">';
-        msgs.forEach(function(m) {
+        msgs.forEach(function(m, idx) {
             var u = db.users[m.f] || {};
             var rank = getMemberRank(g, m.f);
             var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
             var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
-            html += '<div class="msg ' + (m.f === me ? 'me' : '') + '">' +
-                '<div class="bubble"><b>' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div></div>';
+            var isMe = (m.f === me);
+            html += '<div class="msg ' + (isMe ? 'me' : '') + '" style="position:relative;">' +
+                '<div class="bubble"><b>' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div>';
+            if (isMe) {
+                html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')" style="position:absolute;top:2px;right:2px;background:rgba(220,53,69,0.8);color:#fff;border:0;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>';
+            }
+            html += '</div>';
         });
         html += '</div><div class="chat-input-area">' +
             '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">' +
