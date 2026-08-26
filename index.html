@@ -24,7 +24,6 @@
         .btn.red { background: #dc3545; color: #fff; }
         .btn.outline { background: transparent; border: 1px solid #ddd; color: #555; }
         .btn.small { padding: 4px 10px; font-size: 12px; }
-        .btn.follow-btn { background: #0d6efd; color: #fff; }
         .small { font-size: 12px; color: #777; }
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: #fff; }
         .list:last-child { border-bottom: 0; }
@@ -192,7 +191,7 @@
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
         <div id="pageTitle" class="header-title">My Social Chat</div>
         <span id="head">Guest</span>
-        <button class="notif-btn" onclick="openAdminMessages()" id="notifBell" title="Admin Messages">
+        <button class="notif-btn" onclick="openAdminMessages()" id="notifBell" title="Notifications">
             🔔
             <span class="notif-badge" id="notifBadge">0</span>
         </button>
@@ -335,8 +334,16 @@
     <!-- USER PROFILE -->
     <section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 
-    <!-- ADMIN MESSAGES -->
-    <section id="adminMessages" class="screen"><div class="card"><div style="display:flex; justify-content:space-between; align-items:center;"><h3>📢 Admin Messages</h3><button class="btn outline small" onclick="show('home')">✖️</button></div><div id="adminMsgList"><div class="small">Loading...</div></div></div></section>
+    <!-- ADMIN MESSAGES / SYSTEM NOTIFICATIONS -->
+    <section id="adminMessages" class="screen">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>📢 System Notifications</h3>
+                <button class="btn outline small" onclick="show('home')">✖️</button>
+            </div>
+            <div id="adminMsgList"><div class="small">Loading...</div></div>
+        </div>
+    </section>
 
     <!-- GROUPS -->
     <section id="groups" class="screen"><div id="groupCreateCard" class="card"><h3>👥 အသင်းအသစ်တည်ထောင်ရန်</h3><input id="gname" placeholder="Group အမည်"><div class="group-avatar-upload"><label for="groupAvatarUpload">📷 အသင်းပုံတင်ရန်</label><input type="file" id="groupAvatarUpload" accept="image/*" onchange="previewGroupAvatar(event)"><span id="groupAvatarStatus" class="small">ပုံမရွေးရသေးပါ</span></div><button class="btn gold" onclick="createGroup()">ဖန်တီးမည်</button><p class="small">Level 1 = member 20 ယောက်အထိ။</p></div><div class="card"><div id="glist"></div></div></section>
@@ -464,11 +471,114 @@
     function checkMessageForBadWords(text) { if (!isRuleActive('rule_2')) return false; var lowerText = text.toLowerCase(); for (var i = 0; i < badWords.length; i++) { if (lowerText.includes(badWords[i].toLowerCase())) { return true; } } return false; }
     function checkSpam() { if (!isRuleActive('rule_2')) return false; var now = Date.now(); if (now - messageWindowStart > 60000) { messageCount = 0; messageWindowStart = now; } messageCount++; if (messageCount > 10) { messageCount = 0; return true; } return false; }
 
-    function loadAdminMessages() { if (!firebaseDB || !me) return; if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; } adminMsgListener = firebaseDB.ref('appData/adminMessages').on('value', function(snap) { var data = snap.val() || {}; adminMessages = []; Object.keys(data).forEach(function(key) { var msg = data[key]; if (msg) { msg.id = key; adminMessages.push(msg); } }); adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }); updateNotifBadge(); if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) { renderAdminMessages(); } }); }
-    function updateNotifBadge() { var badge = document.getElementById('notifBadge'); if (!badge) return; if (!me) { badge.style.display = 'none'; return; } var unread = adminMessages.filter(function(msg) { return !(msg.readBy && msg.readBy[me] === true); }); var count = unread.length; if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'block'; } else { badge.style.display = 'none'; } }
-    function openAdminMessages() { if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; } show('adminMessages'); renderAdminMessages(); var unread = adminMessages.filter(function(msg) { return !(msg.readBy && msg.readBy[me] === true); }); if (unread.length > 0 && firebaseDB) { var updates = {}; unread.forEach(function(msg) { if (!msg.readBy) msg.readBy = {}; msg.readBy[me] = true; updates['appData/adminMessages/' + msg.id + '/readBy/' + me] = true; }); firebaseDB.ref().update(updates).catch(function(e) {}); adminMessages.forEach(function(m) { if (!m.readBy) m.readBy = {}; m.readBy[me] = true; }); updateNotifBadge(); } }
-    function renderAdminMessages() { var container = document.getElementById('adminMsgList'); if (!container) return; if (!adminMessages.length) { container.innerHTML = '<div class="small">📭 No admin messages yet.</div>'; return; } var html = ''; adminMessages.forEach(function(msg) { var isUnread = !(msg.readBy && msg.readBy[me] === true); var time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : ''; html += '<div class="admin-msg-item ' + (isUnread ? 'unread' : '') + '"><div class="msg-title">' + esc(msg.title || 'No title') + '</div><div class="msg-body">' + esc(msg.body || '') + '</div><div class="msg-time">' + time + '</div></div>'; }); container.innerHTML = html; }
+    // ===== SYSTEM NOTIFICATION (AUTO) =====
+    function sendSystemNotification(title, body) {
+        if (!firebaseDB || !me) return;
+        if (!db.adminMessages) db.adminMessages = {};
+        var id = 'SYS_' + Date.now();
+        var msg = {
+            id: id,
+            title: title || 'System Notification',
+            body: body || 'You have violated a rule.',
+            timestamp: Date.now(),
+            sender: 'system',
+            readBy: {}
+        };
+        db.adminMessages[id] = msg;
+        // Also save to Firebase
+        firebaseDB.ref('appData/adminMessages/' + id).set(msg).catch(function(e) {});
+        // Update local
+        adminMessages.unshift(msg);
+        updateNotifBadge();
+        if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
+            renderAdminMessages();
+        }
+    }
 
+    // ===== ADMIN MESSAGES =====
+    function loadAdminMessages() {
+        if (!firebaseDB || !me) return;
+        if (adminMsgListener) { adminMsgListener.off(); adminMsgListener = null; }
+        adminMsgListener = firebaseDB.ref('appData/adminMessages').on('value', function(snap) {
+            var data = snap.val() || {};
+            adminMessages = [];
+            Object.keys(data).forEach(function(key) {
+                var msg = data[key];
+                if (msg) {
+                    msg.id = key;
+                    adminMessages.push(msg);
+                }
+            });
+            adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+            updateNotifBadge();
+            if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
+                renderAdminMessages();
+            }
+        });
+    }
+
+    function updateNotifBadge() {
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        if (!me) { badge.style.display = 'none'; return; }
+        var unread = adminMessages.filter(function(msg) {
+            return !(msg.readBy && msg.readBy[me] === true);
+        });
+        var count = unread.length;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function openAdminMessages() {
+        if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
+        show('adminMessages');
+        renderAdminMessages();
+        var unread = adminMessages.filter(function(msg) {
+            return !(msg.readBy && msg.readBy[me] === true);
+        });
+        if (unread.length > 0 && firebaseDB) {
+            var updates = {};
+            unread.forEach(function(msg) {
+                if (!msg.readBy) msg.readBy = {};
+                msg.readBy[me] = true;
+                updates['appData/adminMessages/' + msg.id + '/readBy/' + me] = true;
+            });
+            firebaseDB.ref().update(updates).catch(function(e) {});
+            adminMessages.forEach(function(m) {
+                if (!m.readBy) m.readBy = {};
+                m.readBy[me] = true;
+            });
+            updateNotifBadge();
+        }
+    }
+
+    function renderAdminMessages() {
+        var container = document.getElementById('adminMsgList');
+        if (!container) return;
+        if (!adminMessages.length) {
+            container.innerHTML = '<div class="small">📭 No notifications yet.</div>';
+            return;
+        }
+        var html = '';
+        adminMessages.forEach(function(msg) {
+            var isUnread = !(msg.readBy && msg.readBy[me] === true);
+            var isSystem = msg.sender === 'system';
+            var time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+            var title = isSystem ? '🔔 System Notification' : (msg.title || 'Admin Message');
+            html += '<div class="admin-msg-item ' + (isUnread ? 'unread' : '') + '">';
+            html += '<div class="msg-title">' + esc(title) + '</div>';
+            html += '<div class="msg-body">' + esc(msg.body || '') + '</div>';
+            html += '<div class="msg-time">' + time + '</div>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    // ===== RANK SYSTEM =====
     function getMemberRank(group, userId) { if (!group.memberRanks) group.memberRanks = {}; if (group.memberRanks[userId]) return group.memberRanks[userId]; if (group.members && group.members.length) { var idx = group.members.indexOf(userId); if (idx !== -1) { group.memberRanks[userId] = idx + 1; return idx + 1; } } return 0; }
     function getRankLabel(rank) { var labels = { 1: 'အသင်းသားသစ်', 2: 'တက်ကြွသူ', 3: 'အားထုတ်သူ', 4: 'ခေါင်းဆောင်', 5: 'ဒဏ္ဍာရီ' }; return labels[rank] || 'အဆင့် ' + rank; }
     function getRankBadgeClass(rank) { return 'rank-' + rank; }
@@ -479,7 +589,7 @@
 
     function updateBadges() { if (!me || !db) return; var incomingRequests = db.req.filter(r => r.t === me && !r.seen); var requestCount = incomingRequests.length; var reqBadge = document.getElementById('requestCount'); if (reqBadge) { reqBadge.textContent = requestCount > 0 ? requestCount : ''; reqBadge.style.display = requestCount > 0 ? 'inline-block' : 'none'; } var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a); var unreadCount = 0; friendIds.forEach(function(id) { var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; msgs.forEach(function(m) { if (m.f !== me && !m.seen) unreadCount++; }); }); var myGroups = db.groups.filter(function(g) { return g.members && g.members.includes(me); }); myGroups.forEach(function(g) { var msgs = db.groupMessages[g.id] || []; msgs.forEach(function(m) { if (m.f !== me && !m.seen) unreadCount++; }); }); var total = requestCount + unreadCount; var inboxBadge = document.getElementById('inboxBadge'); if (inboxBadge) { inboxBadge.textContent = total > 0 ? total : ''; inboxBadge.style.display = total > 0 ? 'inline-block' : 'none'; } var inboxCount = document.getElementById('inboxCount'); if (inboxCount) { inboxCount.textContent = total > 0 ? total : ''; inboxCount.style.display = total > 0 ? 'inline-block' : 'none'; } }
 
-    function navGo(id) { if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); show('login'); return; } show(id); closeMenu(); ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(function(x) { var el = document.getElementById(x); if (el) el.classList.remove('active-nav'); }); var map = { onboarding:'navLocation', home:'navHome', friends:'navFriends', inbox:'navInbox', profile:'navProfile', settings:'navSetting', blockedUsers:'navSetting', groupSearch:'navHome', myGroups:'navHome' }; var el = document.getElementById(map[id]); if (el) el.classList.add('active-nav'); var titles = { onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile', settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account', notifications:'Notifications', feedback:'Feedback / Report', groups:'Groups', groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups', adminMessages:'Admin Messages' }; var pt = document.getElementById('pageTitle'); if (pt) pt.textContent = titles[id] || ''; if (id === 'blockedUsers') renderBlockedUsers(); if (id === 'groupDetail') renderGroupDetail(); if (id === 'groupSearch') renderAllGroups(); if (id === 'myGroups') renderMyGroups(); if (id === 'profile') renderProfileCreateGroup(); if (id === 'userProfile') renderUserProfile(); if (id === 'adminMessages') renderAdminMessages(); }
+    function navGo(id) { if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); show('login'); return; } show(id); closeMenu(); ['navLocation','navHome','navFriends','navInbox','navProfile','navSetting'].forEach(function(x) { var el = document.getElementById(x); if (el) el.classList.remove('active-nav'); }); var map = { onboarding:'navLocation', home:'navHome', friends:'navFriends', inbox:'navInbox', profile:'navProfile', settings:'navSetting', blockedUsers:'navSetting', groupSearch:'navHome', myGroups:'navHome' }; var el = document.getElementById(map[id]); if (el) el.classList.add('active-nav'); var titles = { onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile', settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account', notifications:'Notifications', feedback:'Feedback / Report', groups:'Groups', groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups', adminMessages:'System Notifications' }; var pt = document.getElementById('pageTitle'); if (pt) pt.textContent = titles[id] || ''; if (id === 'blockedUsers') renderBlockedUsers(); if (id === 'groupDetail') renderGroupDetail(); if (id === 'groupSearch') renderAllGroups(); if (id === 'myGroups') renderMyGroups(); if (id === 'profile') renderProfileCreateGroup(); if (id === 'userProfile') renderUserProfile(); if (id === 'adminMessages') renderAdminMessages(); }
 
     function isBlocked(userId) { if (!db || !db.blocked) return false; return db.blocked[userId] === true; }
     function blockUser(userId) { if (!me || !db) return; if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; } db.blocked = db.blocked || {}; db.blocked[userId] = true; db.friends = db.friends.filter(function(f) { return !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)); }); db.req = db.req.filter(function(r) { return !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)); }); save(); refresh(); alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ'); if (chatWith === userId) { chatWith = null; show('inbox'); } renderBlockedUsers(); }
@@ -502,7 +612,37 @@
 
     function openChat(id) { if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။ စကားမပြောနိုင်ပါ။'); return; } chatWith = id; document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name; document.getElementById('chatMenu').style.display = 'none'; chatMenuVisible = false; show('chat'); }
 
-    function send() { if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; } if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; } var i = document.getElementById('msg'), t = i.value.trim(); if (!t) return; if (checkMessageForBadWords(t)) { alert('⚠️ စည်းကမ်းချက်ဖောက်ဖျက်မှုရှိပါသည်။ မသင့်လျော်သောစကားလုံးများပါရှိသည်။'); return; } if (checkSpam()) { alert('⚠️ စာပို့နှုန်း အလွန်များနေပါသည်။ ခေတ္တစောင့်ပါ။'); return; } if (!db.messages[ck()]) db.messages[ck()] = []; db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null }); i.value = ''; toggleSendButton(); save(); renderChat(); updateBadges(); }
+    // ===== SEND WITH AUTO SYSTEM NOTIFICATION =====
+    function send() {
+        if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
+        if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        var i = document.getElementById('msg'), t = i.value.trim();
+        if (!t) return;
+
+        // 🔥 AUTO-MODERATION CHECKS with System Notification
+        var violation = null;
+        if (checkMessageForBadWords(t)) {
+            violation = 'သင်သည် မသင့်လျော်သောစကားလုံးများ အသုံးပြုခြင်းဖြင့် စည်းကမ်းချက်ကို ဖောက်ဖျက်ထားပါသည်။';
+        } else if (checkSpam()) {
+            violation = 'သင်သည် စာပို့နှုန်း အလွန်များခြင်းဖြင့် စည်းကမ်းချက်ကို ဖောက်ဖျက်ထားပါသည်။';
+        }
+
+        if (violation) {
+            // 🔥 Send System Notification immediately
+            sendSystemNotification('⚠️ Rule Violation Detected', violation);
+            alert('⚠️ ' + violation + '\n\nSystem notification has been sent to your inbox.');
+            return;
+        }
+
+        // If no violation, send message normally
+        if (!db.messages[ck()]) db.messages[ck()] = [];
+        db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
+        i.value = '';
+        toggleSendButton();
+        save();
+        renderChat();
+        updateBadges();
+    }
 
     function renderChat() { if (!chatWith) return; if (isBlocked(chatWith)) { document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#dc3545;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>'; return; } var b = document.getElementById('chatbox'); b.innerHTML = ''; var msgs = db.messages[ck()] || []; msgs.forEach(function(m) { var u = db.users[m.f] || {}; var isMe = (m.f === me); var avatarHtml = getUserAvatar(u); var nameDisplay = esc(u.name || m.f || 'Unknown'); var msgText = esc(m.t || ''); var d = document.createElement('div'); d.className = 'msg' + (isMe ? ' me' : ''); var avatarDiv = document.createElement('div'); avatarDiv.className = 'avatar'; avatarDiv.innerHTML = avatarHtml; avatarDiv.onclick = function() { if (m.f && db.users[m.f]) { viewUserProfile(m.f); } }; var bubbleDiv = document.createElement('div'); bubbleDiv.className = 'bubble'; var nameSpan = document.createElement('div'); nameSpan.className = 'name'; nameSpan.textContent = nameDisplay; nameSpan.onclick = function() { if (m.f && db.users[m.f]) { viewUserProfile(m.f); } }; var textSpan = document.createElement('div'); textSpan.className = 'text'; textSpan.textContent = msgText; if (m.image) { var imgDiv = document.createElement('div'); imgDiv.className = 'msg-image'; var img = document.createElement('img'); img.src = m.image; img.alt = 'Image'; img.onclick = function() { window.open(m.image, '_blank'); }; imgDiv.appendChild(img); textSpan.appendChild(imgDiv); } var seenSpan = document.createElement('div'); seenSpan.className = 'seen'; if (isMe) { seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered'; } else { m.seen = true; } bubbleDiv.appendChild(nameSpan); bubbleDiv.appendChild(textSpan); bubbleDiv.appendChild(seenSpan); d.appendChild(avatarDiv); d.appendChild(bubbleDiv); b.appendChild(d); }); save(); b.scrollTop = b.scrollHeight; updateBadges(); }
     function getUserAvatar(user) { if (!user) return ''; if (user.photos && user.photos[0]) { return '<img src="' + user.photos[0] + '" alt="avatar">'; } return '<span style="font-size:20px;">👤</span>'; }
@@ -542,28 +682,7 @@
 
     async function register() { if (firebaseInitPromise) await firebaseInitPromise; if (!db) { alert('ခဏစောင့်ပါ'); return; } if (!fbReady || !firebaseDB) { alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။'); return; } var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ'); if (n === null) return; var name = n.trim(); if (!name) { alert('အမည်ထည့်ပါ'); return; } var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)'); if (p === null) return; if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; } var base = makeBaseName(name); var num = 1001, id = ''; do { id = base + num; num++; } while (db.users[id]); var user = { id: id, name: name, accountName: name, bio: '', dob: '', gender: '', photos: [], photoLimit: 4, lat: null, lng: null, password: p, region: '', deviceHistory: [] }; try { await firebaseDB.ref('appData/users/' + id).set(user); var verify = await firebaseDB.ref('appData/users/' + id).once('value'); if (!verify.exists()) throw new Error('Firebase account verification failed'); db.users[id] = user; localSave(); me = id; try { localStorage.setItem('my_social_logged_in', id); } catch (e) {} await updateDeviceSession(id); alert('အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\nဒီ ID နဲ့ Password ကို ဘယ် Browser/ဖုန်းကမဆို ဝင်နိုင်ပါတယ်။'); enter(); setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ'); } catch (e) { console.error('Register:', e); alert('❌ အကောင့်ဖွင့်မရပါ။ Firebase Database Rules / Internet ကိုစစ်ပါ။'); } }
 
-    async function updateDeviceSession(userId) {
-        if (!firebaseDB || !userId) return;
-        var deviceId = getDeviceId();
-        var deviceModel = getDeviceModel();
-        var now = new Date().toISOString();
-        // Update active session
-        await firebaseDB.ref('appData/users/' + userId + '/activeSession').set({
-            deviceId: deviceId,
-            deviceModel: deviceModel,
-            loginTime: now
-        });
-        // Update device history
-        var snap = await firebaseDB.ref('appData/users/' + userId + '/deviceHistory').once('value');
-        var history = snap.val() || [];
-        var existing = history.find(function(h) { return h.deviceId === deviceId; });
-        if (existing) {
-            existing.lastLogin = now;
-        } else {
-            history.push({ deviceId: deviceId, deviceModel: deviceModel, firstLogin: now, lastLogin: now });
-        }
-        await firebaseDB.ref('appData/users/' + userId + '/deviceHistory').set(history);
-    }
+    async function updateDeviceSession(userId) { if (!firebaseDB || !userId) return; var deviceId = getDeviceId(); var deviceModel = getDeviceModel(); var now = new Date().toISOString(); await firebaseDB.ref('appData/users/' + userId + '/activeSession').set({ deviceId: deviceId, deviceModel: deviceModel, loginTime: now }); var snap = await firebaseDB.ref('appData/users/' + userId + '/deviceHistory').once('value'); var history = snap.val() || []; var existing = history.find(function(h) { return h.deviceId === deviceId; }); if (existing) { existing.lastLogin = now; } else { history.push({ deviceId: deviceId, deviceModel: deviceModel, firstLogin: now, lastLogin: now }); } await firebaseDB.ref('appData/users/' + userId + '/deviceHistory').set(history); }
 
     async function login() { if (firebaseInitPromise) await firebaseInitPromise; if (!db) { alert('ခဏစောင့်ပါ'); return; } var id = String(val('loginId')).trim().replace(/\s+/g, ''); var p = String(val('loginPassword')); if (!id) { alert('Account ID ထည့်ပါ'); return; } if (!p) { alert('Password ထည့်ပါ'); return; } var u = null; var remoteError = null; if (firebaseDB) { try { var snap = await firebaseDB.ref('appData/users/' + id).once('value'); if (snap.exists()) u = snap.val(); } catch (e) { remoteError = e; } } if (!u && db.users) u = db.users[id]; if (!u) { if (remoteError) { alert('❌ Server မှ Account ကို စစ်မရသေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်စမ်းပါ။'); } else { alert('ဒီ Account ID မတွေ့ပါ။'); } return; } if (u.password && String(u.password) !== p) { alert('Password မမှန်ပါ'); return; } db.users[id] = u; localSave(); me = id; try { localStorage.setItem('my_social_logged_in', id); } catch (e) {} await updateDeviceSession(id); enter(); setStatus('✅ ' + id + ' ဝင်ထားပါပြီ — Browser/ဖုန်းပြောင်းပြီးလည်း ဝင်နိုင်ပါတယ်'); }
 
@@ -633,4 +752,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+            </html>
