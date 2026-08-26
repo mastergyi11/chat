@@ -334,7 +334,7 @@
     <!-- USER PROFILE -->
     <section id="userProfile" class="screen"><div class="card" id="userProfileBox"></div></section>
 
-    <!-- ADMIN MESSAGES / SYSTEM NOTIFICATIONS -->
+    <!-- ADMIN MESSAGES / SYSTEM NOTIFICATIONS (FIXED) -->
     <section id="adminMessages" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -389,8 +389,8 @@
     var adminMessages = [], adminMsgListener = null;
     var USER_UPLOAD_LIMIT = 4, MAX_PHOTOS = 32;
     var activeRules = [];
-    var badWords = ['ကျိန်ဆဲ', 'အော်ဟစ်', 'sex', 'fuck', 'shit', 'bitch', 'fuck', 'မူးယစ်', 'လောင်းကစား'];
-    var lastMessageTime = 0, messageCount = 0, messageWindowStart = Date.now();
+    var badWords = ['ကျိန်ဆဲ', 'အော်ဟစ်', 'sex', 'fuck', 'shit', 'bitch', 'မူးယစ်', 'လောင်းကစား'];
+    var messageCount = 0, messageWindowStart = Date.now();
 
     // ===== DEVICE MANAGEMENT =====
     var DEVICE_KEY = 'beechat_device_id';
@@ -471,23 +471,14 @@
     function checkMessageForBadWords(text) { if (!isRuleActive('rule_2')) return false; var lowerText = text.toLowerCase(); for (var i = 0; i < badWords.length; i++) { if (lowerText.includes(badWords[i].toLowerCase())) { return true; } } return false; }
     function checkSpam() { if (!isRuleActive('rule_2')) return false; var now = Date.now(); if (now - messageWindowStart > 60000) { messageCount = 0; messageWindowStart = now; } messageCount++; if (messageCount > 10) { messageCount = 0; return true; } return false; }
 
-    // ===== SYSTEM NOTIFICATION (AUTO) =====
+    // ===== SYSTEM NOTIFICATION =====
     function sendSystemNotification(title, body) {
         if (!firebaseDB || !me) return;
         if (!db.adminMessages) db.adminMessages = {};
         var id = 'SYS_' + Date.now();
-        var msg = {
-            id: id,
-            title: title || 'System Notification',
-            body: body || 'You have violated a rule.',
-            timestamp: Date.now(),
-            sender: 'system',
-            readBy: {}
-        };
+        var msg = { id: id, title: title || 'System Notification', body: body || 'You have violated a rule.', timestamp: Date.now(), sender: 'system', readBy: {} };
         db.adminMessages[id] = msg;
-        // Also save to Firebase
         firebaseDB.ref('appData/adminMessages/' + id).set(msg).catch(function(e) {});
-        // Update local
         adminMessages.unshift(msg);
         updateNotifBadge();
         if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
@@ -504,13 +495,11 @@
             adminMessages = [];
             Object.keys(data).forEach(function(key) {
                 var msg = data[key];
-                if (msg) {
-                    msg.id = key;
-                    adminMessages.push(msg);
-                }
+                if (msg) { msg.id = key; adminMessages.push(msg); }
             });
             adminMessages.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
             updateNotifBadge();
+            // 🔥 FIX: Always re-render if the adminMessages screen is active
             if (document.getElementById('adminMessages') && document.getElementById('adminMessages').classList.contains('active')) {
                 renderAdminMessages();
             }
@@ -521,25 +510,19 @@
         var badge = document.getElementById('notifBadge');
         if (!badge) return;
         if (!me) { badge.style.display = 'none'; return; }
-        var unread = adminMessages.filter(function(msg) {
-            return !(msg.readBy && msg.readBy[me] === true);
-        });
+        var unread = adminMessages.filter(function(msg) { return !(msg.readBy && msg.readBy[me] === true); });
         var count = unread.length;
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
-        }
+        if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'block'; } 
+        else { badge.style.display = 'none'; }
     }
 
     function openAdminMessages() {
         if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
+        // 🔥 FIX: Show screen first, then render
         show('adminMessages');
         renderAdminMessages();
-        var unread = adminMessages.filter(function(msg) {
-            return !(msg.readBy && msg.readBy[me] === true);
-        });
+        // Mark as read
+        var unread = adminMessages.filter(function(msg) { return !(msg.readBy && msg.readBy[me] === true); });
         if (unread.length > 0 && firebaseDB) {
             var updates = {};
             unread.forEach(function(msg) {
@@ -548,17 +531,17 @@
                 updates['appData/adminMessages/' + msg.id + '/readBy/' + me] = true;
             });
             firebaseDB.ref().update(updates).catch(function(e) {});
-            adminMessages.forEach(function(m) {
-                if (!m.readBy) m.readBy = {};
-                m.readBy[me] = true;
-            });
+            adminMessages.forEach(function(m) { if (!m.readBy) m.readBy = {}; m.readBy[me] = true; });
             updateNotifBadge();
         }
     }
 
     function renderAdminMessages() {
         var container = document.getElementById('adminMsgList');
-        if (!container) return;
+        if (!container) {
+            console.error('adminMsgList not found!');
+            return;
+        }
         if (!adminMessages.length) {
             container.innerHTML = '<div class="small">📭 No notifications yet.</div>';
             return;
@@ -612,14 +595,13 @@
 
     function openChat(id) { if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။ စကားမပြောနိုင်ပါ။'); return; } chatWith = id; document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name; document.getElementById('chatMenu').style.display = 'none'; chatMenuVisible = false; show('chat'); }
 
-    // ===== SEND WITH AUTO SYSTEM NOTIFICATION =====
+    // ===== SEND (WITH AUTO SYSTEM NOTIFICATION) =====
     function send() {
         if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
         var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
 
-        // 🔥 AUTO-MODERATION CHECKS with System Notification
         var violation = null;
         if (checkMessageForBadWords(t)) {
             violation = 'သင်သည် မသင့်လျော်သောစကားလုံးများ အသုံးပြုခြင်းဖြင့် စည်းကမ်းချက်ကို ဖောက်ဖျက်ထားပါသည်။';
@@ -628,13 +610,11 @@
         }
 
         if (violation) {
-            // 🔥 Send System Notification immediately
             sendSystemNotification('⚠️ Rule Violation Detected', violation);
             alert('⚠️ ' + violation + '\n\nSystem notification has been sent to your inbox.');
             return;
         }
 
-        // If no violation, send message normally
         if (!db.messages[ck()]) db.messages[ck()] = [];
         db.messages[ck()].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
         i.value = '';
@@ -652,7 +632,26 @@
     function sendChatImage(imageData) { if (!chatWith || isBlocked(chatWith) || !imageData) return; if (!db.messages[ck()]) db.messages[ck()] = []; db.messages[ck()].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData }); save(); renderChat(); }
     function ck() { return [me, chatWith].sort().join('_'); }
 
-    function show(id) { if (id === 'login') { } else if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); return; } document.querySelectorAll('.screen').forEach(function(x) { x.classList.remove('active'); }); var el = document.getElementById(id); if (el) el.classList.add('active'); refresh(); if (id === 'inbox') renderInbox(); if (id === 'notifications') renderNotifications(); if (id === 'myAccount') renderMyAccount(); if (id === 'chat' && chatWith) renderChat(); if (id === 'blockedUsers') renderBlockedUsers(); if (id === 'groupDetail') renderGroupDetail(); if (id === 'groupSearch') renderAllGroups(); if (id === 'myGroups') renderMyGroups(); if (id === 'profile') renderProfileCreateGroup(); if (id === 'userProfile') renderUserProfile(window.viewingProfile); if (id === 'adminMessages') renderAdminMessages(); }
+    // ===== SHOW FUNCTION (FIXED: adminMessages renders properly) =====
+    function show(id) {
+        if (id === 'login') { } else if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။'); return; }
+        document.querySelectorAll('.screen').forEach(function(x) { x.classList.remove('active'); });
+        var el = document.getElementById(id);
+        if (el) el.classList.add('active');
+        refresh();
+        if (id === 'inbox') renderInbox();
+        if (id === 'notifications') renderNotifications();
+        if (id === 'myAccount') renderMyAccount();
+        if (id === 'chat' && chatWith) renderChat();
+        if (id === 'blockedUsers') renderBlockedUsers();
+        if (id === 'groupDetail') renderGroupDetail();
+        if (id === 'groupSearch') renderAllGroups();
+        if (id === 'myGroups') renderMyGroups();
+        if (id === 'profile') renderProfileCreateGroup();
+        if (id === 'userProfile') renderUserProfile(window.viewingProfile);
+        // 🔥 FIX: Ensure admin messages render when tab is shown
+        if (id === 'adminMessages') renderAdminMessages();
+    }
 
     function refresh() { if (!me || !db || !db.users[me]) return; db = normalize(db); var u = db.users[me]; u.accountName = u.accountName || u.name; u.dob = u.dob || ''; u.gender = u.gender || ''; if (u.region === undefined) u.region = ''; document.getElementById('head').textContent = u.name; var mun = document.getElementById('menuUserName'); if (mun) mun.textContent = u.name || 'User'; var muid = document.getElementById('menuUserId'); if (muid) muid.textContent = 'ID: ' + (u.id || me); var pn = document.getElementById('profileName'); if (pn) pn.value = u.name || ''; var an = document.getElementById('accountNameView'); if (an) an.textContent = u.accountName || u.name || '-'; var pid = document.getElementById('pid'); if (pid) pid.textContent = u.id; var hn = document.getElementById('homeName'); if (hn) hn.textContent = u.name; var hi = document.getElementById('homeId'); if (hi) hi.textContent = u.id; var bio = document.getElementById('bio'); if (bio) bio.value = u.bio || ''; var dob = document.getElementById('profileDob'); if (dob) dob.value = u.dob || ''; var gender = document.getElementById('profileGender'); if (gender) gender.value = u.gender || ''; var age = document.getElementById('profileAge'); if (age) age.textContent = calcAge(u.dob) || '-'; var regionDisplay = document.getElementById('profileRegionDisplay'); if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; } var fc = document.getElementById('followersCount'); if (fc) fc.textContent = db.req.filter(function(r) { return r.t === me; }).length + db.friends.filter(function(x) { return x.a === me || x.b === me; }).length; var fwc = document.getElementById('followingCount'); if (fwc) fwc.textContent = db.friends.filter(function(x) { return x.a === me || x.b === me; }).length; renderPhotos(); nearby(); friends(); searchUsers(); groups(); if (chatWith) renderChat(); renderBlockedUsers(); renderProfileGroups(); renderMyAccount(); renderAllGroups(); renderMyGroups(); renderProfileCreateGroup(); updateBadges(); loadAdminMessages(); loadRules(); listenActiveSession(); }
 
@@ -752,4 +751,4 @@
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 </script>
 </body>
-            </html>
+    </html>
