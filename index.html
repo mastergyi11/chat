@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Social Chat</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #fff; color: #222; font-family: Arial, sans-serif; }
+        body { margin: 0; background: #fff; color: #222; font-family: 'Noto Sans Myanmar', 'Pyidaungsu', Arial, sans-serif; }
         .app { max-width: 900px; margin: auto; min-height: 100vh; background: #fff; padding-bottom: 78px; }
         header { padding: 10px 14px; background: #f4b400; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 30; color: #222; }
         .menu-btn { background: transparent; border: 0; color: #222; font-size: 24px; cursor: pointer; padding: 0 8px; }
@@ -766,8 +766,10 @@
 
     // ===== VIEW USER PROFILE =====
     function viewUserProfile(id) { 
+        console.log('🔍 viewUserProfile called with ID:', id);
         var u = db.users[id]; 
         if (!u) { 
+            console.log('❌ User not found:', id);
             alert('သုံးစွဲသူမရှိပါ'); 
             return; 
         }
@@ -782,13 +784,19 @@
 
     // ===== RENDER USER PROFILE =====
     function renderUserProfile(id) {
+        console.log('📝 renderUserProfile called with ID:', id);
         var box = document.getElementById('userProfileBox');
-        if (!box) return;
+        if (!box) {
+            console.log('❌ userProfileBox not found');
+            return;
+        }
         var u = db.users[id];
         if (!u) { 
+            console.log('❌ User data not found for ID:', id);
             box.innerHTML = '<div class="small" style="text-align:center;padding:40px 0;color:#999;">သုံးစွဲသူမရှိပါ</div>'; 
             return; 
         }
+        console.log('✅ User data found:', u.name);
         
         var isMe = id === me;
         var isFriend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
@@ -883,15 +891,19 @@
         html += groupsHtml;
         html += '</div>';
         box.innerHTML = html;
+        console.log('✅ Profile rendered for:', u.name);
     }
 
     // ===== OPEN GROUP FROM PROFILE =====
     function openGroupFromProfile(groupId) {
+        console.log('🔍 openGroupFromProfile called with ID:', groupId);
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g) {
+            console.log('❌ Group not found:', groupId);
             alert('အသင်းမရှိပါ');
             return;
         }
+        console.log('✅ Group found:', g.name);
         if (g.members && g.members.includes(me)) {
             openGroup(groupId);
         } else {
@@ -1093,11 +1105,14 @@
     function groups() { var b = document.getElementById('glist'); var createCard = document.getElementById('groupCreateCard'); var owned = db.groups.find(function(g) { return g.owner === me; }); if (createCard) createCard.style.display = owned ? 'none' : 'block'; b.innerHTML = '<h3>🏆 My Groups</h3>'; db.groups.filter(function(g) { return g.owner === me || (g.members && g.members.includes(me)); }).forEach(function(g) { var d = document.createElement('div'); d.className = 'list'; d.style.cursor = 'pointer'; d.onclick = function() { openGroup(g.id); }; var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '🏆'; d.innerHTML = avatarHtml + '<b>' + esc(g.name) + '</b> ⭐ Level ' + g.level + '<div class="small">ID: '+esc(g.id)+' • Members '+(g.members ? g.members.length : 0)+'/20 • Activity '+(g.activity||0)+'</div><div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>'; b.appendChild(d); }); if (!b.innerHTML) b.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>'; renderAllGroups(); renderMyGroups(); renderProfileCreateGroup(); }
 
     function openGroup(groupId) { 
+        console.log('🔍 openGroup called with ID:', groupId);
         var g = db.groups.find(function(x) { return x.id === groupId; }); 
         if (!g) { 
+            console.log('❌ Group not found:', groupId);
             alert('အသင်းမရှိပါ'); 
             return; 
         }
+        console.log('✅ Group found:', g.name);
         if (!(g.owner === me || (g.members && g.members.includes(me)))) { 
             alert('ဒီအသင်းထဲ ဝင်ခွင့်မရှိပါ'); 
             return; 
@@ -1108,13 +1123,19 @@
     }
 
     function renderGroupDetail() { 
+        console.log('📝 renderGroupDetail called');
         var box = document.getElementById('groupDetailBox'); 
-        if (!box) return; 
+        if (!box) {
+            console.log('❌ groupDetailBox not found');
+            return;
+        }
         var g = db.groups.find(function(x) { return x.id === window.currentGroup; }); 
         if (!g) { 
+            console.log('❌ Group not found for currentGroup:', window.currentGroup);
             box.innerHTML = '<div class="small" style="text-align:center;padding:40px 0;color:#999;">အသင်းမရှိပါ</div>'; 
             return; 
         } 
+        console.log('✅ Group found:', g.name);
         var isOwner = g.owner === me; 
         var isMember = g.members && g.members.includes(me); 
         var members = g.members ? g.members.map(function(id) { return db.users[id]; }).filter(Boolean) : []; 
@@ -1145,7 +1166,8 @@
             html += '<div class="small">Member မရှိသေးပါ</div>'; 
         } 
         html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' + (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') + '</div>'; 
-        box.innerHTML = html; 
+        box.innerHTML = html;
+        console.log('✅ Group detail rendered for:', g.name);
     }
 
     function showGroupSettings() { var menu = document.getElementById('groupSettingsMenu'); if (menu) { menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; } }
@@ -1246,7 +1268,8 @@
     document.addEventListener('click', function(e) { var el = e.target; while (el && el !== document && el.tagName !== 'BUTTON') el = el.parentNode; if (!el || !el.id || el.getAttribute('onclick')) return; if (el.id === 'loginBtn' && typeof login === 'function') login(); else if (el.id === 'registerBtn' && typeof register === 'function') register(); else if (el.id === 'locateBtn' && typeof locate === 'function') locate(); }, false);
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 
-    console.log('✅ BeeChat User App - All Errors Fixed');
+    console.log('✅ BeeChat User App - All Errors Fixed with Console Logs');
+    console.log('📝 Open Console (F12) to see debug logs');
 </script>
 </body>
-  </html>
+        </html>
