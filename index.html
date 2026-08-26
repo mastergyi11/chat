@@ -52,9 +52,9 @@
         .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
         .profile-photo .slot-num { display: none; }
         .profile-photo .change { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 8px; padding: 2px 8px; font-size: 9px; }
-        .profile-photo .admin-badge { position: absolute; left: 4px; top: 4px; background: rgba(244,180,0,0.8); color: #222; border-radius: 8px; padding: 2px 8px; font-size: 9px; font-weight: bold; }
+        .profile-photo .admin-badge { position: absolute; left: 4px; top: 4px; background: rgba(244,180,0,0.8); color: #222; border-radius: 8px; padding: 2px 8px; font-size: 9px; font-weight: bold; display: none; }
         .profile-photo.empty-slot { background: #ffffff; border: 2px dashed #e0e0e0; cursor: default; }
-        .profile-photo.empty-slot .upload-hint { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 9px; color: #ccc; }
+        .profile-photo.empty-slot .upload-hint { display: none; }
         .profile-photo.user-upload { border: 2px solid #e7ad21; }
         .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #eee; }
         .profile-stats b { font-size: 20px; }
@@ -764,15 +764,31 @@
     // ===== FRIENDS =====
     function friends() { var b = document.getElementById('flist'); if (!b) return; b.innerHTML = ''; db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); }).forEach(function(r) { var u = db.users[r.f]; if (!u) return; var d = document.createElement('div'); d.className = 'list'; d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br><button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button><button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>'; b.appendChild(d); }); db.friends.filter(function(x) { return (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a); }).forEach(function(x) { var id = x.a === me ? x.b : x.a; var u = db.users[id]; if (!u) return; var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤'; var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : ''; var d = document.createElement('div'); d.className = 'friend-user-card'; d.style.cursor = 'pointer'; d.onclick = function() { viewUserProfile(id); }; d.innerHTML = '<div class="friend-avatar">' + photo + '</div><div class="friend-info"><b>' + esc(u.name) + '</b><div class="small">' + esc(u.id) + '</div>' + regionText + '<div class="friend-actions"><button class="btn" onclick="event.stopPropagation();openChat(\'' + id + '\')">💬 Messenger</button><button class="btn gold" onclick="event.stopPropagation();viewUserProfile(\'' + id + '\')">👤 Friend</button>' + (isBlocked(id) ? '<span class="small" style="color:#dc3545;">🚫 Blocked</span>' : '') + '</div></div>'; b.appendChild(d); }); if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>'; }
 
-    // ===== VIEW USER PROFILE =====
-    function viewUserProfile(id) { var u = db.users[id]; if (!u) return; if (isBlocked(id) && id !== me) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; } window.viewingProfile = id; show('userProfile'); renderUserProfile(id); }
+    // ===== VIEW USER PROFILE (FIXED) =====
+    function viewUserProfile(id) { 
+        var u = db.users[id]; 
+        if (!u) { 
+            alert('သုံးစွဲသူမရှိပါ'); 
+            return; 
+        }
+        if (isBlocked(id) && id !== me) { 
+            alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); 
+            return; 
+        }
+        window.viewingProfile = id; 
+        show('userProfile'); 
+        renderUserProfile(id); 
+    }
 
-    // ===== RENDER USER PROFILE (FIXED - with clickable groups) =====
+    // ===== RENDER USER PROFILE (FIXED - Admin text removed) =====
     function renderUserProfile(id) {
         var box = document.getElementById('userProfileBox');
         if (!box) return;
         var u = db.users[id];
-        if (!u) { box.innerHTML = '<div class="small">သုံးစွဲသူမရှိပါ</div>'; return; }
+        if (!u) { 
+            box.innerHTML = '<div class="small" style="text-align:center;padding:40px 0;color:#999;">သုံးစွဲသူမရှိပါ</div>'; 
+            return; 
+        }
         
         var isMe = id === me;
         var isFriend = db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); });
@@ -787,30 +803,24 @@
         var ageText = age !== null ? '📅 ' + age + ' years' : '📅 N/A';
         var genderText = u.gender || 'N/A';
         
-        // ===== PHOTO GALLERY (FIXED) =====
+        // ===== PHOTO GALLERY (Admin text removed) =====
         var photoHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;">';
         for (var i = 0; i < MAX_PHOTOS; i++) {
             var isUserUpload = i < USER_UPLOAD_LIMIT;
             if (i < photos.length && photos[i]) {
-                // ပုံရှိတယ်
                 photoHtml += `<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid ${isUserUpload ? '#e7ad21' : '#e0e0e0'};position:relative;background:#fff;">
                     <img src="${photos[i]}" style="width:100%;height:100%;object-fit:cover;">
                     ${!isUserUpload ? '<span style="position:absolute;top:4px;right:4px;background:rgba(244,180,0,0.8);color:#222;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:bold;">👑</span>' : ''}
-                    ${isUserUpload ? '<span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;padding:1px 8px;border-radius:4px;font-size:8px;">User</span>' : ''}
                 </div>`;
             } else {
-                // ပုံမရှိဘူး - အဖြူရောင်ဗလာ
                 if (isUserUpload) {
-                    // User ကိုယ်တိုင်တင်လို့ရတဲ့ အကွက် (အဝါရောင်ဘောင်)
                     photoHtml += `<div style="aspect-ratio:1;border-radius:8px;border:2px dashed #e7ad21;background:#ffffff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ccc;position:relative;">
                         <span style="font-size:24px;">➕</span>
-                        <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:8px;color:#ccc;">User</span>
                     </div>`;
                 } else {
-                    // Admin တင်ပေးရမယ့်ပုံ (အဖြူရောင်ဗလာ)
+                    // Admin ပုံအကွက် - "Admin" စာတိုမပါ
                     photoHtml += `<div style="aspect-ratio:1;border-radius:8px;border:2px dashed #e0e0e0;background:#ffffff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ddd;position:relative;">
                         <span style="font-size:20px;color:#eee;">⬜</span>
-                        <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:7px;color:#ddd;">Admin</span>
                     </div>`;
                 }
             }
@@ -819,7 +829,7 @@
         
         var photoCount = '<div class="small" style="color:#888;text-align:center;">📸 ' + photos.length + '/' + MAX_PHOTOS + ' (သင်ကိုယ်တိုင် ' + USER_UPLOAD_LIMIT + ' ပုံသာ တင်နိုင်သည်)</div>';
         
-        // ===== USER'S GROUPS (FIXED - clickable) =====
+        // ===== USER'S GROUPS (Clickable) =====
         var userGroups = db.groups.filter(function(g) {
             return g.members && g.members.includes(id);
         });
@@ -832,7 +842,6 @@
             userGroups.forEach(function(g) {
                 var isOwner = g.owner === id;
                 var groupName = esc(g.name) + (isOwner ? ' 👑' : '');
-                // 🔥 နှိပ်လို့ရအောင် onclick ထည့်ထားတယ်
                 groupsHtml += `<span class="group-chip-clickable" onclick="event.stopPropagation();openGroupFromProfile('${g.id}')">🏆 ${groupName}</span>`;
             });
             groupsHtml += '</div></div>';
@@ -872,9 +881,7 @@
         }
         html += '</div>';
         
-        // ===== GROUPS SECTION =====
         html += groupsHtml;
-        
         html += '</div>';
         box.innerHTML = html;
     }
@@ -886,12 +893,9 @@
             alert('အသင်းမရှိပါ');
             return;
         }
-        // အသင်းထဲဝင်ခွင့်ရှိမရှိစစ်ပါ
         if (g.members && g.members.includes(me)) {
-            // ဝင်ပြီးသားဆိုရင် Chat Room ကိုသွားပါ
             openGroup(groupId);
         } else {
-            // မဝင်ရသေးရင် ဝင်ခွင့်တောင်းပါ
             if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n' + esc(g.name) + '\nID: ' + esc(g.id))) {
                 if (!g.members) g.members = [];
                 if (!g.members.includes(me)) {
@@ -973,7 +977,7 @@
     // ===== REFRESH =====
     function refresh() { if (!me || !db || !db.users[me]) return; db = normalize(db); var u = db.users[me]; u.accountName = u.accountName || u.name; u.dob = u.dob || ''; u.gender = u.gender || ''; if (u.region === undefined) u.region = ''; document.getElementById('head').textContent = u.name; var mun = document.getElementById('menuUserName'); if (mun) mun.textContent = u.name || 'User'; var muid = document.getElementById('menuUserId'); if (muid) muid.textContent = 'ID: ' + (u.id || me); var pn = document.getElementById('profileName'); if (pn) pn.value = u.name || ''; var an = document.getElementById('accountNameView'); if (an) an.textContent = u.accountName || u.name || '-'; var pid = document.getElementById('pid'); if (pid) pid.textContent = u.id; var hn = document.getElementById('homeName'); if (hn) hn.textContent = u.name; var hi = document.getElementById('homeId'); if (hi) hi.textContent = u.id; var bio = document.getElementById('bio'); if (bio) bio.value = u.bio || ''; var dob = document.getElementById('profileDob'); if (dob) dob.value = u.dob || ''; var gender = document.getElementById('profileGender'); if (gender) gender.value = u.gender || ''; var age = document.getElementById('profileAge'); if (age) age.textContent = getUserAge(u) !== null ? getUserAge(u) + ' years' : '-'; var regionDisplay = document.getElementById('profileRegionDisplay'); if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; } var fc = document.getElementById('followersCount'); if (fc) fc.textContent = db.req.filter(function(r) { return r.t === me; }).length + db.friends.filter(function(x) { return x.a === me || x.b === me; }).length; var fwc = document.getElementById('followingCount'); if (fwc) fwc.textContent = db.friends.filter(function(x) { return x.a === me || x.b === me; }).length; renderPhotos(); nearby(); friends(); searchUsers(); groups(); if (chatWith) renderChat(); renderBlockedUsers(); renderProfileGroups(); renderMyAccount(); renderAllGroups(); renderMyGroups(); renderProfileCreateGroup(); updateBadges(); loadAdminMessages(); loadRules(); listenActiveSession(); }
 
-    // ===== RENDER PHOTOS (FIXED) =====
+    // ===== RENDER PHOTOS (Admin text removed) =====
     function renderPhotos() {
         var u = db.users[me], g = document.getElementById('photos');
         if (!u || !g) return;
@@ -985,7 +989,6 @@
             var isUserUpload = i < USER_UPLOAD_LIMIT;
             
             if (u.photos[i]) {
-                // ပုံရှိတယ်
                 d.className = 'profile-photo';
                 var im = document.createElement('img');
                 im.src = u.photos[i];
@@ -1008,7 +1011,6 @@
                     d.appendChild(badge);
                 }
             } else {
-                // ပုံမရှိဘူး - အဖြူရောင်ဗလာ
                 d.className = 'profile-photo empty-slot';
                 if (isUserUpload) {
                     d.classList.add('user-upload');
@@ -1016,10 +1018,6 @@
                     var s = document.createElement('span');
                     s.textContent = '＋';
                     d.appendChild(s);
-                    var hint = document.createElement('span');
-                    hint.className = 'upload-hint';
-                    hint.textContent = 'User';
-                    d.appendChild(hint);
                 } else {
                     d.style.cursor = 'default';
                     d.title = 'Admin မတင်ပေးသေးပါ';
@@ -1028,10 +1026,6 @@
                     s.style.fontSize = '24px';
                     s.style.color = '#eee';
                     d.appendChild(s);
-                    var hint = document.createElement('span');
-                    hint.className = 'upload-hint';
-                    hint.textContent = 'Admin';
-                    d.appendChild(hint);
                 }
             }
             
@@ -1071,8 +1065,26 @@
     function startPresence() { if (!fbReady || !me) return; try { if (presenceRef) presenceRef.onDisconnect().remove(); presenceRef = firebaseDB.ref('presence/' + me); presenceRef.onDisconnect().remove(); var u = db.users[me] || {}; presenceRef.update({ id: me, name: u.name || me, online: true, lastSeen: firebase.database.ServerValue.TIMESTAMP }); if (locationWatchId !== null) navigator.geolocation.clearWatch(locationWatchId); if (!navigator.geolocation) { alert('ဒီဖုန်းမှာ Location မရပါ'); return; } locationWatchId = navigator.geolocation.watchPosition(async function(p) { db.users[me].lat = p.coords.latitude; db.users[me].lng = p.coords.longitude; localSave(); await presenceRef.update({ id: me, name: db.users[me].name || me, online: true, lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP }); nearby(); }, function() { var b = document.getElementById('near'); if (b) b.innerHTML = '<div class="small">📍 Location permission မပေးထားသေးပါ။</div>'; }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }); nearby(); } catch (e) { console.error(e); } }
     function stopPresence() { try { if (locationWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(locationWatchId); } catch (e) {} locationWatchId = null; if (presenceRef) { presenceRef.remove().catch(function() {}); presenceRef = null; } }
 
-    // ===== REQUEST FRIEND =====
-    function requestFriend(id) { if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; } if (!db.req.some(function(r) { return r.f === me && r.t === id; }) && !db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) { db.req.push({ f: me, t: id }); save(); refresh(); alert('Friend request ပို့ပြီးပါပြီ'); } }
+    // ===== REQUEST FRIEND (FIXED) =====
+    function requestFriend(id) { 
+        if (isBlocked(id)) { 
+            alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); 
+            return; 
+        }
+        if (!db.req.some(function(r) { return r.f === me && r.t === id; }) && !db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
+            db.req.push({ f: me, t: id });
+            save();
+            refresh();
+            // Refresh the friends list and search results
+            if (document.getElementById('friends').classList.contains('active')) {
+                friends();
+                searchUsers();
+            }
+            alert('✅ Friend request ပို့ပြီးပါပြီ');
+        } else {
+            alert('⚠️ Friend request ပို့ထားပြီးသား သို့မဟုတ် Friend ဖြစ်နေပါပြီ');
+        }
+    }
     function accept(id) { db.req = db.req.filter(function(r) { return !(r.f === id && r.t === me); }); if (!db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) db.friends.push({ a: me, b: id }); save(); refresh(); }
     function decline(id) { db.req = db.req.filter(function(r) { return !(r.f === id && r.t === me); }); save(); refresh(); }
 
@@ -1184,7 +1196,7 @@
     document.addEventListener('click', function(e) { var el = e.target; while (el && el !== document && el.tagName !== 'BUTTON') el = el.parentNode; if (!el || !el.id || el.getAttribute('onclick')) return; if (el.id === 'loginBtn' && typeof login === 'function') login(); else if (el.id === 'registerBtn' && typeof register === 'function') register(); else if (el.id === 'locateBtn' && typeof locate === 'function') locate(); }, false);
     window.addEventListener('error', function(e) { console.error('My Social Chat:', e.error || e.message); });
 
-    console.log('✅ BeeChat User App - Full Version with Fixed Profile Photos and Clickable Groups');
+    console.log('✅ BeeChat User App - All Errors Fixed');
 </script>
 </body>
     </html>
