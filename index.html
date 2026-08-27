@@ -717,6 +717,11 @@
 <!-- ============================================================ -->
 <!-- JAVASCRIPT -->
 <!-- ============================================================ -->
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
 // ============================================================
 //  FIREBASE CONFIG
@@ -930,7 +935,6 @@ function setTheme(theme) {
     localStorage.setItem('beechat_theme', theme);
     applyTheme(theme);
     updateThemeCheckmarks(theme);
-    // Close submenu
     document.getElementById('displaySettings').style.display = 'none';
     document.getElementById('displayArrow').classList.remove('open');
 }
@@ -955,7 +959,7 @@ function toggleDisplaySettings() {
     arrow.classList.toggle('open');
 }
 
-// Load saved theme on startup
+// Load saved theme
 (function() {
     var savedTheme = localStorage.getItem('beechat_theme') || 'light';
     applyTheme(savedTheme);
@@ -968,689 +972,19 @@ function toggleDisplaySettings() {
 var translations = {
     en: {
         appName: 'BeeChat Social',
-        following: 'Following',
-        followers: 'Followers',
         home: 'Home',
         friends: 'Friends',
         chats: 'Chats',
         profile: 'Profile',
-        setting: 'Setting',
-        location: 'Location',
-        myAccount: 'My Account',
-        notifications: 'Notifications',
-        feedback: 'Feedback / Report',
-        blockedUsers: 'Blocked Users',
-        about: 'About',
-        logout: 'Logout',
-        welcome: 'Welcome to BeeChat Social!',
-        noUsers: 'No users found.',
-        addFriend: 'Add Friend',
-        friend: 'Friend',
-        requestSent: 'Request Sent',
-        requestReceived: 'Request Received',
-        accept: 'Accept',
-        decline: 'Decline',
-        block: 'Block',
-        unblock: 'Unblock',
-        message: 'Message',
-        editProfile: 'Edit Profile',
-        save: 'Save',
-        cancel: 'Cancel',
-        createGroup: 'Create Group',
-        joinGroup: 'Join Group',
-        leaveGroup: 'Leave Group',
-        deleteGroup: 'Delete Group',
-        groupMembers: 'Members',
-        groupOwner: 'Owner',
-        groupLevel: 'Level',
-        groupActivity: 'Activity',
-        rankNew: 'New Member',
-        rankActive: 'Active Member',
-        rankDedicated: 'Dedicated Member',
-        rankLeader: 'Leader',
-        rankLegend: 'Legend',
-        lightMode: 'Light',
-        darkMode: 'Dark',
-        english: 'English',
-        myanmar: 'Myanmar',
-        display: 'Display',
-        language: 'Language',
-        typeMessage: 'Type a message...',
-        send: 'Send',
-        photo: 'Photo',
-        camera: 'Camera',
-        gallery: 'Gallery',
-        delete: 'Delete',
-        report: 'Report',
-        submitReport: 'Submit Report',
-        reportTitle: 'Report Title',
-        reportText: 'Report Details',
-        noNotifications: 'No notifications yet.',
-        noChats: 'No chats yet.',
-        noFriends: 'No friends yet.',
-        noRequests: 'No friend requests.',
-        noGroups: 'No groups yet.',
-        noBlocked: 'No blocked users.',
-        search: 'Search',
-        region: 'Region',
-        gender: 'Gender',
-        age: 'Age',
-        dob: 'Date of Birth',
-        whatsUp: 'What\'s Up',
-        decoration: 'Decoration',
-        myId: 'My ID',
-        accountName: 'Account Name',
-        name: 'Name',
-        followersCount: 'Followers',
-        followingCount: 'Following',
-        photoLimit: 'Photo Limit',
-        adminPhotos: 'Admin Photos',
-        userPhotos: 'User Photos',
-        locationPermission: 'Location permission required.',
-        locationError: 'Unable to get location.',
-        login: 'Login',
-        register: 'Register',
-        accountId: 'Account ID',
-        password: 'Password',
-        loginStatus: 'Connecting...',
-        loginSuccess: 'Logged in successfully.',
-        loginFailed: 'Login failed.',
-        registerSuccess: 'Account created successfully.',
-        registerFailed: 'Account creation failed.',
-        invalidId: 'Invalid Account ID.',
-        invalidPassword: 'Invalid Password.',
-        idTaken: 'This ID is already taken.',
-        nameTaken: 'This name is already taken.',
-        deviceConflict: 'Your account is logged in on another device.',
-        accountSuspended: 'Your account has been suspended.',
-        suspensionReason: 'Suspension Reason: ',
-        ruleViolation: 'Rule Violation',
-        violationCount: 'Violation Count',
-        spam: 'Spam',
-        inappropriateContent: 'Inappropriate Content',
-        inappropriateImage: 'Inappropriate Image',
-        systemNotification: 'System Notification',
-        adminMessage: 'Admin Message',
-        groupInvite: 'Group Invite',
-        groupInviteText: 'You have been invited to join group ',
-        groupInviteAccept: 'Accept Invite',
-        groupInviteDecline: 'Decline Invite',
-        groupChat: 'Group Chat',
-        privateChat: 'Private Chat',
-        online: 'Online',
-        offline: 'Offline',
-        lastSeen: 'Last Seen',
-        seen: 'Seen',
-        delivered: 'Delivered',
-        typing: 'Typing...',
-        imageSent: '📷 Photo',
-        sticker: 'Sticker',
-        emoji: 'Emoji',
-        searchGroups: 'Search Groups',
-        myGroups: 'My Groups',
-        createNewGroup: 'Create New Group',
-        groupName: 'Group Name',
-        groupAvatar: 'Group Avatar',
-        groupId: 'Group ID',
-        groupLevel1: 'Level 1 (up to 20 members)',
-        groupLevel2: 'Level 2 (up to 50 members)',
-        groupLevel3: 'Level 3 (up to 100 members)',
-        memberCount: 'Members',
-        owner: 'Owner',
-        admin: 'Admin',
-        member: 'Member',
-        rank: 'Rank',
-        activityPoints: 'Activity Points',
-        transferOwnership: 'Transfer Ownership',
-        confirmDelete: 'Are you sure you want to delete this?',
-        confirmLeave: 'Are you sure you want to leave this group?',
-        confirmBlock: 'Are you sure you want to block this user?',
-        confirmUnblock: 'Are you sure you want to unblock this user?',
-        confirmAccept: 'Accept friend request?',
-        confirmDecline: 'Decline friend request?',
-        confirmLogout: 'Are you sure you want to logout?',
-        yes: 'Yes',
-        no: 'No',
-        ok: 'OK',
-        error: 'Error',
-        success: 'Success',
-        warning: 'Warning',
-        info: 'Info',
-        loading: 'Loading...',
-        empty: 'Empty',
-        none: 'None',
-        all: 'All',
-        male: 'Male',
-        female: 'Female',
-        other: 'Other',
-        ageRange18_25: '18-25 years',
-        ageRange26_35: '26-35 years',
-        ageRange36_45: '36-45 years',
-        ageRange46: '46+ years',
-        filter: 'Filter',
-        reset: 'Reset',
-        apply: 'Apply',
-        close: 'Close',
-        back: 'Back',
-        next: 'Next',
-        previous: 'Previous',
-        edit: 'Edit',
-        view: 'View',
-        share: 'Share',
-        copy: 'Copy',
-        paste: 'Paste',
-        cut: 'Cut',
-        select: 'Select',
-        selectAll: 'Select All',
-        deselectAll: 'Deselect All',
-        deleteAll: 'Delete All',
-        clearAll: 'Clear All',
-        refresh: 'Refresh',
-        reload: 'Reload',
-        update: 'Update',
-        install: 'Install',
-        uninstall: 'Uninstall',
-        settings: 'Settings',
-        preferences: 'Preferences',
-        privacy: 'Privacy',
-        aboutApp: 'About App',
-        version: 'Version',
-        developer: 'Developer',
-        contact: 'Contact',
-        support: 'Support',
-        help: 'Help',
-        faq: 'FAQ',
-        terms: 'Terms & Conditions',
-        privacyPolicy: 'Privacy Policy',
-        cookiePolicy: 'Cookie Policy',
-        dataUsage: 'Data Usage',
-        storage: 'Storage',
-        battery: 'Battery',
-        network: 'Network',
-        wifi: 'WiFi',
-        cellular: 'Cellular',
-        bluetooth: 'Bluetooth',
-        location: 'Location',
-        camera: 'Camera',
-        microphone: 'Microphone',
-        contacts: 'Contacts',
-        calendar: 'Calendar',
-        photos: 'Photos',
-        notificationsPermission: 'Notifications Permission',
-        allowNotifications: 'Allow Notifications',
-        denyNotifications: 'Deny Notifications',
-        requestPermission: 'Request Permission',
-        permissionDenied: 'Permission Denied',
-        permissionGranted: 'Permission Granted',
-        permissionRequired: 'Permission Required',
-        enableLocation: 'Enable Location',
-        enableCamera: 'Enable Camera',
-        enableMicrophone: 'Enable Microphone',
-        enableNotifications: 'Enable Notifications',
-        enableBluetooth: 'Enable Bluetooth',
-        enableWiFi: 'Enable WiFi',
-        enableCellular: 'Enable Cellular',
-        enableStorage: 'Enable Storage',
-        enableContacts: 'Enable Contacts',
-        enableCalendar: 'Enable Calendar',
-        enablePhotos: 'Enable Photos',
-        enableAll: 'Enable All',
-        disableAll: 'Disable All',
-        defaultSettings: 'Default Settings',
-        resetSettings: 'Reset Settings',
-        saveSettings: 'Save Settings',
-        cancelSettings: 'Cancel Settings',
-        settingsSaved: 'Settings saved successfully.',
-        settingsReset: 'Settings reset successfully.',
-        settingsError: 'Error saving settings.',
-        languageChanged: 'Language changed successfully.',
-        themeChanged: 'Theme changed successfully.',
-        profileUpdated: 'Profile updated successfully.',
-        profileError: 'Error updating profile.',
-        photoUploaded: 'Photo uploaded successfully.',
-        photoError: 'Error uploading photo.',
-        photoDeleted: 'Photo deleted successfully.',
-        photoLimitReached: 'Photo limit reached.',
-        maxPhotos: 'Maximum photos reached.',
-        invalidFile: 'Invalid file type.',
-        fileTooLarge: 'File too large.',
-        uploadFailed: 'Upload failed.',
-        downloadFailed: 'Download failed.',
-        networkError: 'Network error.',
-        serverError: 'Server error.',
-        unknownError: 'Unknown error.',
-        retry: 'Retry',
-        cancel: 'Cancel',
-        confirm: 'Confirm',
-        continue: 'Continue',
-        skip: 'Skip',
-        done: 'Done',
-        start: 'Start',
-        stop: 'Stop',
-        pause: 'Pause',
-        resume: 'Resume',
-        play: 'Play',
-        stop: 'Stop',
-        mute: 'Mute',
-        unmute: 'Unmute',
-        volume: 'Volume',
-        brightness: 'Brightness',
-        contrast: 'Contrast',
-        zoom: 'Zoom',
-        rotate: 'Rotate',
-        flip: 'Flip',
-        crop: 'Crop',
-        resize: 'Resize',
-        filter: 'Filter',
-        effect: 'Effect',
-        text: 'Text',
-        draw: 'Draw',
-        erase: 'Erase',
-        undo: 'Undo',
-        redo: 'Redo',
-        save: 'Save',
-        share: 'Share',
-        print: 'Print',
-        download: 'Download',
-        upload: 'Upload',
-        import: 'Import',
-        export: 'Export',
-        backup: 'Backup',
-        restore: 'Restore',
-        sync: 'Sync',
-        syncNow: 'Sync Now',
-        syncComplete: 'Sync complete.',
-        syncFailed: 'Sync failed.',
-        syncInProgress: 'Sync in progress...',
-        lastSync: 'Last Sync',
-        data: 'Data',
-        cache: 'Cache',
-        clearCache: 'Clear Cache',
-        cacheCleared: 'Cache cleared successfully.',
-        cacheError: 'Error clearing cache.',
-        memory: 'Memory',
-        memoryUsage: 'Memory Usage',
-        storageUsage: 'Storage Usage',
-        batteryUsage: 'Battery Usage',
-        dataUsage: 'Data Usage',
-        networkUsage: 'Network Usage',
-        appInfo: 'App Info',
-        appName: 'App Name',
-        appVersion: 'App Version',
-        appBuild: 'Build Version',
-        appDeveloper: 'Developer',
-        appContact: 'Contact',
-        appSupport: 'Support',
-        appWebsite: 'Website',
-        appEmail: 'Email',
-        appPhone: 'Phone',
-        appAddress: 'Address',
-        appLicense: 'License',
-        appCopyright: 'Copyright',
-        appCredits: 'Credits',
-        appThanks: 'Thanks',
-        appFeedback: 'Feedback',
-        appRating: 'Rating',
-        appReview: 'Review',
-        appShare: 'Share App',
-        appRecommend: 'Recommend App',
-        appDonate: 'Donate',
-        appSupport: 'Support Development',
-        appSponsor: 'Sponsor',
-        appPartner: 'Partner',
-        appAffiliate: 'Affiliate',
-        appCommunity: 'Community',
-        appForum: 'Forum',
-        appBlog: 'Blog',
-        appNews: 'News',
-        appUpdates: 'Updates',
-        appChangelog: 'Changelog',
-        appRoadmap: 'Roadmap',
-        appContributors: 'Contributors',
-        appTranslators: 'Translators',
-        appTesters: 'Testers',
-        appDesigners: 'Designers',
-        appDevelopers: 'Developers'
+        setting: 'Setting'
     },
     my: {
         appName: 'BeeChat လူမှုကွန်ရက်',
-        following: 'လိုက်နေသူများ',
-        followers: 'နောက်လိုက်များ',
         home: 'ပင်မ',
         friends: 'သူငယ်ချင်းများ',
         chats: 'စကားပြော',
         profile: 'ကိုယ်ရေးအချက်',
-        setting: 'ဆက်တင်',
-        location: 'တည်နေရာ',
-        myAccount: 'ကျွန်ုပ်၏အကောင့်',
-        notifications: 'အသိပေးချက်များ',
-        feedback: 'တိုင်ကြားရန်',
-        blockedUsers: 'ပိတ်ဆို့ထားသူများ',
-        about: 'အကြောင်း',
-        logout: 'ထွက်မည်',
-        welcome: 'BeeChat လူမှုကွန်ရက်မှ ကြိုဆိုပါတယ်!',
-        noUsers: 'သုံးစွဲသူ မရှိပါ။',
-        addFriend: 'သူငယ်ချင်းထည့်',
-        friend: 'သူငယ်ချင်း',
-        requestSent: 'တောင်းဆိုပြီး',
-        requestReceived: 'တောင်းဆိုမှုရှိ',
-        accept: 'လက်ခံ',
-        decline: 'ငြင်းပယ်',
-        block: 'ပိတ်ဆို့',
-        unblock: 'ပိတ်ဆို့ဖြုတ်',
-        message: 'စာပို့',
-        editProfile: 'ကိုယ်ရေးပြင်',
-        save: 'သိမ်း',
-        cancel: 'မလုပ်တော့',
-        createGroup: 'အသင်းဖန်တီး',
-        joinGroup: 'အသင်းဝင်',
-        leaveGroup: 'အသင်းမှထွက်',
-        deleteGroup: 'အသင်းဖျက်',
-        groupMembers: 'အသင်းဝင်',
-        groupOwner: 'ပိုင်ရှင်',
-        groupLevel: 'အဆင့်',
-        groupActivity: 'လုပ်ဆောင်မှု',
-        rankNew: 'အသင်းသားသစ်',
-        rankActive: 'တက်ကြွသူ',
-        rankDedicated: 'အားထုတ်သူ',
-        rankLeader: 'ခေါင်းဆောင်',
-        rankLegend: 'ဒဏ္ဍာရီ',
-        lightMode: 'အလင်း',
-        darkMode: 'အမှောင်',
-        english: 'အင်္ဂလိပ်',
-        myanmar: 'မြန်မာ',
-        display: 'မျက်နှာပြင်အသွင်အပြင်',
-        language: 'ဘာသာစကား',
-        typeMessage: 'စာရေးပါ...',
-        send: 'ပို့မည်',
-        photo: 'ဓာတ်ပုံ',
-        camera: 'ကင်မရာ',
-        gallery: 'ဓာတ်ပုံဖိုင်',
-        delete: 'ဖျက်',
-        report: 'တိုင်ကြား',
-        submitReport: 'တိုင်ကြားချက်ပို့',
-        reportTitle: 'ခေါင်းစဉ်',
-        reportText: 'အသေးစိတ်',
-        noNotifications: 'အသိပေးချက်မရှိသေး',
-        noChats: 'စကားပြောမရှိသေး',
-        noFriends: 'သူငယ်ချင်းမရှိသေး',
-        noRequests: 'တောင်းဆိုမှုမရှိသေး',
-        noGroups: 'အသင်းမရှိသေး',
-        noBlocked: 'ပိတ်ဆို့ထားသူမရှိ',
-        search: 'ရှာဖွေ',
-        region: 'ဒေသ',
-        gender: 'ကျား/မ',
-        age: 'အသက်',
-        dob: 'မွေးနေ့',
-        whatsUp: 'ဘာတွေလုပ်နေလဲ',
-        decoration: 'အလှဆင်စာသား',
-        myId: 'ကျွန်ုပ်၏ ID',
-        accountName: 'အကောင့်အမည်',
-        name: 'အမည်',
-        followersCount: 'နောက်လိုက်',
-        followingCount: 'လိုက်နေ',
-        photoLimit: 'ဓာတ်ပုံကန့်သတ်',
-        adminPhotos: 'အက်ဒမင်ပုံ',
-        userPhotos: 'သုံးစွဲသူပုံ',
-        locationPermission: 'တည်နေရာခွင့်ပြုချက် လိုအပ်ပါတယ်။',
-        locationError: 'တည်နေရာမရရှိနိုင်ပါ။',
-        login: 'ဝင်မည်',
-        register: 'အကောင့်ဖွင့်',
-        accountId: 'အကောင့် ID',
-        password: 'စကားဝှက်',
-        loginStatus: 'ချိတ်ဆက်နေသည်...',
-        loginSuccess: 'အကောင့်ဝင်ပြီးပါပြီ။',
-        loginFailed: 'ဝင်မရပါ။',
-        registerSuccess: 'အကောင့်ဖွင့်ပြီးပါပြီ။',
-        registerFailed: 'အကောင့်မဖွင့်နိုင်ပါ။',
-        invalidId: 'မမှန်ကန်သော အကောင့် ID',
-        invalidPassword: 'မမှန်ကန်သော စကားဝှက်',
-        idTaken: 'ဤ ID ကို အခြားသူသုံးထားပြီးသား',
-        nameTaken: 'ဤအမည်ကို အခြားသူသုံးထားပြီးသား',
-        deviceConflict: 'သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။',
-        accountSuspended: 'သင့်အကောင့်ကို ပိတ်ထားပါသည်။',
-        suspensionReason: 'ပိတ်ရသည့်အကြောင်း: ',
-        ruleViolation: 'စည်းကမ်းဖောက်ဖျက်မှု',
-        violationCount: 'ဖောက်ဖျက်မှုအကြိမ်',
-        spam: 'စပမ်ပို့ခြင်း',
-        inappropriateContent: 'မသင့်လျော်သော စာသား',
-        inappropriateImage: 'မသင့်လျော်သော ဓာတ်ပုံ',
-        systemNotification: 'စနစ်အသိပေးချက်',
-        adminMessage: 'အက်ဒမင်သတင်း',
-        groupInvite: 'အသင်းဖိတ်ကြားချက်',
-        groupInviteText: 'သင့်အား အသင်းထဲသို့ ဖိတ်ကြားထားပါသည်။',
-        groupInviteAccept: 'လက်ခံ',
-        groupInviteDecline: 'ငြင်းပယ်',
-        groupChat: 'အသင်းစကားပြော',
-        privateChat: 'ကိုယ်ပိုင်စကားပြော',
-        online: 'အွန်လိုင်း',
-        offline: 'အော့ဖ်လိုင်း',
-        lastSeen: 'နောက်ဆုံးမြင်ရ',
-        seen: 'ဖတ်ပြီး',
-        delivered: 'ပို့ပြီး',
-        typing: 'စာရေးနေသည်...',
-        imageSent: '📷 ဓာတ်ပုံ',
-        sticker: 'စတစ်ကာ',
-        emoji: 'အီမိုဂျီ',
-        searchGroups: 'အသင်းရှာဖွေ',
-        myGroups: 'ကျွန်ုပ်၏အသင်းများ',
-        createNewGroup: 'အသင်းသစ်ဖန်တီး',
-        groupName: 'အသင်းအမည်',
-        groupAvatar: 'အသင်းပုံ',
-        groupId: 'အသင်း ID',
-        groupLevel1: 'အဆင့် ၁ (အသင်းဝင် ၂၀ အထိ)',
-        groupLevel2: 'အဆင့် ၂ (အသင်းဝင် ၅၀ အထိ)',
-        groupLevel3: 'အဆင့် ၃ (အသင်းဝင် ၁၀၀ အထိ)',
-        memberCount: 'အသင်းဝင်',
-        owner: 'ပိုင်ရှင်',
-        admin: 'အက်ဒမင်',
-        member: 'အသင်းဝင်',
-        rank: 'အဆင့်',
-        activityPoints: 'လုပ်ဆောင်မှုအမှတ်',
-        transferOwnership: 'ပိုင်ရှင်လွှဲ',
-        confirmDelete: 'ဒါကို ဖျက်မှာသေချာလား?',
-        confirmLeave: 'ဒီအသင်းမှ ထွက်မှာသေချာလား?',
-        confirmBlock: 'ဒီသုံးစွဲသူကို ပိတ်ဆို့မှာသေချာလား?',
-        confirmUnblock: 'ဒီသုံးစွဲသူကို ပိတ်ဆို့ဖြုတ်မှာသေချာလား?',
-        confirmAccept: 'သူငယ်ချင်းတောင်းဆိုမှုကို လက်ခံမှာလား?',
-        confirmDecline: 'သူငယ်ချင်းတောင်းဆိုမှုကို ငြင်းပယ်မှာလား?',
-        confirmLogout: 'ထွက်မှာသေချာလား?',
-        yes: 'ဟုတ်ကဲ့',
-        no: 'မဟုတ်ဘူး',
-        ok: 'အိုကေ',
-        error: 'အမှား',
-        success: 'အောင်မြင်',
-        warning: 'သတိပေး',
-        info: 'သတင်း',
-        loading: 'စောင့်ပါ...',
-        empty: 'ဗလာ',
-        none: 'မရှိ',
-        all: 'အားလုံး',
-        male: 'အမျိုးသား',
-        female: 'အမျိုးသမီး',
-        other: 'အခြား',
-        ageRange18_25: '၁၈-၂၅ နှစ်',
-        ageRange26_35: '၂၆-၃၅ နှစ်',
-        ageRange36_45: '၃၆-၄၅ နှစ်',
-        ageRange46: '၄၆ နှစ်အထက်',
-        filter: 'စစ်ထုတ်',
-        reset: 'ပြန်ဖြုတ်',
-        apply: 'အသုံးပြု',
-        close: 'ပိတ်',
-        back: 'နောက်သို့',
-        next: 'ရှေ့သို့',
-        previous: 'ယခင်သို့',
-        edit: 'ပြင်',
-        view: 'ကြည့်',
-        share: 'မျှဝေ',
-        copy: 'ကူး',
-        paste: 'ကပ်ထား',
-        cut: 'ဖြတ်',
-        select: 'ရွေး',
-        selectAll: 'အားလုံးရွေး',
-        deselectAll: 'အားလုံးဖြုတ်',
-        deleteAll: 'အားလုံးဖျက်',
-        clearAll: 'အားလုံးရှင်း',
-        refresh: 'ပြန်လည်စတင်',
-        reload: 'ပြန်လည်တင်ရန်',
-        update: 'အပ်ဒိတ်',
-        install: 'တပ်ဆင်',
-        uninstall: 'ဖြုတ်ပစ်',
-        settings: 'ဆက်တင်',
-        preferences: 'ကြိုက်နှစ်သက်မှု',
-        privacy: 'ကိုယ်ရေးသိမ်',
-        aboutApp: 'အက်ပ်အကြောင်း',
-        version: 'ဗားရှင်း',
-        developer: 'ဖန်တီးသူ',
-        contact: 'ဆက်သွယ်',
-        support: 'အကူအညီ',
-        help: 'အကူအညီ',
-        faq: 'မေးလေ့ရှိသောမေးခွန်း',
-        terms: 'စည်းကမ်းချက်များ',
-        privacyPolicy: 'ကိုယ်ရေးအချက်များ',
-        cookiePolicy: 'ကွတ်ကီးများ',
-        dataUsage: 'ဒေတာအသုံးပြုမှု',
-        storage: 'သိုလှောင်မှု',
-        battery: 'ဘက်ထရီ',
-        network: 'ကွန်ရက်',
-        wifi: 'ဝိုင်ဖိုင်',
-        cellular: 'မိုဘိုင်း',
-        bluetooth: 'ဘလူးတုသ်',
-        location: 'တည်နေရာ',
-        camera: 'ကင်မရာ',
-        microphone: 'မိုက်',
-        contacts: 'ဆက်သွယ်ရန်',
-        calendar: 'ပြက္ခဒိန်',
-        photos: 'ဓာတ်ပုံများ',
-        notificationsPermission: 'အသိပေးချက်ခွင့်ပြု',
-        allowNotifications: 'ခွင့်ပြု',
-        denyNotifications: 'မခွင့်ပြု',
-        requestPermission: 'ခွင့်ပြုချက်တောင်း',
-        permissionDenied: 'ခွင့်မပြုပါ',
-        permissionGranted: 'ခွင့်ပြုပြီး',
-        permissionRequired: 'ခွင့်ပြုချက်လိုအပ်',
-        enableLocation: 'တည်နေရာဖွင့်',
-        enableCamera: 'ကင်မရာဖွင့်',
-        enableMicrophone: 'မိုက်ဖွင့်',
-        enableNotifications: 'အသိပေးချက်ဖွင့်',
-        enableBluetooth: 'ဘလူးတုသ်ဖွင့်',
-        enableWiFi: 'ဝိုင်ဖိုင်ဖွင့်',
-        enableCellular: 'မိုဘိုင်းဖွင့်',
-        enableStorage: 'သိုလှောင်မှုဖွင့်',
-        enableContacts: 'ဆက်သွယ်ရန်ဖွင့်',
-        enableCalendar: 'ပြက္ခဒိန်ဖွင့်',
-        enablePhotos: 'ဓာတ်ပုံများဖွင့်',
-        enableAll: 'အားလုံးဖွင့်',
-        disableAll: 'အားလုံးပိတ်',
-        defaultSettings: 'မူရင်းဆက်တင်',
-        resetSettings: 'ဆက်တင်ပြန်ဖြုတ်',
-        saveSettings: 'ဆက်တင်သိမ်း',
-        cancelSettings: 'မလုပ်တော့',
-        settingsSaved: 'ဆက်တင်သိမ်းပြီး',
-        settingsReset: 'ဆက်တင်ပြန်ဖြုတ်ပြီး',
-        settingsError: 'ဆက်တင်မသိမ်းနိုင်',
-        languageChanged: 'ဘာသာစကားပြောင်းပြီး',
-        themeChanged: 'အသွင်အပြင်ပြောင်းပြီး',
-        profileUpdated: 'ကိုယ်ရေးသိမ်းပြီး',
-        profileError: 'ကိုယ်ရေးမသိမ်းနိုင်',
-        photoUploaded: 'ဓာတ်ပုံတင်ပြီး',
-        photoError: 'ဓာတ်ပုံမတင်နိုင်',
-        photoDeleted: 'ဓာတ်ပုံဖျက်ပြီး',
-        photoLimitReached: 'ဓာတ်ပုံအရေအတွက်ပြည့်နေပြီ',
-        maxPhotos: 'ဓာတ်ပုံအရေအတွက်ပြည့်သွားပြီ',
-        invalidFile: 'မမှန်သောဖိုင်',
-        fileTooLarge: 'ဖိုင်အလွန်ကြီးလွန်း',
-        uploadFailed: 'တင်မရပါ',
-        downloadFailed: 'ဒေါင်းမရပါ',
-        networkError: 'ကွန်ရက်အမှား',
-        serverError: 'ဆာဗာအမှား',
-        unknownError: 'မသိသောအမှား',
-        retry: 'ပြန်စမ်း',
-        continue: 'ဆက်လက်',
-        skip: 'ကျော်',
-        done: 'ပြီး',
-        start: 'စတင်',
-        stop: 'ရပ်',
-        pause: 'ဆိုင်းငံ့',
-        resume: 'ပြန်စ',
-        play: 'ဖွင့်',
-        mute: 'အသံပိတ်',
-        unmute: 'အသံဖွင့်',
-        volume: 'အသံအတိုးအကျယ်',
-        brightness: 'အလင်းရောင်',
-        contrast: 'ခြားနားမှု',
-        zoom: 'ချဲ့',
-        rotate: 'လှည့်',
-        flip: 'မှန်',
-        crop: 'ဖြတ်',
-        resize: 'အရွယ်ပြောင်း',
-        effect: 'အကျိုးသက်ရောက်',
-        text: 'စာသား',
-        draw: 'ရေး',
-        erase: 'ဖျက်',
-        undo: 'ပြန်ဖျက်',
-        redo: 'ပြန်လုပ်',
-        print: 'ပုံနှိပ်',
-        download: 'ဒေါင်း',
-        upload: 'တင်',
-        import: 'ထည့်',
-        export: 'ထုတ်',
-        backup: 'မိတ္တူ',
-        restore: 'ပြန်ယူ',
-        sync: 'ပြန်လည်ချိတ်ဆက်',
-        syncNow: 'ချက်ချင်းချိတ်ဆက်',
-        syncComplete: 'ချိတ်ဆက်ပြီး',
-        syncFailed: 'ချိတ်ဆက်မရ',
-        syncInProgress: 'ချိတ်ဆက်နေသည်...',
-        lastSync: 'နောက်ဆုံးချိတ်ဆက်',
-        data: 'ဒေတာ',
-        cache: 'ကက်ရှ်',
-        clearCache: 'ကက်ရှ်ရှင်း',
-        cacheCleared: 'ကက်ရှ်ရှင်းပြီး',
-        cacheError: 'ကက်ရှ်မရှင်းနိုင်',
-        memory: 'မမ်မိုရီ',
-        memoryUsage: 'မမ်မိုရီအသုံးပြုမှု',
-        storageUsage: 'သိုလှောင်မှုအသုံးပြုမှု',
-        batteryUsage: 'ဘက်ထရီအသုံးပြုမှု',
-        dataUsage: 'ဒေတာအသုံးပြုမှု',
-        networkUsage: 'ကွန်ရက်အသုံးပြုမှု',
-        appInfo: 'အက်ပ်အချက်',
-        appName: 'အက်ပ်အမည်',
-        appVersion: 'ဗားရှင်း',
-        appBuild: 'တည်ဆောက်မှုဗားရှင်း',
-        appDeveloper: 'ဖန်တီးသူ',
-        appContact: 'ဆက်သွယ်ရန်',
-        appSupport: 'အကူအညီ',
-        appWebsite: 'ဝက်ဘ်ဆိုက်',
-        appEmail: 'အီးမေး',
-        appPhone: 'ဖုန်း',
-        appAddress: 'လိပ်စာ',
-        appLicense: 'လိုင်စင်',
-        appCopyright: 'မူပိုင်',
-        appCredits: 'ဂုဏ်ပြု',
-        appThanks: 'ကျေးဇူး',
-        appFeedback: 'အကြံပြု',
-        appRating: 'အဆင့်သတ်မှတ်',
-        appReview: 'သုံးသပ်ချက်',
-        appShare: 'မျှဝေ',
-        appRecommend: 'အကြံပြု',
-        appDonate: 'လှူဒါန်း',
-        appSupportDevelopment: 'ဖွံ့ဖြိုးရေးအတွက် ပံ့ပိုး',
-        appSponsor: 'ပံ့ပိုးသူ',
-        appPartner: 'လုပ်ဖော်ဆောင်ဖက်',
-        appAffiliate: 'တွဲဖက်',
-        appCommunity: 'အသိုင်းအဝိုင်း',
-        appForum: 'ဖိုရမ်',
-        appBlog: 'ဘလော့',
-        appNews: 'သတင်း',
-        appUpdates: 'အပ်ဒိတ်များ',
-        appChangelog: 'ပြောင်းလဲမှုမှတ်',
-        appRoadmap: 'လမ်းပြ',
-        appContributors: 'ပါဝင်သူများ',
-        appTranslators: 'ဘာသာပြန်သူများ',
-        appTesters: 'စမ်းသူများ',
-        appDesigners: 'ဒီဇိုင်းသူများ',
-        appDevelopers: 'ဖန်တီးသူများ'
+        setting: 'ဆက်တင်'
     }
 };
 
@@ -1660,17 +994,10 @@ function setLanguage(lang) {
     updateLanguageCheckmarks(lang);
     document.getElementById('languageSettings').style.display = 'none';
     document.getElementById('langArrow').classList.remove('open');
-    // Reload UI texts
-    refreshUI();
 }
 
 function applyLanguage(lang) {
     var t = translations[lang] || translations.en;
-    document.querySelectorAll('[data-i18n]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        if (t[key] !== undefined) el.textContent = t[key];
-    });
-    // Update page title
     document.getElementById('pageTitle').textContent = t.appName || 'BeeChat Social';
 }
 
@@ -1686,19 +1013,7 @@ function toggleLanguageSettings() {
     arrow.classList.toggle('open');
 }
 
-function refreshUI() {
-    var lang = localStorage.getItem('beechat_language') || 'en';
-    var t = translations[lang] || translations.en;
-    // Update static text elements
-    var els = document.querySelectorAll('[data-i18n]');
-    els.forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        if (t[key] !== undefined) el.textContent = t[key];
-    });
-    document.getElementById('pageTitle').textContent = t.appName || 'BeeChat Social';
-}
-
-// Load saved language on startup
+// Load saved language
 (function() {
     var savedLang = localStorage.getItem('beechat_language') || 'en';
     applyLanguage(savedLang);
@@ -1714,58 +1029,52 @@ function showFollowList(type) {
     var title = document.getElementById('followModalTitle');
     var list = document.getElementById('followList');
     
+    var ids = [];
     if (type === 'following') {
         title.textContent = '📌 Following';
-        var followingIds = db.friends.filter(function(x) {
+        ids = db.friends.filter(function(x) {
             return (x.a === me && x.b !== me) || (x.b === me && x.a !== me);
         }).map(function(x) {
             return x.a === me ? x.b : x.a;
         });
-        // Also include users who have accepted requests (followers)
-        var followerIds = db.req.filter(function(r) { return r.t === me; }).map(function(r) { return r.f; });
-        var allFollowing = followingIds.concat(followerIds);
-        // Remove duplicates
-        allFollowing = allFollowing.filter(function(id, idx, self) { return self.indexOf(id) === idx; });
-        renderFollowList(list, allFollowing);
     } else {
         title.textContent = '📌 Followers';
-        var followerIds2 = db.req.filter(function(r) { return r.t === me; }).map(function(r) { return r.f; });
-        var friendIds2 = db.friends.filter(function(x) {
+        var followerIds = db.req.filter(function(r) { return r.t === me; }).map(function(r) { return r.f; });
+        var friendIds = db.friends.filter(function(x) {
             return (x.a === me && x.b !== me) || (x.b === me && x.a !== me);
         }).map(function(x) {
             return x.a === me ? x.b : x.a;
         });
-        var allFollowers = followerIds2.concat(friendIds2);
-        allFollowers = allFollowers.filter(function(id, idx, self) { return self.indexOf(id) === idx; });
-        renderFollowList(list, allFollowers);
+        ids = followerIds.concat(friendIds);
+    }
+    
+    // Remove duplicates
+    ids = ids.filter(function(id, idx, self) { return self.indexOf(id) === idx; });
+    
+    if (!ids || !ids.length) {
+        list.innerHTML = '<div class="small" style="padding:20px;text-align:center;">မရှိသေးပါ</div>';
+    } else {
+        list.innerHTML = '';
+        ids.forEach(function(id) {
+            var u = db.users[id];
+            if (!u) return;
+            var div = document.createElement('div');
+            div.className = 'follow-item';
+            var avatarHtml = (u.photos && u.photos[0]) ? 
+                '<img src="'+u.photos[0]+'" class="follow-avatar">' : 
+                '<span class="follow-avatar-placeholder">👤</span>';
+            div.innerHTML = 
+                '<div class="follow-user" onclick="viewUserProfile(\''+id+'\');closeFollowModal();">' +
+                    avatarHtml +
+                    '<div class="follow-info">' +
+                        '<div class="follow-name">'+esc(u.name)+'</div>' +
+                        '<div class="follow-id">ID: '+esc(u.id)+'</div>' +
+                    '</div>' +
+                '</div>';
+            list.appendChild(div);
+        });
     }
     modal.style.display = 'block';
-}
-
-function renderFollowList(container, ids) {
-    if (!ids || !ids.length) {
-        container.innerHTML = '<div class="small" style="padding:20px;text-align:center;">မရှိသေးပါ</div>';
-        return;
-    }
-    container.innerHTML = '';
-    ids.forEach(function(id) {
-        var u = db.users[id];
-        if (!u) return;
-        var div = document.createElement('div');
-        div.className = 'follow-item';
-        var avatarHtml = (u.photos && u.photos[0]) ? 
-            '<img src="'+u.photos[0]+'" class="follow-avatar">' : 
-            '<span class="follow-avatar-placeholder">👤</span>';
-        div.innerHTML = 
-            '<div class="follow-user" onclick="viewUserProfile(\''+id+'\');closeFollowModal();">' +
-                avatarHtml +
-                '<div class="follow-info">' +
-                    '<div class="follow-name">'+esc(u.name)+'</div>' +
-                    '<div class="follow-id">ID: '+esc(u.id)+'</div>' +
-                '</div>' +
-            '</div>';
-        container.appendChild(div);
-    });
 }
 
 function closeFollowModal() {
@@ -2850,7 +2159,6 @@ function addPhotoToSlot(e) {
 }
 
 function takeCameraPhoto() {
-    // Simple fallback - use camera input
     openCamera();
 }
 
@@ -3408,14 +2716,11 @@ function renderMyAccount() {
 firebaseInitPromise = initFirebase();
 restoreLogin();
 
-// Handle page visibility for presence
 document.addEventListener('visibilitychange', function() {
     if (!fbReady || !me) return;
     if (document.hidden) {
-        // Tab is hidden
         try { presenceRef.update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP }); } catch(e) {}
     } else {
-        // Tab is visible again
         try { presenceRef.update({ online: true, lastSeen: firebase.database.ServerValue.TIMESTAMP }); } catch(e) {}
     }
 });
@@ -3424,4 +2729,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-                    </html>
+    </html>
