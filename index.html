@@ -368,7 +368,7 @@
             <div id="profileCreateGroupSection" class="profile-create-group-section">
                 <div id="profileCreateGroupBtn">
                     <button class="btn gold" onclick="showGroupCreation()">➕ အသင်းသစ်တည်ထောင်ရန်</button>
-                    <p class="small">အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။</p>
+                    <p class="small">အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။ (VIP များအတွက် အကန့်အသတ်မရှိ)</p>
                 </div>
                 <div id="profileCreateGroupForm" style="display:none;">
                     <input id="profileGname" placeholder="အသင်းအမည်">
@@ -1843,7 +1843,19 @@
         if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
         var n = document.getElementById('profileGname').value.trim();
         if (!n) { alert('အသင်းအမည်ထည့်ပါ'); return; }
-        if (db.groups.some(function(g) { return g.owner === me; })) {
+        
+        // VIP အခွင့်အရေး စစ်ဆေးခြင်း (Group အကန့်အသတ်မရှိ)
+        var isVipUser = false;
+        if (db.users[me] && db.users[me].vip && db.users[me].vip.isVip) {
+            isVipUser = true;
+        }
+        // User ဘက်မှာ ကျွန်တော်ထည့်ပေးထားတဲ့ isVip variable ကို စစ်ဆေးခြင်း
+        if (window.isUserVip) {
+            isVipUser = true;
+        }
+
+        // VIP မဟုတ်ရင် အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိမယ်
+        if (!isVipUser && db.groups.some(function(g) { return g.owner === me; })) {
             alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
             return;
         }
@@ -2304,8 +2316,16 @@
         if (!u || !g) return;
         g.innerHTML = '';
         
-        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, 4) : [];
-        for (var i = 0; i < 4; i++) {
+        // VIP User ဆိုရင် ပုံ ၄ ပုံအစား ၃၂ ပုံတင်ခွင့် ပေးမယ်
+        var maxUserPhotos = 4;
+        if (window.isUserVip && window.vipFeatures['profile_32_photos']) {
+            maxUserPhotos = 32;
+            // UI မှာလည်း Grid ကို ပြင်ရင် ပိုကောင်းမယ်
+            g.style.gridTemplateColumns = 'repeat(4, 1fr)'; // 4 ပုံတစ်တန်း စီပါ
+        }
+
+        u.photos = Array.isArray(u.photos) ? u.photos.slice(0, maxUserPhotos) : [];
+        for (var i = 0; i < maxUserPhotos; i++) {
             var d = document.createElement('div');
             d.className = 'profile-photo ' + (u.photos[i] ? '' : 'empty');
             d.onclick = function(slot) { return function() { pickPhoto(slot); }; }(i);
@@ -2325,7 +2345,7 @@
             }
             var n = document.createElement('span');
             n.className = 'slot-num';
-            n.textContent = (i + 1) + '/4';
+            n.textContent = (i + 1) + '/' + maxUserPhotos;
             d.appendChild(n);
             g.appendChild(d);
         }
@@ -2346,12 +2366,12 @@
         }
         
         var lim = document.getElementById('limit');
-        if (lim) lim.textContent = 'User Photos: ' + u.photos.length + '/4 • Admin Photos: ' + u.adminPhotos.filter(function(p) { return p; }).length + '/28';
+        if (lim) lim.textContent = 'User Photos: ' + u.photos.length + '/' + maxUserPhotos + ' • Admin Photos: ' + u.adminPhotos.filter(function(p) { return p; }).length + '/28';
     }
 
     function pickPhoto(i) {
         if (!me) { alert('အရင် Account ဝင်ပါ'); return; }
-        if (i >= 4) {
+        if (i >= 4 && !(window.isUserVip && window.vipFeatures['profile_32_photos'])) {
             alert('ဤပုံနေရာများကို Admin မှသာ တင်ပေးနိုင်ပါသည်။');
             return;
         }
@@ -2391,7 +2411,7 @@
         if (!u) { closeCamera(); alert('Account မတွေ့ပါ'); return; }
         u.photos = Array.isArray(u.photos) ? u.photos : [];
         u.photos[photoSlot] = data;
-        u.photos = u.photos.slice(0, 4);
+        u.photos = u.photos.slice(0, window.isUserVip && window.vipFeatures['profile_32_photos'] ? 32 : 4);
         save();
         closeCamera();
         refresh();
@@ -2422,7 +2442,7 @@
                 var data = c.toDataURL('image/jpeg', 0.62);
                 u.photos = Array.isArray(u.photos) ? u.photos : [];
                 u.photos[photoSlot] = data;
-                u.photos = u.photos.slice(0, 4);
+                u.photos = u.photos.slice(0, window.isUserVip && window.vipFeatures['profile_32_photos'] ? 32 : 4);
                 save();
                 refresh();
                 alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
@@ -2552,7 +2572,17 @@
         if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
         var n = document.getElementById('gname').value.trim();
         if (!n) { alert('Group အမည်ထည့်ပါ'); return; }
-        if (db.groups.some(function(g) { return g.owner === me; })) {
+        
+        // VIP အခွင့်အရေး စစ်ဆေးခြင်း (Group အကန့်အသတ်မရှိ)
+        var isVipUser = false;
+        if (db.users[me] && db.users[me].vip && db.users[me].vip.isVip) {
+            isVipUser = true;
+        }
+        if (window.isUserVip) {
+            isVipUser = true;
+        }
+
+        if (!isVipUser && db.groups.some(function(g) { return g.owner === me; })) {
             alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
             groups();
             return;
@@ -2852,4 +2882,4 @@
     window.addEventListener('error', function(e) { console.error('BeeChat Social:', e.error || e.message); });
 </script>
 </body>
-                                                               </html>
+                                                                    </html>
