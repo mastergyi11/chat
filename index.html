@@ -48,6 +48,8 @@
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
         .nav button span { font-size: 22px; }
         .badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 11px; font-weight: bold; display: none; margin-left: 4px; min-width: 18px; text-align: center; }
+        /* Red dot for unread */
+        .red-dot { width: 10px; height: 10px; background: #dc3545; border-radius: 50%; display: none; margin-left: 4px; flex-shrink: 0; }
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick .btn { min-height: 50px; font-size: 14px; }
         .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: #fff; }
@@ -60,6 +62,9 @@
         .profile-region-row { border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #fafafa; }
         .profile-region-row label { font-size: 15px; min-width: 120px; color: #555; }
         .profile-region-value { flex: 1; text-align: right; font-size: 15px; word-break: break-word; }
+        /* Decoration row - separate from name, displays on its own line */
+        .profile-decoration-row { border-bottom: 1px solid #eee; padding: 8px 18px; background: #fafafa; text-align: center; font-size: 16px; color: #555; word-break: break-word; }
+        .profile-decoration-row .deco-label { font-size: 12px; color: #999; display: block; margin-bottom: 2px; }
         .user-groups-section { margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; }
         .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; cursor: pointer; }
         .user-groups-section .group-chip:hover { background: #e7ad21; }
@@ -172,7 +177,7 @@
         .user-profile-card { text-align: center; padding: 16px; }
         .user-profile-card .avatar { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 40px; }
         .user-profile-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-profile-card .name { font-size: 20px; font-weight: bold; }
+        .user-profile-card .name { font-size: 20px; font-weight: bold; display: block; }
         .user-profile-card .id { font-size: 14px; color: #777; }
         .user-profile-card .bio { font-size: 14px; color: #555; margin: 6px 0; }
         .user-profile-card .stats { display: flex; justify-content: center; gap: 30px; padding: 12px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; margin: 10px 0; }
@@ -184,6 +189,9 @@
         .user-profile-card .info-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
         .user-profile-card .info-row .label { color: #777; }
         .user-profile-card .info-row .value { font-weight: 500; }
+        /* Decoration row in user profile - separate from name */
+        .user-profile-card .deco-row { padding: 6px 0; font-size: 16px; color: #555; border-bottom: 1px solid #f5f5f5; }
+        .user-profile-card .deco-row .deco-label { font-size: 12px; color: #999; display: block; }
         /* Admin-only photo slots - white background only */
         .profile-photo.admin-slot { background: #ffffff; border: 1px solid #e0e0e0; cursor: default; }
         .profile-photo.admin-slot .slot-num { display: none; }
@@ -193,7 +201,7 @@
         .filter-section { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
         .filter-section select, .filter-section input { flex: 1; min-width: 80px; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; }
         .filter-section .btn { padding: 6px 14px; font-size: 13px; }
-        /* System Message Box - like screenshot 2 */
+        /* System Message Box */
         .system-msg-box { background: #f8f9fa; border: 1px solid #e7ad21; border-radius: 10px; padding: 12px 14px; margin: 6px 0; color: #222; font-size: 14px; }
         .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; font-size: 16px; }
         .system-msg-box .sys-time { font-size: 11px; color: #999; float: right; }
@@ -203,12 +211,15 @@
         .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
         /* Onboarding search result with gender/age */
         .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
-        /* Decoration textarea in profile - above region */
+        /* Decoration textarea in profile - above photos, below stats, before region */
         .profile-decoration { padding: 10px 16px; border-bottom: 1px solid #eee; background: #fafafa; }
         .profile-decoration label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
         .profile-decoration textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 8px; font-size: 14px; resize: vertical; min-height: 60px; background: #fff; color: #222; }
         /* Profile nav button slight right shift */
         #navProfile { margin-left: 4px; }
+        /* Unread red dot on nav items */
+        .nav-dot { width: 8px; height: 8px; background: #dc3545; border-radius: 50%; display: none; margin-top: -8px; margin-right: -8px; position: absolute; top: 0; right: 0; }
+        .nav-btn-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
     </style>
 </head>
 <body>
@@ -244,14 +255,13 @@
         </div>
     </section>
 
-    <!-- ONBOARDING (Location + Search) -->
+    <!-- ONBOARDING -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <!-- System Message Box -->
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
-                <div id="systemMsgContent" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
+                <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
             </div>
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
@@ -326,10 +336,10 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
-            <!-- Decoration Textarea - above Region (user can write anything) -->
+            <!-- Decoration Textarea - above photos, below stats, before region -->
             <div class="profile-decoration">
                 <label>🎨 အလှဆင်ရန် စာသား (သင်ကြိုက်နှစ်သက်ရာ ရေးပါ)</label>
-                <textarea id="profileDecoration" placeholder="ဥပမာ - ❤️ ပျော်ရွှင်စရာနေ့လေး... or သင့်စတစ်ကာ... or ကိုယ်ပိုင်စာသား..."></textarea>
+                <textarea id="profileDecoration" placeholder="ဥပမာ - ❤️ ပျော်ရွှင်စရာနေ့လေး..."></textarea>
             </div>
             
             <div class="profile-gallery-wrap">
@@ -452,9 +462,8 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX (Chats) with System Message -->
+    <!-- INBOX -->
     <section id="inbox" class="screen">
-        <!-- System Message Box - "System Notifications" title -->
         <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
             <span class="sys-title">📢 System Notifications</span>
             <span class="sys-time" id="sysTimeDisplayInbox"></span>
@@ -589,7 +598,6 @@
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
     
-    // System message
     var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။';
     var systemMessageTime = Date.now();
 
@@ -871,10 +879,11 @@
         }
     }
 
-    // ===== UPDATE BADGES =====
+    // ===== UPDATE BADGES with red dots =====
     function updateBadges() {
         if (!me || !db) return;
 
+        // Friend Requests
         var incomingRequests = db.req.filter(r => r.t === me && !r.seen);
         var requestCount = incomingRequests.length;
         var reqBadge = document.getElementById('requestCount');
@@ -883,6 +892,7 @@
             reqBadge.style.display = requestCount > 0 ? 'inline-block' : 'none';
         }
 
+        // Unread messages
         var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
         var unreadCount = 0;
         friendIds.forEach(function(id) {
@@ -902,6 +912,8 @@
         });
 
         var total = requestCount + unreadCount;
+        
+        // Inbox badge
         var inboxBadge = document.getElementById('inboxBadge');
         if (inboxBadge) {
             inboxBadge.textContent = total > 0 ? total : '';
@@ -912,6 +924,18 @@
         if (inboxCount) {
             inboxCount.textContent = total > 0 ? total : '';
             inboxCount.style.display = total > 0 ? 'inline-block' : 'none';
+        }
+
+        // Red dot on Friends nav if any pending requests
+        var friendsDot = document.getElementById('friendsDot');
+        if (friendsDot) {
+            friendsDot.style.display = requestCount > 0 ? 'block' : 'none';
+        }
+
+        // Red dot on Chats nav if any unread messages
+        var chatsDot = document.getElementById('chatsDot');
+        if (chatsDot) {
+            chatsDot.style.display = unreadCount > 0 ? 'block' : 'none';
         }
     }
 
@@ -1169,8 +1193,13 @@
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + (deco ? ' <span style="font-size:16px;color:#888;">' + esc(deco) + '</span>' : '') + '</div>';
+        // Name separate from decoration
+        html += '<div class="name">' + esc(u.name || '-') + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
+        // Decoration on its own line
+        if (deco) {
+            html += '<div class="deco-row"><span class="deco-label">🎨 Decoration</span>' + esc(deco) + '</div>';
+        }
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
         html += '<div class="stats">' +
             '<div><b>' + (db.friends.filter(function(x) { return x.a === id || x.b === id; }).length || 0) + '</b><span>Friends</span></div>' +
@@ -1181,9 +1210,6 @@
         html += '<div class="info-row"><span class="label">⚧️ Gender</span><span class="value">' + genderIcon + ' ' + (u.gender || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">🎂 Age</span><span class="value">' + (age || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
-        if (deco) {
-            html += '<div class="info-row"><span class="label">🎨 Decoration</span><span class="value">' + esc(deco) + '</span></div>';
-        }
         
         html += '<div class="actions">';
         if (isMe) {
@@ -2049,7 +2075,6 @@
         u.gender = val('profileGender') || '';
         u.accountName = u.accountName || name;
         
-        // Save decoration
         var decoTextarea = document.getElementById('profileDecoration');
         if (decoTextarea) {
             u.decoration = decoTextarea.value.trim();
@@ -2614,4 +2639,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-</html>
+    </html>
