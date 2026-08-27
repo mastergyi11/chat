@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BeeChat Social</title>
     <style>
-        /* ===== BASE STYLES ===== */
         * { box-sizing: border-box; margin:0; padding:0; }
         body { background: #f5f5f5; color: #222; font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
-        
-        /* ===== DARK MODE ===== */
         body.dark-mode { background: #1a1a2e; color: #eee; }
         body.dark-mode .app { background: #1a1a2e; }
         body.dark-mode header { background: #0f3460; color: #fff; }
@@ -56,24 +53,14 @@
         body.dark-mode .profile-save { background: #e7ad21; color: #172130; }
         body.dark-mode .settings-logout { background: #e7ad21; color: #172130; }
         body.dark-mode .follow-avatar-placeholder { color: #aaa; }
-
-        /* ===== APP CONTAINER ===== */
         .app { max-width: 900px; margin: auto; min-height: 100vh; background: #f5f5f5; padding-bottom: 78px; transition: background 0.3s; }
-        
-        /* ===== HEADER ===== */
         header { padding: 10px 14px; background: #f4b400; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 30; color: #222; }
         .menu-btn { background: transparent; border: 0; color: #222; font-size: 24px; cursor: pointer; padding: 0 8px; }
         .header-title { font-size: 18px; font-weight: bold; flex: 1; text-align: center; }
         #head { font-size: 14px; }
-        
-        /* ===== SCREENS ===== */
         .screen { display: none; padding: 15px; background: transparent; }
         .screen.active { display: block; }
-        
-        /* ===== CARDS ===== */
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: background 0.3s, border-color 0.3s; }
-        
-        /* ===== BUTTONS ===== */
         .btn { border: 0; border-radius: 10px; padding: 10px 16px; background: #e7ad21; color: #172130; font-weight: bold; margin: 3px; cursor: pointer; }
         .btn.gold { background: #e7ad21; color: #172130; }
         .btn.green { background: #28a745; color: #fff; }
@@ -82,18 +69,12 @@
         .btn.small { padding: 4px 10px; font-size: 12px; }
         .btn.follow-btn { background: #0d6efd; color: #fff; }
         .btn.block-btn { background: #dc3545; color: #fff; }
-        
-        /* ===== INPUTS ===== */
         input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; transition: background 0.3s, color 0.3s, border-color 0.3s; }
-        
-        /* ===== MISC ===== */
         .small { font-size: 12px; color: #777; }
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: transparent; }
         .list:last-child { border-bottom: 0; }
         .hidden { display: none !important; }
         .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
-        
-        /* ===== CHAT ===== */
         .chat { height: 55vh; overflow: auto; background: #f7f7f7; padding: 10px; border-radius: 12px; transition: background 0.3s; }
         .msg { max-width: 78%; padding: 9px 14px; border-radius: 18px; margin: 7px 0; background: #e9ecef; color: #222; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; position: relative; transition: background 0.3s, color 0.3s; }
         .msg .avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
@@ -110,8 +91,6 @@
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
         .msg .delete-msg-btn { position: absolute; top: 2px; right: 2px; background: rgba(220,53,69,0.8); color: #fff; border: 0; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1; }
         .msg:hover .delete-msg-btn { display: flex; }
-        
-        /* ===== CHAT INPUT ===== */
         .chat-input-area { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #fff; border: 1px solid #ddd; border-radius: 30px; padding: 4px 12px; transition: background 0.3s, border-color 0.3s; }
         body.dark-mode .chat-input-area { background: #16213e; border-color: #0f3460; }
         .chat-input-area .input-actions { display: flex; gap: 4px; align-items: center; }
@@ -119,21 +98,14 @@
         .chat-input-area #msg { flex: 1; border: 0; padding: 8px 4px; margin: 0; background: transparent; color: #222; outline: none; }
         body.dark-mode .chat-input-area #msg { color: #eee; }
         .chat-input-area .send-btn { background: #e7ad21; border: 0; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; color: #172130; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        
-        /* ===== NAVIGATION ===== */
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); transition: background 0.3s, border-color 0.3s; }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
         body.dark-mode .nav button.active-nav { background: #0f3460; }
         .nav button span { font-size: 22px; }
         .badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 11px; font-weight: bold; display: none; margin-left: 4px; min-width: 18px; text-align: center; }
-        .red-dot { width: 10px; height: 10px; background: #dc3545; border-radius: 50%; display: none; margin-left: 4px; flex-shrink: 0; }
-        
-        /* ===== QUICK ACTIONS ===== */
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick .btn { min-height: 50px; font-size: 14px; }
-        
-        /* ===== FRIENDS ===== */
         .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: transparent; transition: border-color 0.3s; }
         .friend-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 24px; flex: none; }
         .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -141,13 +113,9 @@
         .friend-info b { font-size: 16px; }
         .friend-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
         .friend-actions button { padding: 4px 12px; font-size: 12px; }
-        
-        /* ===== PROFILE ===== */
         .profile-region-row { border-bottom: 1px solid #eee; padding: 12px 18px; display: flex; align-items: center; gap: 12px; background: #fafafa; transition: background 0.3s, border-color 0.3s; }
         .profile-region-row label { font-size: 15px; min-width: 120px; color: #555; }
         .profile-region-value { flex: 1; text-align: right; font-size: 15px; word-break: break-word; }
-        .profile-decoration-row { border-bottom: 1px solid #eee; padding: 8px 18px; background: #fafafa; text-align: center; font-size: 16px; color: #555; word-break: break-word; transition: background 0.3s, border-color 0.3s; }
-        .profile-decoration-row .deco-label { font-size: 12px; color: #999; display: block; margin-bottom: 2px; }
         .profile-stats { display: flex; align-items: center; justify-content: center; gap: 40px; padding: 12px 0; border-bottom: 1px solid #eee; transition: border-color 0.3s; }
         .profile-stats div { text-align: center; cursor: pointer; padding: 4px 12px; border-radius: 8px; transition: background 0.2s; }
         .profile-stats div:hover { background: rgba(231, 173, 33, 0.15); }
@@ -174,13 +142,10 @@
         .profile-decoration label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
         .profile-decoration textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 8px; font-size: 14px; resize: vertical; min-height: 60px; background: #fff; color: #222; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         .profile-create-group-section { margin: 12px 0; padding: 12px 18px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; transition: background 0.3s, border-color 0.3s; }
-        .profile-user-groups { padding: 12px 18px; }
         .user-groups-section { margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; transition: border-color 0.3s; }
         .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; cursor: pointer; }
         body.dark-mode .user-groups-section .group-chip { background: #0f3460; color: #eee; }
         .user-groups-section .group-chip:hover { background: #e7ad21; }
-        
-        /* ===== SETTINGS ===== */
         .settings-page { background: transparent; color: #222; min-height: calc(100vh - 30px); padding: 0 14px 90px; }
         .settings-list { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; transition: background 0.3s, border-color 0.3s; }
         .settings-item { height: 56px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 16px; padding: 0 18px; font-size: 15px; cursor: pointer; color: #222; transition: background 0.3s, color 0.3s, border-color 0.3s; }
@@ -194,8 +159,6 @@
         .settings-submenu .settings-item { padding-left: 40px; height: 44px; border-bottom: 1px solid #eee; }
         body.dark-mode .settings-submenu .settings-item { border-bottom-color: #1a1a2e; }
         .settings-logout { width: 100%; height: 52px; margin-top: 18px; border: 0; border-radius: 10px; background: #e7ad21; color: #172130; font-size: 16px; cursor: pointer; }
-        
-        /* ===== MENU DRAWER ===== */
         .menu-drawer { position: fixed; top: 58px; left: 0; width: min(300px, 80vw); height: calc(100vh - 58px); background: #fff; color: #333; z-index: 50; transform: translateX(-105%); transition: transform .2s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.1); padding: 12px 10px 90px; overflow: auto; transition: background 0.3s, color 0.3s; }
         .menu-drawer.open { transform: translateX(0); }
         .menu-overlay { position: fixed; inset: 58px 0 0; background: rgba(0,0,0,0.3); z-index: 49; display: none; }
@@ -204,8 +167,6 @@
         .menu-item { width: 100%; border: 0; background: #fff; color: #333; text-align: left; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; font-size: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         .menu-item .mi { width: 24px; text-align: center; font-size: 18px; }
         .menu-item:hover { background: #f8f9fa; }
-        
-        /* ===== MODAL (Following/Followers) ===== */
         .modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow: auto; }
         .modal-content { background: #fff; margin: 10% auto; max-width: 400px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); overflow: hidden; transition: background 0.3s, color 0.3s; }
         .modal-header { padding: 16px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.3s; }
@@ -220,8 +181,6 @@
         .follow-info { flex: 1; }
         .follow-name { font-weight: 600; font-size: 15px; }
         .follow-id { font-size: 12px; color: #888; }
-        
-        /* ===== ONBOARD ===== */
         .onboard-user-card { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: border-color 0.3s; }
         .onboard-user-card .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .onboard-user-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -237,8 +196,6 @@
         .searchbar input { margin: 0; border: 0; background: transparent; padding: 8px; flex: 1; }
         .location-center { text-align: center; margin-top: 10vh; }
         .location-icon { font-size: 48px; }
-        
-        /* ===== SYSTEM MESSAGES ===== */
         .system-msg-box { background: #f8f9fa; border: 1px solid #e7ad21; border-radius: 10px; padding: 12px 14px; margin: 6px 0; color: #222; font-size: 14px; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; font-size: 16px; }
         .system-msg-box .sys-time { font-size: 11px; color: #999; float: right; }
@@ -248,8 +205,6 @@
         .system-notification-box .sys-noti-title { font-weight: bold; color: #dc3545; }
         .system-notification-box .sys-noti-text { margin-top: 2px; }
         .system-notification-box .sys-noti-time { font-size: 10px; color: #999; float: right; }
-        
-        /* ===== GROUPS ===== */
         .group-horizontal-scroll { display: flex; overflow-x: auto; gap: 12px; padding: 8px 0; scroll-snap-type: x mandatory; }
         .group-horizontal-scroll .group-card { min-width: 180px; max-width: 200px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px; scroll-snap-align: start; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex-shrink: 0; cursor: pointer; transition: background 0.3s, border-color 0.3s; }
         .group-horizontal-scroll .group-card .group-avatar { width: 100%; height: 100px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #aaa; overflow: hidden; }
@@ -284,8 +239,6 @@
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .profile-photo-note { color: #888; font-size: 12px; padding: 8px 4px 2px; }
-        
-        /* ===== USER PROFILE CARD ===== */
         .user-profile-card { text-align: center; padding: 16px; }
         .user-profile-card .avatar { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 40px; }
         .user-profile-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -327,8 +280,6 @@
         .toggle.on::after { left: 25px; }
         .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
-        .gender-filter-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
-        .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
     </style>
 </head>
 <body>
@@ -336,12 +287,12 @@
 
     <!-- HEADER -->
     <header>
-        <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+        <button id="menuBtn" class="menu-btn" onclick="toggleMenu()">☰</button>
         <div id="pageTitle" class="header-title">BeeChat Social</div>
         <span id="head">Guest</span>
     </header>
 
-    <!-- MENU OVERLAY & DRAWER -->
+    <!-- MENU -->
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
     <aside id="menuDrawer" class="menu-drawer">
         <div class="menu-user"><b id="menuUserName">Guest</b><div class="small" id="menuUserId">ID: -</div></div>
@@ -366,7 +317,7 @@
         </div>
     </section>
 
-    <!-- ONBOARDING (Location) -->
+    <!-- ONBOARDING -->
     <section id="onboarding" class="screen">
         <div class="onboard">
             <div id="systemMsgBox" class="system-msg-box">
@@ -508,40 +459,21 @@
     <section id="settings" class="screen">
         <div class="settings-page">
             <div class="settings-list">
-                <div class="settings-item" onclick="navGo('myAccount')">
-                    <span class="sicon">🔗</span><span>My Accounts</span>
-                </div>
-                <div class="settings-item" onclick="alert('Preferences ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')">
-                    <span class="sicon">ℹ</span><span>Preferences</span>
-                </div>
-                <div class="settings-item" onclick="navGo('notifications')">
-                    <span class="sicon">🔔</span><span>Notifications</span>
-                </div>
-                <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')">
-                    <span class="sicon">🔑</span><span>Privacy</span>
-                </div>
-                <div class="settings-item" onclick="navGo('feedback')">
-                    <span class="sicon">✉</span><span>Feedback / Report</span>
-                </div>
-                <div class="settings-item" onclick="navGo('blockedUsers')">
-                    <span class="sicon">🚫</span><span>Blocked Users</span>
-                    <span class="blocked-badge" id="blockedBadge">0</span>
-                </div>
-                <!-- DISPLAY (Light/Dark) -->
+                <div class="settings-item" onclick="navGo('myAccount')"><span class="sicon">🔗</span><span>My Accounts</span></div>
+                <div class="settings-item" onclick="alert('Preferences ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">ℹ</span><span>Preferences</span></div>
+                <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span></div>
+                <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
+                <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
+                <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
+                <!-- DISPLAY -->
                 <div class="settings-item" onclick="toggleDisplaySettings()">
                     <span class="sicon">🖥️</span>
                     <span>Display</span>
                     <span class="arrow" id="displayArrow">▼</span>
                 </div>
                 <div id="displaySettings" class="settings-submenu" style="display:none;">
-                    <div class="settings-item" onclick="setTheme('light')">
-                        <span>☀️ Light</span>
-                        <span id="lightCheck" class="checkmark">✓</span>
-                    </div>
-                    <div class="settings-item" onclick="setTheme('dark')">
-                        <span>🌙 Dark</span>
-                        <span id="darkCheck" class="checkmark"></span>
-                    </div>
+                    <div class="settings-item" onclick="setTheme('light')"><span>☀️ Light</span><span id="lightCheck" class="checkmark">✓</span></div>
+                    <div class="settings-item" onclick="setTheme('dark')"><span>🌙 Dark</span><span id="darkCheck" class="checkmark"></span></div>
                 </div>
                 <!-- LANGUAGE -->
                 <div class="settings-item" onclick="toggleLanguageSettings()">
@@ -550,18 +482,10 @@
                     <span class="arrow" id="langArrow">▼</span>
                 </div>
                 <div id="languageSettings" class="settings-submenu" style="display:none;">
-                    <div class="settings-item" onclick="setLanguage('en')">
-                        <span>🇬🇧 English</span>
-                        <span id="enCheck" class="checkmark">✓</span>
-                    </div>
-                    <div class="settings-item" onclick="setLanguage('my')">
-                        <span>🇲🇲 မြန်မာ</span>
-                        <span id="myCheck" class="checkmark"></span>
-                    </div>
+                    <div class="settings-item" onclick="setLanguage('en')"><span>🇬🇧 English</span><span id="enCheck" class="checkmark">✓</span></div>
+                    <div class="settings-item" onclick="setLanguage('my')"><span>🇲🇲 မြန်မာ</span><span id="myCheck" class="checkmark"></span></div>
                 </div>
-                <div class="settings-item" onclick="alert('BeeChat Social\nVersion 2.0')">
-                    <span class="sicon">ⓘ</span><span>About</span>
-                </div>
+                <div class="settings-item" onclick="alert('BeeChat Social\nVersion 2.0')"><span class="sicon">ⓘ</span><span>About</span></div>
             </div>
             <button class="settings-logout" onclick="logout()">Logout</button>
         </div>
@@ -569,10 +493,7 @@
 
     <!-- BLOCKED USERS -->
     <section id="blockedUsers" class="screen">
-        <div class="card">
-            <h3>🚫 Blocked Users</h3>
-            <div id="blockedUsersList" class="blocked-users-list"></div>
-        </div>
+        <div class="card"><h3>🚫 Blocked Users</h3><div id="blockedUsersList" class="blocked-users-list"></div></div>
     </section>
 
     <!-- MY ACCOUNT -->
@@ -621,7 +542,7 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX (Chats) -->
+    <!-- INBOX -->
     <section id="inbox" class="screen">
         <div id="systemNotificationBox" class="system-notification-box">
             <span class="sys-noti-title">🔔 System Notification</span>
@@ -717,7 +638,6 @@
 <!-- ============================================================ -->
 <!-- JAVASCRIPT -->
 <!-- ============================================================ -->
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -805,23 +725,31 @@ function makeBaseName(name) {
 }
 
 // ============================================================
-//  DEFAULT DATABASE
+//  DEFAULT DATABASE (with groups and sample data)
 // ============================================================
 var DEFAULT = {
     users: {
-        U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-01' },
-        U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-15' }
+        U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Yangon', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-01', accountName: 'မောင်မောင်' },
+        U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Mandalay', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-15', accountName: 'လှလှ' },
+        koseinmyint11221001: { id: 'koseinmyint11221001', name: 'koseinmyint1122', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Bago Region, Myanmar', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1995-08-21', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-20', accountName: 'koseinmyint1122' }
     },
     req: [],
-    friends: [],
+    friends: [
+        { a: 'U10001', b: 'U10002' },
+        { a: 'U10001', b: 'koseinmyint11221001' }
+    ],
     messages: {},
-    groups: [],
+    groups: [
+        { id: 'G1001', name: 'ပျော်ရွှင်စရာအသင်း', owner: 'U10001', members: ['U10001', 'U10002', 'koseinmyint11221001'], level: 1, activity: 10, avatar: null, memberRanks: {}, memberActivity: {} },
+        { id: 'G1002', name: 'သူငယ်ချင်းများအသင်း', owner: 'U10002', members: ['U10002', 'U10001'], level: 1, activity: 5, avatar: null, memberRanks: {}, memberActivity: {} }
+    ],
     groupMessages: {},
     blocked: {},
     groupInvites: [],
-    usedNames: ['မောင်မောင်', 'လှလှ'],
+    usedNames: ['မောင်မောင်', 'လှလှ', 'koseinmyint1122'],
     systemNotifications: [],
-    rules: { version: 1, updatedAt: new Date().toISOString(), list: [] }
+    rules: { version: 1, updatedAt: new Date().toISOString(), list: [] },
+    adminMessages: {}
 };
 
 function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -849,6 +777,7 @@ function normalize(x) {
     x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
     x.systemNotifications = Array.isArray(x.systemNotifications) ? x.systemNotifications : [];
     x.rules = x.rules || { version: 1, updatedAt: new Date().toISOString(), list: [] };
+    x.adminMessages = x.adminMessages || {};
     Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
     Object.keys(x.users).forEach(id => {
         var u = x.users[id];
@@ -866,6 +795,12 @@ function normalize(x) {
             if (u.isSuspended === undefined) u.isSuspended = false;
             if (u.suspensionReason === undefined) u.suspensionReason = null;
             if (u.joined === undefined) u.joined = new Date().toLocaleDateString('my-MM');
+        }
+    });
+    // Make sure default groups exist
+    DEFAULT.groups.forEach(g => {
+        if (!x.groups.some(xg => xg.id === g.id)) {
+            x.groups.push(JSON.parse(JSON.stringify(g)));
         }
     });
     return x;
@@ -903,6 +838,12 @@ async function initFirebase() {
             var local = normalize(db);
             Object.keys(local.users).forEach(id => { if (!remote.users[id]) remote.users[id] = local.users[id]; });
             remote.blocked = remote.blocked || {};
+            // Merge groups
+            local.groups.forEach(g => {
+                if (!remote.groups.some(rg => rg.id === g.id)) {
+                    remote.groups.push(g);
+                }
+            });
             db = remote;
             try { await ref.set(db); } catch(e) { console.warn('Remote merge save failed', e); }
         } else {
@@ -940,11 +881,8 @@ function setTheme(theme) {
 }
 
 function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
+    if (theme === 'dark') { document.body.classList.add('dark-mode'); } 
+    else { document.body.classList.remove('dark-mode'); }
 }
 
 function updateThemeCheckmarks(theme) {
@@ -959,7 +897,6 @@ function toggleDisplaySettings() {
     arrow.classList.toggle('open');
 }
 
-// Load saved theme
 (function() {
     var savedTheme = localStorage.getItem('beechat_theme') || 'light';
     applyTheme(savedTheme);
@@ -970,22 +907,8 @@ function toggleDisplaySettings() {
 //  LANGUAGE
 // ============================================================
 var translations = {
-    en: {
-        appName: 'BeeChat Social',
-        home: 'Home',
-        friends: 'Friends',
-        chats: 'Chats',
-        profile: 'Profile',
-        setting: 'Setting'
-    },
-    my: {
-        appName: 'BeeChat လူမှုကွန်ရက်',
-        home: 'ပင်မ',
-        friends: 'သူငယ်ချင်းများ',
-        chats: 'စကားပြော',
-        profile: 'ကိုယ်ရေးအချက်',
-        setting: 'ဆက်တင်'
-    }
+    en: { appName: 'BeeChat Social' },
+    my: { appName: 'BeeChat လူမှုကွန်ရက်' }
 };
 
 function setLanguage(lang) {
@@ -1013,7 +936,6 @@ function toggleLanguageSettings() {
     arrow.classList.toggle('open');
 }
 
-// Load saved language
 (function() {
     var savedLang = localStorage.getItem('beechat_language') || 'en';
     applyLanguage(savedLang);
@@ -1048,7 +970,6 @@ function showFollowList(type) {
         ids = followerIds.concat(friendIds);
     }
     
-    // Remove duplicates
     ids = ids.filter(function(id, idx, self) { return self.indexOf(id) === idx; });
     
     if (!ids || !ids.length) {
@@ -1082,7 +1003,7 @@ function closeFollowModal() {
 }
 
 // ============================================================
-//  ADMIN MESSAGE (Location page)
+//  ADMIN MESSAGE
 // ============================================================
 function updateAdminMessageFromDB() {
     if (!db || !db.adminMessages) return;
@@ -1101,9 +1022,6 @@ function updateAdminMessageFromDB() {
     if (timeEl) timeEl.textContent = msg.timestamp ? new Date(msg.timestamp).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
 }
 
-// ============================================================
-//  SYSTEM NOTIFICATION (Inbox page)
-// ============================================================
 function updateSystemNotificationFromDB() {
     if (!db || !db.systemNotifications) return;
     var notis = db.systemNotifications;
@@ -1425,7 +1343,6 @@ function refresh() {
     var decoTextarea = document.getElementById('profileDecoration');
     if (decoTextarea) decoTextarea.value = u.decoration || '';
     
-    // Following & Followers counts
     var followingCount = db.friends.filter(x => x.a === me || x.b === me).length;
     var followersCount = db.req.filter(r => r.t === me).length + db.friends.filter(x => x.a === me || x.b === me).length;
     document.getElementById('followingCount').textContent = followingCount;
@@ -1767,7 +1684,11 @@ function renderBlockedUsers() {
 // ============================================================
 function viewUserProfile(id) {
     var u = db.users[id];
-    if (!u) return;
+    if (!u) { 
+        document.getElementById('userProfileBox').innerHTML = '<div class="small">သုံးစွဲသူမရှိပါ</div>';
+        show('userProfile');
+        return;
+    }
     if (isBlocked(id) && id !== me) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (u.isSuspended && id !== me) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     window.viewingProfile = id;
@@ -2158,11 +2079,8 @@ function addPhotoToSlot(e) {
     e.target.value = '';
 }
 
-function takeCameraPhoto() {
-    openCamera();
-}
-
-function closeCamera() { /* Not used in this version */ }
+function takeCameraPhoto() { openCamera(); }
+function closeCamera() { /* Not used */ }
 
 // ============================================================
 //  LOCATION
@@ -2729,4 +2647,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-    </html>
+        </html>
