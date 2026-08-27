@@ -340,7 +340,7 @@
             
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
-                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
+                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။</div>
             </div>
             <div class="profile-stats">
                 <div><b id="followingCount">0</b><span>Following</span></div>
@@ -368,7 +368,7 @@
             <div id="profileCreateGroupSection" class="profile-create-group-section">
                 <div id="profileCreateGroupBtn">
                     <button class="btn gold" onclick="showGroupCreation()">➕ အသင်းသစ်တည်ထောင်ရန်</button>
-                    <p class="small">အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။ (VIP များအတွက် အကန့်အသတ်မရှိ)</p>
+                    <p class="small" id="groupLimitText">အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။</p>
                 </div>
                 <div id="profileCreateGroupForm" style="display:none;">
                     <input id="profileGname" placeholder="အသင်းအမည်">
@@ -640,7 +640,7 @@
         blocked: {},
         groupInvites: [],
         usedNames: ['မောင်မောင်', 'လှလှ', 'Aung'],
-        systemNotifications: [], // Auto system notifications
+        systemNotifications: [],
         rules: { version: 1, updatedAt: new Date().toISOString(), list: [
             { id: 'rule_1', title: 'မသင့်လျော်သော စကားလုံးများ သုံးစွဲခြင်း', description: 'အကြမ်းဖက်၊ မလေးမစား၊ မသင့်လျော်သော စကားလုံးများကို သုံးစွဲခြင်း', isActive: true, violationLimit: 3 },
             { id: 'rule_2', title: 'Spam ပို့ခြင်း', description: 'ထပ်ခါထပ်ခါ စာတိုများ၊ လင့်ခ်များ ပို့ခြင်း', isActive: true, violationLimit: 3 },
@@ -771,31 +771,67 @@
     firebaseInitPromise = initFirebase();
 
     // ============================================================
+    //  VIP CHECK START (အရေးကြီးဆုံး အပိုင်း)
+    // ============================================================
+    function checkVipStatus() {
+        if (!me || !db || !db.users[me]) return;
+        
+        window.isUserVip = false;
+        window.vipFeatures = {};
+        
+        var myUser = db.users[me];
+        
+        // Admin ဘက်က သိမ်းထားတဲ့ vip data ကို ဖတ်မယ်
+        if (myUser.vip && myUser.vip.isVip === true) {
+            window.isUserVip = true;
+            window.vipFeatures = myUser.vip.settings || {};
+            
+            // နောက်ထပ် သိမ်းထားတဲ့ Array ကိုပါ ဖတ်မယ်
+            if (myUser.vipFeatures && Array.isArray(myUser.vipFeatures)) {
+                myUser.vipFeatures.forEach(function(feature) {
+                    window.vipFeatures[feature] = true;
+                });
+            }
+        }
+        
+        // UI ထဲမှာ VIP ဆိုရင် Group Limit Text ကို ပြောင်းပေးမယ်
+        var groupLimitText = document.getElementById('groupLimitText');
+        if (groupLimitText) {
+            if (window.isUserVip) {
+                groupLimitText.textContent = '👑 VIP အခွင့်အရေး - Group အကန့်အသတ်မရှိ ထောင်ခွင့်ရှိသည်။';
+            } else {
+                groupLimitText.textContent = 'အကောင့်တစ်ခုလျှင် အသင်းတစ်ခုသာ တည်ထောင်ခွင့်ရှိသည်။';
+            }
+        }
+    }
+    // ============================================================
+    //  VIP CHECK END
+    // ============================================================
+
+    // ============================================================
     //  RULE-BASED AUTO MODERATION SYSTEM
     // ============================================================
     function checkRuleViolation(userId, ruleId, action, context) {
         if (!db || !db.users || !db.users[userId]) return;
-        if (userId === me) return; // Don't check own actions (or you can remove this)
+        if (userId === me) return;
         
         var user = db.users[userId];
-        if (user.isSuspended) return; // Already suspended
+        if (user.isSuspended) return;
         
         var rules = db.rules && db.rules.list ? db.rules.list : [];
         var rule = rules.find(r => r.id === ruleId);
-        if (!rule || !rule.isActive) return; // Rule is not active
+        if (!rule || !rule.isActive) return;
         
-        // Check if action violates the rule
         var isViolation = false;
         switch (ruleId) {
-            case 'rule_1': // Inappropriate words
+            case 'rule_1':
                 var badWords = ['အမ', 'အမေ', 'မောင်', 'ညှာ', 'အိပ်', 'sex', 'fuck', 'shit', 'ငါ့', 'မင်း', 'မင်းက', 'ခွေး', 'ဝက်', 'သေ', 'သေပါ', 'သေလား', 'သေရင်'];
                 var lowerAction = action.toLowerCase();
                 if (badWords.some(word => lowerAction.includes(word.toLowerCase()))) {
                     isViolation = true;
                 }
                 break;
-            case 'rule_2': // Spam
-                // Check if user sent same message multiple times in short time
+            case 'rule_2':
                 var key = [me, userId].sort().join('_');
                 var msgs = db.messages[key] || [];
                 var recentMsgs = msgs.filter(m => m.f === userId && (Date.now() - m.time) < 60000);
@@ -803,8 +839,7 @@
                     isViolation = true;
                 }
                 break;
-            case 'rule_3': // Inappropriate images
-                // This would require image analysis, for now we check if image is reported
+            case 'rule_3':
                 if (context && context.isReportedImage) {
                     isViolation = true;
                 }
@@ -815,7 +850,6 @@
         
         if (!isViolation) return;
         
-        // Increment violation count
         if (!user.violations) user.violations = {};
         if (!user.violations[ruleId]) {
             user.violations[ruleId] = { count: 0, lastViolation: null };
@@ -823,16 +857,13 @@
         user.violations[ruleId].count += 1;
         user.violations[ruleId].lastViolation = Date.now();
         
-        // Send system notification
         var msg = '⚠️ စည်းကမ်းချက် "' + rule.title + '" ကို ဖောက်ဖျက်နေပါသည်။ (' + user.violations[ruleId].count + '/' + rule.violationLimit + ' ကြိမ်)';
         addSystemNotification(userId, msg);
         
-        // Check if violation limit reached
         if (user.violations[ruleId].count >= rule.violationLimit) {
             user.isSuspended = true;
             user.suspensionReason = 'စည်းကမ်းချက် "' + rule.title + '" ကို ' + user.violations[ruleId].count + ' ကြိမ် ဖောက်ဖျက်ခဲ့ပါသည်။';
             addSystemNotification(userId, '🚫 သင့်အကောင့်ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။\nအကြောင်းပြချက်: ' + user.suspensionReason);
-            // Also notify admin
             addSystemNotification('admin', '👤 User ' + userId + ' (' + (user.name || 'Unknown') + ') ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် အလိုအလျောက် ပိတ်ထားပါသည်။');
         }
         
@@ -897,7 +928,6 @@
         var timeEl = document.getElementById('sysTimeDisplay');
         if (timeEl) timeEl.textContent = displayTime;
         
-        // Add animation keyframes if not exists
         if (!document.getElementById('animStyles')) {
             var styleSheet = document.createElement('style');
             styleSheet.id = 'animStyles';
@@ -922,7 +952,6 @@
         if (!db || !db.systemNotifications) return;
         var notis = db.systemNotifications;
         if (!notis.length) return;
-        // Get latest notification for current user or admin
         var latest = null;
         for (var i = notis.length - 1; i >= 0; i--) {
             if (notis[i].userId === me || notis[i].userId === 'admin') {
@@ -1137,7 +1166,6 @@
         if (id === 'userProfile') renderUserProfile();
         if (id === 'myAccount') renderMyAccount();
         if (id === 'inbox') renderInbox();
-        // Update messages
         updateAdminMessageFromDB();
         updateSystemNotificationFromDB();
     }
@@ -1147,9 +1175,17 @@
         return db.blocked[userId] === true;
     }
 
+    // VIP အခွင့်အရေး စစ်ဆေးပြီးမှ block လုပ်ခွင့် ပေးမယ်
     function blockUser(userId) {
         if (!me || !db) return;
         if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; }
+        
+        // VIP Check
+        if (!(window.isUserVip && window.vipFeatures['block_unblock'])) {
+            alert('ဒီလုပ်ဆောင်ချက်ကို သင်လုပ်ခွင့်မရှိပါ။ (VIP လိုအပ်သည်)');
+            return;
+        }
+        
         db.blocked = db.blocked || {};
         db.blocked[userId] = true;
         db.friends = db.friends.filter(function(f) { return !((f.a === me && f.b === userId) || (f.a === userId && f.b === me)); });
@@ -1221,7 +1257,7 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
-            if (u.isSuspended) return false; // Don't show suspended users
+            if (u.isSuspended) return false;
             return ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q));
         }).slice(0, 50);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
@@ -1452,8 +1488,6 @@
         renderChat();
         updateBadges();
         
-        // Check rules for the other user (if they sent inappropriate content)
-        // We check based on the message content
         var otherUserId = chatWith;
         checkRuleViolation(otherUserId, 'rule_1', t);
         checkRuleViolation(otherUserId, 'rule_2', t);
@@ -1648,6 +1682,10 @@
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
         if (u.decoration === undefined) u.decoration = '';
+        
+        // VIP Status ကို ပြန်စစ်မယ်
+        checkVipStatus();
+        
         document.getElementById('head').textContent = u.name;
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
@@ -1797,7 +1835,7 @@
         }
     }
 
-    // ===== PROFILE CREATE GROUP =====
+    // ===== PROFILE CREATE GROUP (VIP Unlimited) =====
     function renderProfileCreateGroup() {
         if (!me || !db) return;
         var container = document.getElementById('profileCreateGroupSection');
@@ -1845,17 +1883,9 @@
         if (!n) { alert('အသင်းအမည်ထည့်ပါ'); return; }
         
         // VIP အခွင့်အရေး စစ်ဆေးခြင်း (Group အကန့်အသတ်မရှိ)
-        var isVipUser = false;
-        if (db.users[me] && db.users[me].vip && db.users[me].vip.isVip) {
-            isVipUser = true;
-        }
-        // User ဘက်မှာ ကျွန်တော်ထည့်ပေးထားတဲ့ isVip variable ကို စစ်ဆေးခြင်း
-        if (window.isUserVip) {
-            isVipUser = true;
-        }
+        var canCreateUnlimited = window.isUserVip && window.vipFeatures['unlimited_groups'];
 
-        // VIP မဟုတ်ရင် အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိမယ်
-        if (!isVipUser && db.groups.some(function(g) { return g.owner === me; })) {
+        if (!canCreateUnlimited && db.groups.some(function(g) { return g.owner === me; })) {
             alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
             return;
         }
@@ -2311,17 +2341,15 @@
 
     var photoSlot = 0;
 
+    // VIP User ဆိုရင် ပုံ ၄ ပုံအစား ၃၂ ပုံတင်ခွင့် ပေးမယ်
     function renderPhotos() {
         var u = db.users[me], g = document.getElementById('photos');
         if (!u || !g) return;
         g.innerHTML = '';
         
-        // VIP User ဆိုရင် ပုံ ၄ ပုံအစား ၃၂ ပုံတင်ခွင့် ပေးမယ်
         var maxUserPhotos = 4;
         if (window.isUserVip && window.vipFeatures['profile_32_photos']) {
             maxUserPhotos = 32;
-            // UI မှာလည်း Grid ကို ပြင်ရင် ပိုကောင်းမယ်
-            g.style.gridTemplateColumns = 'repeat(4, 1fr)'; // 4 ပုံတစ်တန်း စီပါ
         }
 
         u.photos = Array.isArray(u.photos) ? u.photos.slice(0, maxUserPhotos) : [];
@@ -2556,7 +2584,7 @@
         refresh();
     }
 
-    // ===== Group Functions =====
+    // ===== Group Functions (VIP Unlimited) =====
     function previewGroupAvatar(e) {
         var f = e.target.files && e.target.files[0];
         if (!f) return;
@@ -2573,16 +2601,10 @@
         var n = document.getElementById('gname').value.trim();
         if (!n) { alert('Group အမည်ထည့်ပါ'); return; }
         
-        // VIP အခွင့်အရေး စစ်ဆေးခြင်း (Group အကန့်အသတ်မရှိ)
-        var isVipUser = false;
-        if (db.users[me] && db.users[me].vip && db.users[me].vip.isVip) {
-            isVipUser = true;
-        }
-        if (window.isUserVip) {
-            isVipUser = true;
-        }
+        // VIP အခွင့်အရေး စစ်ဆေးခြင်း
+        var canCreateUnlimited = window.isUserVip && window.vipFeatures['unlimited_groups'];
 
-        if (!isVipUser && db.groups.some(function(g) { return g.owner === me; })) {
+        if (!canCreateUnlimited && db.groups.some(function(g) { return g.owner === me; })) {
             alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
             groups();
             return;
@@ -2882,4 +2904,4 @@
     window.addEventListener('error', function(e) { console.error('BeeChat Social:', e.error || e.message); });
 </script>
 </body>
-                                                                    </html>
+                    </html>
