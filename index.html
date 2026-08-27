@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bee Chat</title>
+    <title>BeeChat Social</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #fff; color: #222; font-family: Arial, sans-serif; }
@@ -196,12 +196,17 @@
         .filter-section { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
         .filter-section select, .filter-section input { flex: 1; min-width: 80px; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; }
         .filter-section .btn { padding: 6px 14px; font-size: 13px; }
-        /* System Message Box - with style support */
+        /* System Message Box - Admin messages only */
         .system-msg-box { background: #f8f9fa; border: 1px solid #e7ad21; border-radius: 10px; padding: 12px 14px; margin: 6px 0; color: #222; font-size: 14px; }
         .system-msg-box .sys-title { font-weight: bold; color: #e7ad21; font-size: 16px; }
         .system-msg-box .sys-time { font-size: 11px; color: #999; float: right; }
         .system-msg-box .sys-msg-text { margin-top: 4px; font-size: 14px; word-break: break-word; }
         .system-msg-box .sys-msg-text .admin-msg-title { font-weight: bold; display: block; margin-bottom: 4px; }
+        /* System Notification Box - Auto system messages only */
+        .system-notification-box { background: #f0f4f8; border-left: 4px solid #dc3545; border-radius: 6px; padding: 10px 14px; margin: 6px 0; color: #333; font-size: 13px; }
+        .system-notification-box .sys-noti-title { font-weight: bold; color: #dc3545; }
+        .system-notification-box .sys-noti-text { margin-top: 2px; }
+        .system-notification-box .sys-noti-time { font-size: 10px; color: #999; float: right; }
         .gender-filter-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
         .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
         .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
@@ -218,7 +223,7 @@
 
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-        <div id="pageTitle" class="header-title">Bee Chat</div>
+        <div id="pageTitle" class="header-title">BeeChat Social</div>
         <span id="head">Guest</span>
     </header>
 
@@ -246,14 +251,14 @@
         </div>
     </section>
 
-    <!-- ONBOARDING -->
+    <!-- ONBOARDING (Location Page - Admin messages only) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <!-- System Message Box - Admin messages appear here -->
+            <!-- System Message Box - Admin messages only -->
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
-                <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
+                <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! BeeChat Social ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
             </div>
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
@@ -393,7 +398,7 @@
                 <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
                 <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
                 <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
-                <div class="settings-item" onclick="alert('Bee Chat\nVersion 2.0')"><span class="sicon">ⓘ</span><span>About</span></div>
+                <div class="settings-item" onclick="alert('BeeChat Social\nVersion 1.0')"><span class="sicon">ⓘ</span><span>About</span></div>
             </div>
             <button class="settings-logout" onclick="logout()">Logout</button>
         </div>
@@ -453,12 +458,13 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX -->
+    <!-- INBOX (Chats) with System Notification Box -->
     <section id="inbox" class="screen">
-        <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
-            <span class="sys-title">📢 System Notifications</span>
-            <span class="sys-time" id="sysTimeDisplayInbox"></span>
-            <div id="systemMsgContentInbox" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
+        <!-- System Notification Box - Auto system messages only (not admin) -->
+        <div id="systemNotificationBox" class="system-notification-box">
+            <span class="sys-noti-title">🔔 System Notification</span>
+            <span class="sys-noti-time" id="sysNotiTimeDisplay"></span>
+            <div id="systemNotificationContent" class="sys-noti-text">စနစ်ကျသော အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
         </div>
         <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
@@ -580,7 +586,7 @@
         }
     } catch (e) { console.error('Firebase init error', e); }
 
-    var KEY = 'beechat_v2';
+    var KEY = 'beechat_social_v1';
     var NEARBY_RADIUS_KM = 5;
     var me = null, chatWith = null, db = null, fbReady = false;
     var presenceRef = null, locationWatchId = null;
@@ -589,8 +595,13 @@
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
     
-    var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။';
-    var systemMessageTime = Date.now();
+    // Admin message (for Location page)
+    var adminMessage = 'ကြိုဆိုပါတယ်! BeeChat Social ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။';
+    var adminMessageTime = Date.now();
+    
+    // System notification (for Inbox page - auto system only)
+    var systemNotification = 'စနစ်ကျသော အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။';
+    var systemNotificationTime = Date.now();
 
     var deviceInfo = {};
 
@@ -628,7 +639,8 @@
         groupMessages: {},
         blocked: {},
         groupInvites: [],
-        usedNames: ['မောင်မောင်', 'လှလှ', 'Aung']
+        usedNames: ['မောင်မောင်', 'လှလှ', 'Aung'],
+        systemNotifications: [] // Auto system notifications
     };
 
     function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -645,6 +657,7 @@
         x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
         x.blocked = x.blocked || {};
         x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
+        x.systemNotifications = Array.isArray(x.systemNotifications) ? x.systemNotifications : [];
         Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
         Object.keys(x.users).forEach(id => {
             var u = x.users[id];
@@ -704,10 +717,8 @@
                 db = incoming;
                 localSave();
                 if (me && db.users[me]) refresh();
-                // Auto-update system message when admin sends new message
-                if (db.adminMessages) {
-                    updateSystemMessageFromAdmin();
-                }
+                updateAdminMessageFromDB();
+                updateSystemNotificationFromDB();
             });
             setStatus('✅ ချိတ်ဆက်ပြီးပါပြီ');
         } catch (e) {
@@ -722,7 +733,7 @@
 
     function restoreLogin() {
         try {
-            var saved = localStorage.getItem('beechat_logged_in');
+            var saved = localStorage.getItem('beechat_social_logged_in');
             if (saved && db.users[saved]) {
                 me = saved;
                 var currentDevice = getDeviceInfo();
@@ -745,22 +756,24 @@
     firebaseInitPromise = initFirebase();
 
     // ============================================================
-    //  SYSTEM MESSAGE - READ FROM ADMIN
+    //  ADMIN MESSAGE (Location page only)
     // ============================================================
-    function updateSystemMessageFromAdmin() {
+    function updateAdminMessageFromDB() {
         if (!db || !db.adminMessages) return;
         var keys = Object.keys(db.adminMessages);
         if (!keys.length) return;
-        // Get latest message
         var latestKey = keys.sort(function(a, b) {
             return (db.adminMessages[b].timestamp || 0) - (db.adminMessages[a].timestamp || 0);
         })[0];
         var msg = db.adminMessages[latestKey];
         if (!msg) return;
         
+        adminMessage = msg.body || adminMessage;
+        adminMessageTime = msg.timestamp || Date.now();
+        
         var style = msg.style || {};
         var color = style.color || '#222';
-        var fontSize = style.fontSize || '18px';
+        var fontSize = style.fontSize || '16px';
         var align = style.align || 'left';
         var bgColor = style.bgColor || 'transparent';
         var fontWeight = (style.style === 'bold') ? 'bold' : 'normal';
@@ -769,7 +782,7 @@
         var animation = style.animation || 'none';
         
         var styleStr = 'color:' + color + ';font-size:' + fontSize + ';text-align:' + align + 
-                       ';background:' + bgColor + ';padding:10px;border-radius:8px;' +
+                       ';background:' + bgColor + ';padding:8px;border-radius:6px;' +
                        'font-weight:' + fontWeight + ';font-style:' + fontStyle + 
                        ';text-decoration:' + textDecoration + ';word-break:break-word;';
         
@@ -781,25 +794,16 @@
         else if (animation === 'glow') styleStr += 'animation:glow 1.5s ease-in-out infinite;';
         else if (animation === 'rainbow') styleStr += 'animation:rainbow 3s linear infinite;';
         
-        var displayTime = msg.timestamp ? new Date(msg.timestamp).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
+        var displayTime = adminMessageTime ? new Date(adminMessageTime).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
         
-        // Update on onboarding page
         var contentEl = document.getElementById('systemMsgContent');
         if (contentEl) {
-            contentEl.innerHTML = '<span class="admin-msg-title">' + esc(msg.title) + '</span>' + 
-                                  '<div style="' + styleStr + '">' + esc(msg.body) + '</div>';
+            var title = msg.title || '';
+            contentEl.innerHTML = (title ? '<span class="admin-msg-title">' + esc(title) + '</span>' : '') + 
+                                  '<div style="' + styleStr + '">' + esc(adminMessage) + '</div>';
         }
         var timeEl = document.getElementById('sysTimeDisplay');
         if (timeEl) timeEl.textContent = displayTime;
-        
-        // Update on inbox page
-        var contentEl2 = document.getElementById('systemMsgContentInbox');
-        if (contentEl2) {
-            contentEl2.innerHTML = '<span class="admin-msg-title">' + esc(msg.title) + '</span>' + 
-                                   '<div style="' + styleStr + '">' + esc(msg.body) + '</div>';
-        }
-        var timeEl2 = document.getElementById('sysTimeDisplayInbox');
-        if (timeEl2) timeEl2.textContent = displayTime;
         
         // Add animation keyframes if not exists
         if (!document.getElementById('animStyles')) {
@@ -817,6 +821,29 @@
             `;
             document.head.appendChild(styleSheet);
         }
+    }
+
+    // ============================================================
+    //  SYSTEM NOTIFICATION (Inbox page - auto system only)
+    // ============================================================
+    function updateSystemNotificationFromDB() {
+        if (!db || !db.systemNotifications) return;
+        var notis = db.systemNotifications;
+        if (!notis.length) return;
+        var latest = notis[notis.length - 1];
+        if (!latest) return;
+        
+        systemNotification = latest.text || systemNotification;
+        systemNotificationTime = latest.timestamp || Date.now();
+        
+        var displayTime = systemNotificationTime ? new Date(systemNotificationTime).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
+        
+        var contentEl = document.getElementById('systemNotificationContent');
+        if (contentEl) {
+            contentEl.textContent = systemNotification;
+        }
+        var timeEl = document.getElementById('sysNotiTimeDisplay');
+        if (timeEl) timeEl.textContent = displayTime;
     }
 
     // ============================================================
@@ -1002,7 +1029,7 @@
             groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups'
         };
         var pt = document.getElementById('pageTitle');
-        if (pt) pt.textContent = titles[id] || 'Bee Chat';
+        if (pt) pt.textContent = titles[id] || 'BeeChat Social';
         if (id === 'blockedUsers') renderBlockedUsers();
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
@@ -1011,8 +1038,9 @@
         if (id === 'userProfile') renderUserProfile();
         if (id === 'myAccount') renderMyAccount();
         if (id === 'inbox') renderInbox();
-        // Update system message when navigating
-        updateSystemMessageFromAdmin();
+        // Update messages
+        updateAdminMessageFromDB();
+        updateSystemNotificationFromDB();
     }
 
     function isBlocked(userId) {
@@ -1158,6 +1186,7 @@
             });
         }
         updateBadges();
+        updateSystemNotificationFromDB();
     }
 
     function friends() {
@@ -1477,8 +1506,8 @@
         if (id === 'myGroups') renderMyGroups();
         if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
-        if (id === 'onboarding') updateSystemMessageFromAdmin();
-        if (id === 'inbox') updateSystemMessageFromAdmin();
+        if (id === 'onboarding') updateAdminMessageFromDB();
+        if (id === 'inbox') updateSystemNotificationFromDB();
     }
 
     function refresh() {
@@ -1534,7 +1563,8 @@
         renderMyGroups();
         renderProfileCreateGroup();
         updateBadges();
-        updateSystemMessageFromAdmin();
+        updateAdminMessageFromDB();
+        updateSystemNotificationFromDB();
         
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
         if (deviceDisplay && u.currentDevice) {
@@ -1736,7 +1766,8 @@
         document.getElementById('nav').classList.remove('hidden');
         navGo('onboarding');
         startPresence();
-        updateSystemMessageFromAdmin();
+        updateAdminMessageFromDB();
+        updateSystemNotificationFromDB();
     }
 
     async function fetchRegion(lat, lng) {
@@ -1912,7 +1943,7 @@
             var device = getDeviceInfo();
             db.users[me].currentDevice = JSON.stringify(device);
             await save();
-            try { localStorage.setItem('beechat_logged_in', id); } catch (e) {}
+            try { localStorage.setItem('beechat_social_logged_in', id); } catch (e) {}
             alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id + '\n\n⚠️ သတိပြုရန်:\n• အကောင့်တစ်ခုကို ဖုန်းတစ်လုံးတည်းမှသာ ဝင်ခွင့်ရှိသည်။\n• အခြားဖုန်းမှ ဝင်ပါက ပထမဖုန်းတွင် အကြောင်းကြားပြီး အလိုအလျောက် ထွက်သွားပါမည်။\n• ID နံပါတ်တစ်ခုကို သုံးစွဲသူတစ်ယောက်တည်းသာ သုံးခွင့်ရှိသည်။');
             enter();
             setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
@@ -1964,14 +1995,14 @@
         u.deviceHistory.push({ device: deviceKey, timestamp: Date.now() });
         await save();
         
-        try { localStorage.setItem('beechat_logged_in', id); } catch (e) {}
+        try { localStorage.setItem('beechat_social_logged_in', id); } catch (e) {}
         enter();
         setStatus('✅ ' + id + ' ဝင်ထားပါပြီ');
     }
 
     function logout() {
         stopPresence();
-        try { localStorage.removeItem('beechat_logged_in'); } catch (e) {}
+        try { localStorage.removeItem('beechat_social_logged_in'); } catch (e) {}
         me = null; chatWith = null;
         document.getElementById('nav').classList.add('hidden');
         document.getElementById('head').textContent = 'Guest';
@@ -2026,10 +2057,10 @@
         }
     }
 
-    function notificationEnabled() { return localStorage.getItem('beechat_notifications') !== 'off'; }
+    function notificationEnabled() { return localStorage.getItem('beechat_social_notifications') !== 'off'; }
     function toggleNotifications() {
         var on = !notificationEnabled();
-        localStorage.setItem('beechat_notifications', on ? 'on' : 'off');
+        localStorage.setItem('beechat_social_notifications', on ? 'on' : 'off');
         renderNotifications();
     }
 
@@ -2677,7 +2708,7 @@
         else if (el.id === 'locateBtn' && typeof locate === 'function') locate();
     }, false);
 
-    window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
+    window.addEventListener('error', function(e) { console.error('BeeChat Social:', e.error || e.message); });
 </script>
 </body>
-                        </html>
+                    </html>
