@@ -770,7 +770,9 @@ function normalize(x) {
     x.req = Array.isArray(x.req) ? x.req : [];
     x.friends = Array.isArray(x.friends) ? x.friends : [];
     x.messages = x.messages || {};
-    x.groups = Array.isArray(x.groups) ? x.groups : [];
+    if (Array.isArray(x.groups)) x.groups = x.groups;
+    else if (x.groups && typeof x.groups === 'object') x.groups = Object.keys(x.groups).map(function(k) { return x.groups[k]; }).filter(Boolean);
+    else x.groups = [];
     x.groupMessages = x.groupMessages || {};
     x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
     x.blocked = x.blocked || {};
@@ -1360,6 +1362,9 @@ function refresh() {
     renderAllGroups();
     renderMyGroups();
     renderProfileCreateGroup();
+    if (document.getElementById('userProfile') && document.getElementById('userProfile').classList.contains('active') && window.viewingProfile) {
+        renderUserProfile(window.viewingProfile);
+    }
     updateBadges();
     updateAdminMessageFromDB();
     updateSystemNotificationFromDB();
@@ -1391,7 +1396,7 @@ function updateBadges() {
         var msgs = db.messages[key] || [];
         msgs.forEach(m => { if (m.f !== me && !m.seen) unreadCount++; });
     });
-    var myGroups = db.groups.filter(g => g.members && g.members.includes(me));
+    var myGroups = (Array.isArray(db.groups) ? db.groups : []).filter(g => g && g.members && g.members.includes(me));
     myGroups.forEach(g => {
         var msgs = db.groupMessages[g.id] || [];
         msgs.forEach(m => { if (m.f !== me && !m.seen) unreadCount++; });
@@ -1683,6 +1688,13 @@ function renderBlockedUsers() {
 //  USER PROFILE VIEW
 // ============================================================
 function viewUserProfile(id) {
+    if (!id) id = window.viewingProfile;
+    if (!id) {
+        document.getElementById('userProfileBox').innerHTML = '<div class="small">Profile ရွေးမထားသေးပါ</div>';
+        show('userProfile');
+        return;
+    }
+    window.viewingProfile = id;
     var u = db.users[id];
     if (!u) { 
         document.getElementById('userProfileBox').innerHTML = '<div class="small">သုံးစွဲသူမရှိပါ</div>';
@@ -1691,12 +1703,12 @@ function viewUserProfile(id) {
     }
     if (isBlocked(id) && id !== me) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (u.isSuspended && id !== me) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
-    window.viewingProfile = id;
     show('userProfile');
     renderUserProfile(id);
 }
 
 function renderUserProfile(id) {
+    id = id || window.viewingProfile;
     var box = document.getElementById('userProfileBox');
     if (!box) return;
     var u = db.users[id];
@@ -2217,10 +2229,10 @@ function renderAllGroups() {
     var container = document.getElementById('allGroupsList');
     if (!container) return;
     var q = (document.getElementById('groupSearchInput')?.value || '').trim().toLowerCase();
-    var allGroups = db.groups || [];
+    var allGroups = Array.isArray(db.groups) ? db.groups : [];
+    if (!allGroups.length && Array.isArray(DEFAULT.groups)) allGroups = DEFAULT.groups.slice();
     var filtered = allGroups.filter(g => {
         if (!g) return false;
-        if (g.members && g.members.includes(me)) return false;
         var nameMatch = (g.name || '').toLowerCase().includes(q);
         var idMatch = (g.id || '').toLowerCase().includes(q);
         return nameMatch || idMatch;
@@ -2284,21 +2296,27 @@ function viewPublicGroup(groupId) {
 function groups() {
     var b = document.getElementById('glist');
     var createCard = document.getElementById('groupCreateCard');
-    var owned = db.groups.find(g => g.owner === me);
+    var groupData = Array.isArray(db.groups) ? db.groups : [];
+    var owned = groupData.find(g => g && g.owner === me);
     if (createCard) createCard.style.display = owned ? 'none' : 'block';
-    b.innerHTML = '<h3>🏆 My Groups</h3>';
-    db.groups.filter(g => g.owner === me || (g.members && g.members.includes(me))).forEach(g => {
-        var d = document.createElement('div');
-        d.className = 'list';
-        d.style.cursor = 'pointer';
-        d.onclick = function() { openGroup(g.id); };
-        var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '🏆';
-        d.innerHTML = avatarHtml + '<b>' + esc(g.name) + '</b> ⭐ Level ' + g.level +
-            '<div class="small">ID: '+esc(g.id)+' • Members '+(g.members ? g.members.length : 0)+'/20 • Activity '+(g.activity||0)+'</div>' +
-            '<div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
-        b.appendChild(d);
-    });
-    if (!b.innerHTML) b.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>';
+
+    // Older group-list UI is not present in the current HTML. Do not let
+    // a missing #glist element stop refresh(), profile, friends, or search.
+    if (b) {
+        b.innerHTML = '<h3>🏆 My Groups</h3>';
+        groupData.filter(g => g && (g.owner === me || (g.members && g.members.includes(me)))).forEach(g => {
+            var d = document.createElement('div');
+            d.className = 'list';
+            d.style.cursor = 'pointer';
+            d.onclick = function() { openGroup(g.id); };
+            var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '🏆';
+            d.innerHTML = avatarHtml + '<b>' + esc(g.name) + '</b> ⭐ Level ' + (g.level || 1) +
+                '<div class="small">ID: '+esc(g.id)+' • Members '+(g.members ? g.members.length : 0)+'/20 • Activity '+(g.activity||0)+'</div>' +
+                '<div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
+            b.appendChild(d);
+        });
+        if (!b.innerHTML || b.innerHTML === '<h3>🏆 My Groups</h3>') b.innerHTML += '<div class="small">အသင်းမရှိသေးပါ</div>';
+    }
     renderAllGroups();
     renderMyGroups();
     renderProfileCreateGroup();
@@ -2647,4 +2665,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-        </html>
+                    </html>
