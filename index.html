@@ -665,6 +665,9 @@ var KEY = 'beechat_social_v2';
 var me = null, chatWith = null, db = null, fbReady = false;
 var presenceRef = null, locationWatchId = null;
 var firebaseInitPromise = null;
+var moderationRules = [];
+var moderationWatcherStarted = false;
+var moderationLastCheck = 0;
 var chatMenuVisible = false;
 var tempGroupAvatar = null, tempProfileGroupAvatar = null;
 var photoSlot = 0;
@@ -779,6 +782,8 @@ function normalize(x) {
     x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
     x.systemNotifications = Array.isArray(x.systemNotifications) ? x.systemNotifications : [];
     x.rules = x.rules || { version: 1, updatedAt: new Date().toISOString(), list: [] };
+    x.rules.list = Array.isArray(x.rules.list) ? x.rules.list : [];
+    x.rules.list = x.rules.list.map(function(r, i){ return Object.assign({id:'rule_'+i, title:'', description:'', isActive:true, maxViolations:3}, r || {}); });
     x.adminMessages = x.adminMessages || {};
     Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
     Object.keys(x.users).forEach(id => {
@@ -1005,6 +1010,69 @@ function closeFollowModal() {
 }
 
 // ============================================================
+//  MODERATION / ADMIN RULES
+// ============================================================
+function loadModerationRules() {
+    var list = db && db.rules && Array.isArray(db.rules.list) ? db.rules.list : [];
+    moderationRules = list.filter(function(r){ return r && r.isActive !== false; }).map(function(r){
+        return Object.assign({maxViolations:3}, r);
+    });
+    return moderationRules;
+}
+
+function getModerationRule(ruleId) {
+    loadModerationRules();
+    return moderationRules.find(function(r){ return String(r.id) === String(ruleId); }) || null;
+}
+
+function pushSystemNotification(userId, text) {
+    if (!db) return;
+    if (!Array.isArray(db.systemNotifications)) db.systemNotifications = [];
+    db.systemNotifications.push({userId:userId, text:text, timestamp:Date.now(), type:'moderation'});
+    if (db.systemNotifications.length > 200) db.systemNotifications = db.systemNotifications.slice(-200);
+}
+
+async function recordRuleViolation(userId, ruleId, reason) {
+    if (!userId || !db || !db.users || !db.users[userId]) return false;
+    var rule = getModerationRule(ruleId);
+    if (!rule) return false;
+    var u = db.users[userId];
+    if (!u.violations || typeof u.violations !== 'object') u.violations = {};
+    var count = Number(u.violations[rule.id] || 0) + 1;
+    u.violations[rule.id] = count;
+    var limit = Math.max(1, Number(rule.maxViolations || 3));
+    var title = rule.title || 'စည်းကမ်းချက်';
+    if (count >= limit) {
+        u.isSuspended = true;
+        u.suspended = true;
+        u.suspensionReason = 'စည်းကမ်းချိုးဖောက်မှု: ' + title;
+        pushSystemNotification(userId, '⛔ ' + title + ' ကို ' + count + ' ကြိမ် ချိုးဖောက်ထားသဖြင့် သင့်အကောင့်ကို အလိုအလျောက် ပိတ်ပင်ထားပါသည်။');
+    } else {
+        pushSystemNotification(userId, '⚠️ ' + title + ' ကို ချိုးဖောက်ထားပါသည်။ Warning ' + count + '/' + limit + (reason ? '\n' + reason : ''));
+    }
+    if (fbReady && firebaseDB) {
+        await firebaseDB.ref('appData/users/' + userId).update({violations:u.violations, isSuspended:!!u.isSuspended, suspended:!!u.suspended, suspensionReason:u.suspensionReason || null});
+        await firebaseDB.ref('appData/systemNotifications').set(db.systemNotifications);
+    } else {
+        await save();
+    }
+    return true;
+}
+
+function refreshModerationSystem() {
+    loadModerationRules();
+    updateSystemNotificationFromDB();
+    var u = me && db && db.users ? db.users[me] : null;
+    if (u && (u.isSuspended === true || u.suspended === true)) {
+        var overlay = document.getElementById('suspendOverlay');
+        if (overlay) overlay.style.display = 'block';
+    }
+}
+
+// Called by chat/report moderation code when a verified rule violation is detected.
+window.recordRuleViolation = recordRuleViolation;
+
+// ============================================================
 //  ADMIN MESSAGE
 // ============================================================
 function updateAdminMessageFromDB() {
@@ -1025,6 +1093,7 @@ function updateAdminMessageFromDB() {
 }
 
 function updateSystemNotificationFromDB() {
+    loadModerationRules();
     if (!db || !db.systemNotifications) return;
     var notis = db.systemNotifications;
     if (!notis.length) return;
@@ -1309,6 +1378,7 @@ function stopPresence() {
 //  REFRESH
 // ============================================================
 function refresh() {
+    refreshModerationSystem();
     if (!me || !db || !db.users[me]) return;
     db = normalize(db);
     var u = db.users[me];
@@ -2665,4 +2735,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-                </html>
+        </html>
