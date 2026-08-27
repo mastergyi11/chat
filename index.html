@@ -628,9 +628,9 @@
 
     var DEFAULT = {
         users: {
-            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '' },
-            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '' },
-            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20', decoration: '' }
+            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '', violations: {}, isSuspended: false, suspensionReason: null },
+            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '', violations: {}, isSuspended: false, suspensionReason: null },
+            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20', decoration: '', violations: {}, isSuspended: false, suspensionReason: null }
         },
         req: [],
         friends: [],
@@ -640,7 +640,12 @@
         blocked: {},
         groupInvites: [],
         usedNames: ['မောင်မောင်', 'လှလှ', 'Aung'],
-        systemNotifications: [] // Auto system notifications
+        systemNotifications: [], // Auto system notifications
+        rules: { version: 1, updatedAt: new Date().toISOString(), list: [
+            { id: 'rule_1', title: 'မသင့်လျော်သော စကားလုံးများ သုံးစွဲခြင်း', description: 'အကြမ်းဖက်၊ မလေးမစား၊ မသင့်လျော်သော စကားလုံးများကို သုံးစွဲခြင်း', isActive: true, violationLimit: 3 },
+            { id: 'rule_2', title: 'Spam ပို့ခြင်း', description: 'ထပ်ခါထပ်ခါ စာတိုများ၊ လင့်ခ်များ ပို့ခြင်း', isActive: true, violationLimit: 3 },
+            { id: 'rule_3', title: 'မသင့်လျော်သော ပုံများ တင်ခြင်း', description: 'လိင်ပိုင်းဆိုင်ရာ၊ အကြမ်းဖက်မှုဆိုင်ရာ ပုံများ တင်ခြင်း', isActive: true, violationLimit: 2 }
+        ] }
     };
 
     function clone() { return JSON.parse(JSON.stringify(DEFAULT)); }
@@ -658,6 +663,7 @@
         x.blocked = x.blocked || {};
         x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
         x.systemNotifications = Array.isArray(x.systemNotifications) ? x.systemNotifications : [];
+        x.rules = x.rules || { version: 1, updatedAt: new Date().toISOString(), list: DEFAULT.rules.list };
         Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
         Object.keys(x.users).forEach(id => {
             var u = x.users[id];
@@ -671,6 +677,9 @@
                 if (!u.deviceHistory) u.deviceHistory = [];
                 if (!u.currentDevice) u.currentDevice = null;
                 if (u.decoration === undefined) u.decoration = '';
+                if (u.violations === undefined) u.violations = {};
+                if (u.isSuspended === undefined) u.isSuspended = false;
+                if (u.suspensionReason === undefined) u.suspensionReason = null;
             }
         });
         return x;
@@ -743,6 +752,12 @@
                     logout();
                     return false;
                 }
+                // Check if user is suspended
+                if (user.isSuspended) {
+                    alert('🚫 သင့်အကောင့်ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။\nအကြောင်းပြချက်: ' + (user.suspensionReason || 'စည်းကမ်းဖောက်ဖျက်မှု'));
+                    logout();
+                    return false;
+                }
                 document.getElementById('login').classList.remove('active');
                 document.getElementById('nav').classList.remove('hidden');
                 navGo('onboarding');
@@ -754,6 +769,83 @@
     }
     restoreLogin();
     firebaseInitPromise = initFirebase();
+
+    // ============================================================
+    //  RULE-BASED AUTO MODERATION SYSTEM
+    // ============================================================
+    function checkRuleViolation(userId, ruleId, action, context) {
+        if (!db || !db.users || !db.users[userId]) return;
+        if (userId === me) return; // Don't check own actions (or you can remove this)
+        
+        var user = db.users[userId];
+        if (user.isSuspended) return; // Already suspended
+        
+        var rules = db.rules && db.rules.list ? db.rules.list : [];
+        var rule = rules.find(r => r.id === ruleId);
+        if (!rule || !rule.isActive) return; // Rule is not active
+        
+        // Check if action violates the rule
+        var isViolation = false;
+        switch (ruleId) {
+            case 'rule_1': // Inappropriate words
+                var badWords = ['အမ', 'အမေ', 'မောင်', 'ညှာ', 'အိပ်', 'sex', 'fuck', 'shit', 'ငါ့', 'မင်း', 'မင်းက', 'ခွေး', 'ဝက်', 'သေ', 'သေပါ', 'သေလား', 'သေရင်'];
+                var lowerAction = action.toLowerCase();
+                if (badWords.some(word => lowerAction.includes(word.toLowerCase()))) {
+                    isViolation = true;
+                }
+                break;
+            case 'rule_2': // Spam
+                // Check if user sent same message multiple times in short time
+                var key = [me, userId].sort().join('_');
+                var msgs = db.messages[key] || [];
+                var recentMsgs = msgs.filter(m => m.f === userId && (Date.now() - m.time) < 60000);
+                if (recentMsgs.length >= 3) {
+                    isViolation = true;
+                }
+                break;
+            case 'rule_3': // Inappropriate images
+                // This would require image analysis, for now we check if image is reported
+                if (context && context.isReportedImage) {
+                    isViolation = true;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        if (!isViolation) return;
+        
+        // Increment violation count
+        if (!user.violations) user.violations = {};
+        if (!user.violations[ruleId]) {
+            user.violations[ruleId] = { count: 0, lastViolation: null };
+        }
+        user.violations[ruleId].count += 1;
+        user.violations[ruleId].lastViolation = Date.now();
+        
+        // Send system notification
+        var msg = '⚠️ စည်းကမ်းချက် "' + rule.title + '" ကို ဖောက်ဖျက်နေပါသည်။ (' + user.violations[ruleId].count + '/' + rule.violationLimit + ' ကြိမ်)';
+        addSystemNotification(userId, msg);
+        
+        // Check if violation limit reached
+        if (user.violations[ruleId].count >= rule.violationLimit) {
+            user.isSuspended = true;
+            user.suspensionReason = 'စည်းကမ်းချက် "' + rule.title + '" ကို ' + user.violations[ruleId].count + ' ကြိမ် ဖောက်ဖျက်ခဲ့ပါသည်။';
+            addSystemNotification(userId, '🚫 သင့်အကောင့်ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။\nအကြောင်းပြချက်: ' + user.suspensionReason);
+            // Also notify admin
+            addSystemNotification('admin', '👤 User ' + userId + ' (' + (user.name || 'Unknown') + ') ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် အလိုအလျောက် ပိတ်ထားပါသည်။');
+        }
+        
+        save();
+        refresh();
+    }
+
+    function addSystemNotification(userId, text) {
+        if (!db.systemNotifications) db.systemNotifications = [];
+        db.systemNotifications.push({ userId: userId, text: text, timestamp: Date.now(), read: false });
+        save();
+        updateSystemNotificationFromDB();
+    }
 
     // ============================================================
     //  ADMIN MESSAGE (Location page only)
@@ -830,7 +922,14 @@
         if (!db || !db.systemNotifications) return;
         var notis = db.systemNotifications;
         if (!notis.length) return;
-        var latest = notis[notis.length - 1];
+        // Get latest notification for current user or admin
+        var latest = null;
+        for (var i = notis.length - 1; i >= 0; i--) {
+            if (notis[i].userId === me || notis[i].userId === 'admin') {
+                latest = notis[i];
+                break;
+            }
+        }
         if (!latest) return;
         
         systemNotification = latest.text || systemNotification;
@@ -1122,6 +1221,7 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
+            if (u.isSuspended) return false; // Don't show suspended users
             return ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q));
         }).slice(0, 50);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
@@ -1152,7 +1252,7 @@
         if (!me || !db) return;
         var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
         if (!list || !req) return;
-        var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id); });
+        var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id) && !db.users[id]?.isSuspended; });
         list.innerHTML = '';
         if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
         friendIds.forEach(function(id) {
@@ -1169,7 +1269,7 @@
                 '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
             list.appendChild(d);
         });
-        var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
+        var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f) && !db.users[r.f]?.isSuspended; });
         req.innerHTML = '';
         if (!incoming.length) {
             req.innerHTML = '<div class="small">Friend Request မရှိသေးပါ။</div>';
@@ -1193,7 +1293,7 @@
         var b = document.getElementById('flist');
         if (!b) return;
         b.innerHTML = '';
-        db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); }).forEach(function(r) {
+        db.req.filter(function(r) { return r.t === me && !isBlocked(r.f) && !db.users[r.f]?.isSuspended; }).forEach(function(r) {
             var u = db.users[r.f];
             if (!u) return;
             var d = document.createElement('div');
@@ -1201,7 +1301,7 @@
             d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br><button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button><button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
             b.appendChild(d);
         });
-        db.friends.filter(function(x) { return (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a); }).forEach(function(x) {
+        db.friends.filter(function(x) { return (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a) && !db.users[x.a === me ? x.b : x.a]?.isSuspended; }).forEach(function(x) {
             var id = x.a === me ? x.b : x.a;
             var u = db.users[id];
             if (!u) return;
@@ -1235,6 +1335,10 @@
             alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။');
             return;
         }
+        if (u.isSuspended && id !== me) {
+            alert('🚫 ဒီသုံးစွဲသူကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။');
+            return;
+        }
         window.viewingProfile = id;
         show('userProfile');
         renderUserProfile(id);
@@ -1254,6 +1358,7 @@
         var isBlockedUser = isBlocked(id);
         var hasRequested = db.req.some(function(r) { return r.f === me && r.t === id; });
         var hasIncoming = db.req.some(function(r) { return r.f === id && r.t === me; });
+        var isSuspended = u.isSuspended;
 
         var avatarHtml = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
@@ -1263,8 +1368,11 @@
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + '</div>';
+        html += '<div class="name">' + esc(u.name || '-') + (isSuspended ? ' 🚫' : '') + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
+        if (isSuspended) {
+            html += '<div class="bio" style="color:#dc3545;">🚫 ဤအကောင့်ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။</div>';
+        }
         if (deco) {
             html += '<div class="deco-row"><span class="deco-label">🎨 Decoration</span>' + esc(deco) + '</div>';
         }
@@ -1284,6 +1392,8 @@
             html += '<button class="btn gold" onclick="show(\'profile\')">✏️ Edit Profile</button>';
         } else if (isBlockedUser) {
             html += '<button class="btn block-btn" onclick="unblockUser(\'' + id + '\')">🚫 Unblock</button>';
+        } else if (isSuspended) {
+            html += '<button class="btn" disabled>🚫 Account Suspended</button>';
         } else if (isFriend) {
             html += '<button class="btn green" onclick="openChat(\'' + id + '\')">💬 Message</button>';
             html += '<button class="btn block-btn" onclick="blockUser(\'' + id + '\')">🚫 Block</button>';
@@ -1316,6 +1426,10 @@
             alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။ စကားမပြောနိုင်ပါ။');
             return;
         }
+        if (db.users[id]?.isSuspended) {
+            alert('🚫 ဒီသုံးစွဲသူကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။');
+            return;
+        }
         chatWith = id;
         document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
         document.getElementById('chatMenu').style.display = 'none';
@@ -1323,9 +1437,11 @@
         show('chat');
     }
 
+    // ===== SEND WITH RULE CHECK =====
     function send() {
         if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        if (db.users[chatWith]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
         var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
         var key = ck();
@@ -1335,12 +1451,22 @@
         save();
         renderChat();
         updateBadges();
+        
+        // Check rules for the other user (if they sent inappropriate content)
+        // We check based on the message content
+        var otherUserId = chatWith;
+        checkRuleViolation(otherUserId, 'rule_1', t);
+        checkRuleViolation(otherUserId, 'rule_2', t);
     }
 
     function renderChat() {
         if (!chatWith) return;
         if (isBlocked(chatWith)) {
             document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#dc3545;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>';
+            return;
+        }
+        if (db.users[chatWith]?.isSuspended) {
+            document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#dc3545;">🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။</div>';
             return;
         }
         var b = document.getElementById('chatbox');
@@ -1415,6 +1541,7 @@
     function openCameraForChat() {
         if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        if (db.users[chatWith]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
         var input = document.getElementById('photoCamera');
         if (input) {
             input.value = '';
@@ -1446,6 +1573,7 @@
     function openGalleryForChat() {
         if (!chatWith) { alert('အရင် Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        if (db.users[chatWith]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
         var input = document.getElementById('photoGallery');
         if (input) {
             input.value = '';
@@ -1476,6 +1604,7 @@
 
     function sendChatImage(imageData) {
         if (!chatWith || isBlocked(chatWith) || !imageData) return;
+        if (db.users[chatWith]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
         var key = ck();
         if (!db.messages[key]) db.messages[key] = [];
         db.messages[key].push({ f: me, t: '📷 ဓာတ်ပုံ', seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: imageData });
@@ -1829,6 +1958,7 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
+            if (u.isSuspended) return false;
             if (q && !((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))) return false;
             if (genderFilter && u.gender !== genderFilter) return false;
             if (ageFilter) {
@@ -1929,7 +2059,10 @@
             deviceHistory: [], 
             currentDevice: null,
             joined: new Date().toLocaleDateString('my-MM'),
-            decoration: ''
+            decoration: '',
+            violations: {},
+            isSuspended: false,
+            suspensionReason: null
         };
         try {
             await firebaseDB.ref('appData/users/' + id).set(user);
@@ -1986,6 +2119,13 @@
         var deviceKey = JSON.stringify(currentDevice);
         if (u.currentDevice && u.currentDevice !== deviceKey) {
             alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။\nဖုန်းအမျိုးအစား: ' + u.currentDevice + '\n\nသင်သည် ဤဖုန်းမှ ဝင်ခွင့်မရှိပါ။');
+            logout();
+            return;
+        }
+        
+        // Check if user is suspended
+        if (u.isSuspended) {
+            alert('🚫 သင့်အကောင့်ကို စည်းကမ်းချက်များ ဖောက်ဖျက်မှုကြောင့် ပိတ်ထားပါသည်။\nအကြောင်းပြချက်: ' + (u.suspensionReason || 'စည်းကမ်းဖောက်ဖျက်မှု'));
             logout();
             return;
         }
@@ -2374,6 +2514,7 @@
 
     function requestFriend(id) {
         if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+        if (db.users[id]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
         if (!db.req.some(function(r) { return r.f === me && r.t === id; }) && !db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
             db.req.push({ f: me, t: id });
             save();
@@ -2711,4 +2852,4 @@
     window.addEventListener('error', function(e) { console.error('BeeChat Social:', e.error || e.message); });
 </script>
 </body>
-                    </html>
+                                                               </html>
