@@ -203,13 +203,10 @@
         .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
         /* Onboarding search result with gender/age */
         .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
-        /* Sticker section in profile */
-        .sticker-section { padding: 10px 16px; border-bottom: 1px solid #eee; }
-        .sticker-section .sticker-grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
-        .sticker-section .sticker-grid .sticker-btn { font-size: 28px; padding: 4px 8px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff; transition: all 0.2s; }
-        .sticker-section .sticker-grid .sticker-btn:hover { border-color: #e7ad21; transform: scale(1.1); }
-        .sticker-section .sticker-grid .sticker-btn.selected { border-color: #e7ad21; background: #fff8e1; }
-        .sticker-section .current-sticker-display { text-align: center; font-size: 48px; padding: 8px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
+        /* Decoration textarea in profile - above region */
+        .profile-decoration { padding: 10px 16px; border-bottom: 1px solid #eee; background: #fafafa; }
+        .profile-decoration label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+        .profile-decoration textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 8px; font-size: 14px; resize: vertical; min-height: 60px; background: #fff; color: #222; }
         /* Profile nav button slight right shift */
         #navProfile { margin-left: 4px; }
     </style>
@@ -250,7 +247,7 @@
     <!-- ONBOARDING (Location + Search) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <!-- System Message Box like screenshot 2 -->
+            <!-- System Message Box -->
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
@@ -259,7 +256,6 @@
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
             
-            <!-- Filter Section: Gender + Age -->
             <div class="filter-section">
                 <select id="filterGender" onchange="searchOnboardUsers()" style="flex:1;">
                     <option value="">ကျား/မ အားလုံး</option>
@@ -330,28 +326,10 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
-            <!-- Sticker Section -->
-            <div class="sticker-section">
-                <div class="current-sticker-display" id="currentStickerDisplay">😊</div>
-                <div style="font-size:12px;color:#777;text-align:center;margin-bottom:4px;">သင့်စတစ်ကာကို ရွေးပါ (သိမ်းရန် အောက်ဆုံးခလုပ်)</div>
-                <div class="sticker-grid" id="stickerGrid">
-                    <button class="sticker-btn" onclick="selectSticker('😊')">😊</button>
-                    <button class="sticker-btn" onclick="selectSticker('❤️')">❤️</button>
-                    <button class="sticker-btn" onclick="selectSticker('😂')">😂</button>
-                    <button class="sticker-btn" onclick="selectSticker('😍')">😍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤩')">🤩</button>
-                    <button class="sticker-btn" onclick="selectSticker('😘')">😘</button>
-                    <button class="sticker-btn" onclick="selectSticker('🥰')">🥰</button>
-                    <button class="sticker-btn" onclick="selectSticker('😁')">😁</button>
-                    <button class="sticker-btn" onclick="selectSticker('🙏')">🙏</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤗')">🤗</button>
-                    <button class="sticker-btn" onclick="selectSticker('👍')">👍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🔥')">🔥</button>
-                    <button class="sticker-btn" onclick="selectSticker('💯')">💯</button>
-                    <button class="sticker-btn" onclick="selectSticker('⭐')">⭐</button>
-                    <button class="sticker-btn" onclick="selectSticker('✨')">✨</button>
-                    <button class="sticker-btn" onclick="selectSticker('💪')">💪</button>
-                </div>
+            <!-- Decoration Textarea - above Region (user can write anything) -->
+            <div class="profile-decoration">
+                <label>🎨 အလှဆင်ရန် စာသား (သင်ကြိုက်နှစ်သက်ရာ ရေးပါ)</label>
+                <textarea id="profileDecoration" placeholder="ဥပမာ - ❤️ ပျော်ရွှင်စရာနေ့လေး... or သင့်စတစ်ကာ... or ကိုယ်ပိုင်စာသား..."></textarea>
             </div>
             
             <div class="profile-gallery-wrap">
@@ -474,19 +452,19 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX (Chats) with System Message like screenshot 2 -->
+    <!-- INBOX (Chats) with System Message -->
     <section id="inbox" class="screen">
-        <!-- System Message Box like screenshot 2 -->
+        <!-- System Message Box - "System Notifications" title -->
         <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
-            <span class="sys-title">📢 Bee Chat Admin</span>
+            <span class="sys-title">📢 System Notifications</span>
             <span class="sys-time" id="sysTimeDisplayInbox"></span>
-            <div id="systemMsgContentInbox" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
+            <div id="systemMsgContentInbox" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
         </div>
         <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
-    <!-- CHAT (with Send button always visible and delete message) -->
+    <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -610,10 +588,9 @@
     var chatMenuVisible = false;
     var tempGroupAvatar = null;
     var tempProfileGroupAvatar = null;
-    var selectedSticker = '😊';
     
-    // System message like screenshot 2
-    var systemMessage = 'ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!';
+    // System message
+    var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat အသုံးပြုမှုအတွက် အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။';
     var systemMessageTime = Date.now();
 
     var deviceInfo = {};
@@ -641,9 +618,9 @@
 
     var DEFAULT = {
         users: {
-            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', sticker: '😊' },
-            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', sticker: '❤️' },
-            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20', sticker: '😊' }
+            U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '' },
+            U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '' },
+            U10003: { id: 'U10003', name: 'Aung', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1992-08-20', decoration: '' }
         },
         req: [],
         friends: [],
@@ -681,7 +658,7 @@
                 if (u.region === undefined) u.region = '';
                 if (!u.deviceHistory) u.deviceHistory = [];
                 if (!u.currentDevice) u.currentDevice = null;
-                if (u.sticker === undefined) u.sticker = '😊';
+                if (u.decoration === undefined) u.decoration = '';
             }
         });
         return x;
@@ -854,30 +831,10 @@
         if (timeEl2) timeEl2.textContent = displayTime;
     }
 
-    // Admin can call this from console: setSystemMessage("Hello", Date.now())
     window.setSystemMessage = function(msg, time) {
         updateSystemMessage(msg, time);
         save();
     };
-
-    // ===== STICKER FUNCTIONS =====
-    function selectSticker(sticker) {
-        selectedSticker = sticker;
-        // Update display
-        var display = document.getElementById('currentStickerDisplay');
-        if (display) display.textContent = sticker;
-        // Highlight selected
-        document.querySelectorAll('.sticker-btn').forEach(function(btn) {
-            btn.classList.toggle('selected', btn.textContent === sticker);
-        });
-    }
-
-    function saveStickerToProfile() {
-        if (!me || !db.users[me]) return;
-        db.users[me].sticker = selectedSticker;
-        save();
-        alert('✅ စတစ်ကာကို သိမ်းပြီးပါပြီ!');
-    }
 
     // ===== DELETE MESSAGE FUNCTIONS =====
     function deleteMessage(chatKey, msgIndex) {
@@ -885,7 +842,6 @@
         if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
         var msgs = db.messages[chatKey] || [];
         if (msgIndex >= 0 && msgIndex < msgs.length) {
-            // Only allow deleting own messages or group messages (for group, we handle separately)
             if (msgs[msgIndex].f === me) {
                 msgs.splice(msgIndex, 1);
                 db.messages[chatKey] = msgs;
@@ -1088,9 +1044,10 @@
             var age = calcAge(u.dob);
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
+            var deco = u.decoration && u.decoration.trim() ? ' ✨' + esc(u.decoration) : '';
             d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
                 avatarHtml +
-                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span>' +
+                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + deco + '</span>' +
                 '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' +
                 '</div>'+
                 '</div><br>' + action;
@@ -1208,11 +1165,11 @@
         var regionText = u.region && u.region.trim() ? u.region : 'မရှိသေး';
         var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
         var age = calcAge(u.dob);
-        var sticker = u.sticker || '😊';
+        var deco = u.decoration && u.decoration.trim() ? u.decoration : '';
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + ' <span style="font-size:28px;">' + sticker + '</span></div>';
+        html += '<div class="name">' + esc(u.name || '-') + (deco ? ' <span style="font-size:16px;color:#888;">' + esc(deco) + '</span>' : '') + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
         html += '<div class="stats">' +
@@ -1224,6 +1181,9 @@
         html += '<div class="info-row"><span class="label">⚧️ Gender</span><span class="value">' + genderIcon + ' ' + (u.gender || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">🎂 Age</span><span class="value">' + (age || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
+        if (deco) {
+            html += '<div class="info-row"><span class="label">🎨 Decoration</span><span class="value">' + esc(deco) + '</span></div>';
+        }
         
         html += '<div class="actions">';
         if (isMe) {
@@ -1332,7 +1292,6 @@
             bubbleDiv.appendChild(seenSpan);
             d.appendChild(avatarDiv);
             d.appendChild(bubbleDiv);
-            // Delete button for own messages
             if (isMe) {
                 var delBtn = document.createElement('button');
                 delBtn.className = 'delete-msg-btn';
@@ -1451,20 +1410,9 @@
         if (id === 'groupDetail') renderGroupDetail();
         if (id === 'groupSearch') renderAllGroups();
         if (id === 'myGroups') renderMyGroups();
-        if (id === 'profile') { renderProfileCreateGroup(); renderSticker(); }
+        if (id === 'profile') renderProfileCreateGroup();
         if (id === 'userProfile') renderUserProfile(window.viewingProfile);
         if (id === 'onboarding') updateSystemMessage(systemMessage, systemMessageTime);
-    }
-
-    function renderSticker() {
-        if (!me || !db.users[me]) return;
-        var sticker = db.users[me].sticker || '😊';
-        selectedSticker = sticker;
-        var display = document.getElementById('currentStickerDisplay');
-        if (display) display.textContent = sticker;
-        document.querySelectorAll('.sticker-btn').forEach(function(btn) {
-            btn.classList.toggle('selected', btn.textContent === sticker);
-        });
     }
 
     function refresh() {
@@ -1475,7 +1423,7 @@
         u.dob = u.dob || '';
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
-        if (u.sticker === undefined) u.sticker = '😊';
+        if (u.decoration === undefined) u.decoration = '';
         document.getElementById('head').textContent = u.name;
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
@@ -1501,6 +1449,8 @@
         if (age) age.textContent = calcAge(u.dob) || '-';
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; }
+        var decoTextarea = document.getElementById('profileDecoration');
+        if (decoTextarea) decoTextarea.value = u.decoration || '';
         var fc = document.getElementById('followersCount');
         if (fc) fc.textContent = db.req.filter(function(r) { return r.t === me; }).length + db.friends.filter(function(x) { return x.a === me || x.b === me; }).length;
         var fwc = document.getElementById('followingCount');
@@ -1517,7 +1467,6 @@
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
-        renderSticker();
         updateBadges();
         
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
@@ -1805,6 +1754,7 @@
             var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
             var age = calcAge(u.dob);
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
+            var deco = u.decoration && u.decoration.trim() ? ' ✨' + esc(u.decoration) : '';
             var friend = db.friends.some(function(x) { return (x.a === me && x.b === u.id) || (x.a === u.id && x.b === me); });
             var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
@@ -1819,7 +1769,7 @@
                 '<div class="info">'+
                     '<div class="name">'+esc(u.name)+'</div>'+
                     '<div class="id">ID: '+esc(u.id)+'</div>'+
-                    '<div class="gender-age">'+genderIcon+' '+ (u.gender||'မသိ') + (age ? ' • အသက် '+age : '') + (regionText ? ' • '+regionText : '') + '</div>'+
+                    '<div class="gender-age">'+genderIcon+' '+ (u.gender||'မသိ') + (age ? ' • အသက် '+age : '') + (regionText ? ' • '+regionText : '') + deco + '</div>'+
                 '</div>'+
                 '<div class="actions">'+
                     '<button class="btn small" onclick="event.stopPropagation();viewUserProfile(\''+u.id+'\')">👤 Profile</button>'+
@@ -1881,7 +1831,7 @@
             deviceHistory: [], 
             currentDevice: null,
             joined: new Date().toLocaleDateString('my-MM'),
-            sticker: '😊'
+            decoration: ''
         };
         try {
             await firebaseDB.ref('appData/users/' + id).set(user);
@@ -2099,12 +2049,15 @@
         u.gender = val('profileGender') || '';
         u.accountName = u.accountName || name;
         
-        // Save sticker
-        u.sticker = selectedSticker;
+        // Save decoration
+        var decoTextarea = document.getElementById('profileDecoration');
+        if (decoTextarea) {
+            u.decoration = decoTextarea.value.trim();
+        }
         
         save();
         refresh();
-        alert('✅ Profile နှင့် စတစ်ကာကို သိမ်းပြီးပါပြီ');
+        alert('✅ Profile ကို သိမ်းပြီးပါပြီ');
     }
 
     var photoSlot = 0;
@@ -2284,7 +2237,8 @@
                 var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
                 var age = calcAge(u.dob);
                 var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
-                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' +
+                var deco = u.decoration && u.decoration.trim() ? ' ✨' + esc(u.decoration) : '';
+                d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b>' + deco + '<div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' +
                     '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' + 
                     (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
@@ -2660,4 +2614,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+</html>
