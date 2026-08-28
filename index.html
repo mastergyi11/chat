@@ -2087,10 +2087,17 @@ function renderInbox() {
             '<button class="btn red" onclick="decline(\'' + u.id + '\');renderInbox()">ငြင်း</button>';
         req.appendChild(d);
     });
+    // Group join requests: show each pending request only once.
+    var seenGroupRequests = {};
     var groupReqs = (db.groupJoinRequests || []).filter(function(r){
         if (!r || r.status !== 'pending') return false;
         var g = db.groups.find(function(x){ return x && x.id === r.groupId; });
-        return g && (g.owner === me || (Array.isArray(g.admins) && g.admins.includes(me)));
+        if (!g || !(g.owner === me || (Array.isArray(g.admins) && g.admins.includes(me)))) return false;
+        // One visible request per requester + group, even if duplicate records exist.
+        var uniqueKey = String(r.groupId) + '::' + String(r.from);
+        if (seenGroupRequests[uniqueKey]) return false;
+        seenGroupRequests[uniqueKey] = true;
+        return true;
     });
     if (groupReqs.length) {
         var groupCard = document.createElement('div');
