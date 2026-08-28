@@ -256,6 +256,10 @@
         .user-profile-card .info-row .value { font-weight: 500; }
         .user-profile-card .deco-row { padding: 6px 0; font-size: 16px; color: #555; border-bottom: 1px solid #f5f5f5; }
         .user-profile-card .deco-row .deco-label { font-size: 12px; color: #999; display: block; }
+        .user-profile-card .user-groups-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; text-align: left; }
+        .user-profile-card .user-groups-section .group-chip { display: inline-block; background: #e9ecef; padding: 4px 14px; border-radius: 20px; margin: 4px; font-size: 12px; color: #333; cursor: pointer; }
+        body.dark-mode .user-profile-card .user-groups-section .group-chip { background: #0f3460; color: #eee; }
+        .user-profile-card .user-groups-section .group-chip:hover { background: #e7ad21; }
         .chat-header-actions { display: flex; align-items: center; gap: 6px; }
         .chat-header-actions button { background: transparent; border: 0; color: #222; font-size: 20px; cursor: pointer; padding: 4px; }
         #chatMenu { display: none; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 0; margin: 6px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
@@ -280,6 +284,10 @@
         .toggle.on::after { left: 25px; }
         .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
+        .chat-friend-name { cursor: pointer; color: #0d6efd; font-weight: 600; }
+        .chat-friend-name:hover { text-decoration: underline; }
+        .inbox-chat-name { cursor: pointer; color: #0d6efd; font-weight: 600; }
+        .inbox-chat-name:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -734,22 +742,25 @@ var DEFAULT = {
     users: {
         U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Yangon', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-01', accountName: 'မောင်မောင်' },
         U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Mandalay', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-15', accountName: 'လှလှ' },
-        koseinmyint11221001: { id: 'koseinmyint11221001', name: 'koseinmyint1122', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Bago Region, Myanmar', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1995-08-21', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-20', accountName: 'koseinmyint1122' }
+        koseinmyint11221001: { id: 'koseinmyint11221001', name: 'koseinmyint1122', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Bago Region, Myanmar', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1995-08-21', decoration: '', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-20', accountName: 'koseinmyint1122' },
+        myatmyat1001: { id: 'myatmyat1001', name: 'myatmyat', bio: 'မင်္ဂလာပါ', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: 'Yangon', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '2000-03-10', decoration: '🌸 ပျော်ရွှင်စရာနေ့လေး', violations: {}, isSuspended: false, suspensionReason: null, joined: '2024-01-20', accountName: 'myatmyat' }
     },
     req: [],
     friends: [
         { a: 'U10001', b: 'U10002' },
-        { a: 'U10001', b: 'koseinmyint11221001' }
+        { a: 'U10001', b: 'koseinmyint11221001' },
+        { a: 'U10001', b: 'myatmyat1001' }
     ],
     messages: {},
     groups: [
         { id: 'G1001', name: 'ပျော်ရွှင်စရာအသင်း', owner: 'U10001', members: ['U10001', 'U10002', 'koseinmyint11221001'], level: 1, activity: 10, avatar: null, memberRanks: {}, memberActivity: {} },
-        { id: 'G1002', name: 'သူငယ်ချင်းများအသင်း', owner: 'U10002', members: ['U10002', 'U10001'], level: 1, activity: 5, avatar: null, memberRanks: {}, memberActivity: {} }
+        { id: 'G1002', name: 'သူငယ်ချင်းများအသင်း', owner: 'U10002', members: ['U10002', 'U10001'], level: 1, activity: 5, avatar: null, memberRanks: {}, memberActivity: {} },
+        { id: 'G1003', name: 'မြတ်မြတ်အသင်း', owner: 'myatmyat1001', members: ['myatmyat1001', 'U10001'], level: 1, activity: 3, avatar: null, memberRanks: {}, memberActivity: {} }
     ],
     groupMessages: {},
     blocked: {},
     groupInvites: [],
-    usedNames: ['မောင်မောင်', 'လှလှ', 'koseinmyint1122'],
+    usedNames: ['မောင်မောင်', 'လှလှ', 'koseinmyint1122', 'myatmyat'],
     systemNotifications: [],
     rules: { version: 1, updatedAt: new Date().toISOString(), list: [] },
     adminMessages: {}
@@ -1069,7 +1080,6 @@ function refreshModerationSystem() {
     }
 }
 
-// Called by chat/report moderation code when a verified rule violation is detected.
 window.recordRuleViolation = recordRuleViolation;
 
 // ============================================================
@@ -1696,7 +1706,7 @@ function friends() {
         d.onclick = function() { viewUserProfile(id); };
         d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' +
             '<div class="friend-info">' +
-                '<b>' + esc(u.name) + '</b>' +
+                '<b class="chat-friend-name" onclick="event.stopPropagation();viewUserProfile(\''+id+'\')">' + esc(u.name) + '</b>' +
                 '<div class="small">' + esc(u.id) + '</div>' +
                 regionText +
                 '<div class="friend-actions">' +
@@ -1811,6 +1821,10 @@ function renderUserProfile(id) {
     var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
     var age = calcAge(u.dob);
     var deco = u.decoration && u.decoration.trim() ? u.decoration : '';
+    
+    // Get user's groups
+    var userGroups = db.groups.filter(g => g.members && g.members.includes(id));
+    
     var html = '<div class="user-profile-card">';
     html += '<div class="avatar">' + avatarHtml + '</div>';
     html += '<div class="name">' + esc(u.name || '-') + (isSuspended ? ' 🚫' : '') + '</div>';
@@ -1820,12 +1834,33 @@ function renderUserProfile(id) {
     html += '<div class="bio">' + esc(u.bio || '') + '</div>';
     html += '<div class="stats">' +
         '<div><b>' + (db.friends.filter(x => x.a === id || x.b === id).length || 0) + '</b><span>Friends</span></div>' +
-        '<div><b>' + (db.groups.filter(g => g.members && g.members.includes(id)).length || 0) + '</b><span>Groups</span></div>' +
+        '<div><b>' + (userGroups.length || 0) + '</b><span>Groups</span></div>' +
         '</div>';
     html += '<div class="info-row"><span class="label">📍 Region</span><span class="value">' + regionText + '</span></div>';
     html += '<div class="info-row"><span class="label">⚧️ Gender</span><span class="value">' + genderIcon + ' ' + (u.gender || 'မသိ') + '</span></div>';
     html += '<div class="info-row"><span class="label">🎂 Age</span><span class="value">' + (age || 'မသိ') + '</span></div>';
     html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
+    
+    // Show user's groups with click to join/request
+    if (userGroups.length) {
+        html += '<div class="user-groups-section"><div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ:</div>';
+        userGroups.forEach(g => {
+            var isMember = g.members && g.members.includes(me);
+            var groupStatus = '';
+            if (isMe) {
+                groupStatus = ' (သင့်အသင်း)';
+            } else if (isMember) {
+                groupStatus = ' ✅ ပါဝင်ပြီး';
+            } else {
+                groupStatus = ' 👆 နှိပ်၍ဝင်ရန်';
+            }
+            html += '<span class="group-chip" onclick="requestJoinGroupFromProfile(\'' + g.id + '\', \'' + id + '\')">🏆 ' + esc(g.name) + groupStatus + '</span>';
+        });
+        html += '</div>';
+    } else {
+        html += '<div class="user-groups-section"><div class="small">📌 အသင်းမပါဝင်သေးပါ</div></div>';
+    }
+    
     html += '<div class="actions">';
     if (isMe) html += '<button class="btn gold" onclick="show(\'profile\')">✏️ Edit Profile</button>';
     else if (isBlockedUser) html += '<button class="btn block-btn" onclick="unblockUser(\'' + id + '\')">🚫 Unblock</button>';
@@ -1842,6 +1877,52 @@ function renderUserProfile(id) {
     box.innerHTML = html;
 }
 
+// Request to join a group from user profile
+function requestJoinGroupFromProfile(groupId, userId) {
+    if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
+    if (me === userId) { alert('သင့်ကိုယ်ပိုင်အသင်းပါ'); return; }
+    
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g) { alert('အသင်းမရှိပါ'); return; }
+    
+    // Check if already a member
+    if (g.members && g.members.includes(me)) {
+        alert('သင်သည် ဤအသင်းတွင် ပါဝင်ပြီးသားပါ။');
+        return;
+    }
+    
+    // Check if group is full
+    if (g.members && g.members.length >= 20) {
+        alert('အသင်းပြည့်နေပါပြီ။');
+        return;
+    }
+    
+    // Check if already invited
+    var existingInvite = db.groupInvites.some(i => i.groupId === g.id && i.to === me && i.status === 'pending');
+    if (existingInvite) {
+        alert('ဤအသင်းသို့ ဖိတ်ကြားချက် ပို့ထားပြီးသားပါ။');
+        return;
+    }
+    
+    // Request to join - send join request to group owner
+    if (confirm('"' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
+        // Send join request as a group invite from the user to the group owner
+        if (!db.groupInvites) db.groupInvites = [];
+        db.groupInvites.push({ 
+            id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7), 
+            groupId: g.id, 
+            from: me, 
+            to: g.owner, 
+            status: 'pending_join',
+            time: Date.now(),
+            message: me + ' သည် ' + g.name + ' အသင်းသို့ ဝင်ရောက်လိုပါသည်။'
+        });
+        save();
+        beeNotify('✅ ' + g.name + ' အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့ပြီးပါပြီ။');
+        renderUserProfile(userId);
+    }
+}
+
 function acceptFriendFromProfile(id) { accept(id); renderUserProfile(id); }
 function declineFriendFromProfile(id) { decline(id); renderUserProfile(id); }
 
@@ -1852,7 +1933,7 @@ function openChat(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (db.users[id]?.isSuspended) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     chatWith = id;
-    document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
+    document.getElementById('ctitle').innerHTML = '💬 <span class="chat-friend-name" onclick="viewUserProfile(\''+id+'\')" style="color:#0d6efd;cursor:pointer;">' + esc(db.users[id].name) + '</span>';
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
     show('chat');
@@ -1901,8 +1982,8 @@ function renderChat() {
         avatarDiv.onclick = function() { if (m.f && db.users[m.f]) viewUserProfile(m.f); };
         var bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
-        var nameSpan = document.createElement('div');
-        nameSpan.className = 'name';
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'name chat-friend-name';
         nameSpan.textContent = nameDisplay;
         nameSpan.onclick = function() { if (m.f && db.users[m.f]) viewUserProfile(m.f); };
         var textSpan = document.createElement('div');
@@ -1921,7 +2002,9 @@ function renderChat() {
         var seenSpan = document.createElement('div');
         seenSpan.className = 'seen';
         if (isMe) { seenSpan.textContent = m.seen ? '✓✓ Seen' : '✓ Delivered'; } else { m.seen = true; }
-        bubbleDiv.appendChild(nameSpan);
+        var nameContainer = document.createElement('div');
+        nameContainer.appendChild(nameSpan);
+        bubbleDiv.appendChild(nameContainer);
         bubbleDiv.appendChild(textSpan);
         bubbleDiv.appendChild(seenSpan);
         d.appendChild(avatarDiv);
@@ -2057,7 +2140,7 @@ function renderInbox() {
         var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
         d.innerHTML = '<div style="display:flex;align-items:center;cursor:pointer;" onclick="openChat(\''+id+'\')">'+
             avatarHtml +
-            '<div><b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div>'+
+            '<div><span class="inbox-chat-name" onclick="event.stopPropagation();viewUserProfile(\''+id+'\')"><b>' + esc(u.name) + '</b></span> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div>'+
             '</div>'+
             '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
         list.appendChild(d);
@@ -2070,7 +2153,7 @@ function renderInbox() {
         if (!u) return;
         var d = document.createElement('div');
         d.className = 'list';
-        d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' +
+        d.innerHTML = '<b class="chat-friend-name" onclick="viewUserProfile(\'' + u.id + '\')">' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br>' +
             '<button class="btn green" onclick="accept(\'' + u.id + '\');renderInbox()">လက်ခံ</button>' +
             '<button class="btn red" onclick="decline(\'' + u.id + '\');renderInbox()">ငြင်း</button>';
         req.appendChild(d);
@@ -2387,8 +2470,6 @@ function groups() {
     var owned = groupData.find(g => g && g.owner === me);
     if (createCard) createCard.style.display = owned ? 'none' : 'block';
 
-    // Older group-list UI is not present in the current HTML. Do not let
-    // a missing #glist element stop refresh(), profile, friends, or search.
     if (b) {
         b.innerHTML = '<h3>🏆 My Groups</h3>';
         groupData.filter(g => g && (g.owner === me || (g.members && g.members.includes(me)))).forEach(g => {
@@ -2750,6 +2831,7 @@ document.addEventListener('visibilitychange', function() {
 
 console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
+console.log('📌 Fixes: Chat names clickable, User groups visible in profile, Groups clickable to request join');
 </script>
 </body>
-    </html>
+        </html>
