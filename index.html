@@ -557,7 +557,7 @@
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="ctitle" style="margin:0;display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="openChatProfile()">💬 Chat</h3>
+                <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
                 <div class="chat-header-actions">
                     <button onclick="toggleChatMenu()" style="font-size:22px;">☰</button>
                 </div>
@@ -663,7 +663,6 @@ const firebaseConfig = {
 var firebaseAuth = null, firebaseDB = null, firebaseSDKReady = false;
 var KEY = 'beechat_social_v2';
 var me = null, chatWith = null, db = null, fbReady = false;
-function openChatProfile(){ if(chatWith){ renderUserProfile(chatWith); } }
 var presenceRef = null, locationWatchId = null;
 var firebaseInitPromise = null;
 var moderationRules = [];
@@ -1632,7 +1631,22 @@ function searchUsers() {
 // ============================================================
 //  FRIENDS
 // ============================================================
-function beeNotify(message) { var old=document.getElementById('beeNotifyBox'); if(old) old.remove(); var d=document.createElement('div'); d.id='beeNotifyBox'; d.style='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99999;background:#fff;border:1px solid #e7ad21;border-radius:16px;padding:18px 24px;box-shadow:0 8px 30px rgba(0,0,0,.18);text-align:center;min-width:240px;font-size:15px;'; d.innerHTML='<div style="font-size:30px;margin-bottom:8px;">🐝</div><div>'+esc(message)+'</div>'; document.body.appendChild(d); setTimeout(function(){if(d.parentNode)d.remove();},2200); }
+function beeNotify(msg){
+    var box=document.createElement('div');
+    box.style.position='fixed';
+    box.style.top='80px';
+    box.style.left='50%';
+    box.style.transform='translateX(-50%)';
+    box.style.background='#fff';
+    box.style.border='2px solid #e7ad21';
+    box.style.borderRadius='18px';
+    box.style.padding='14px 20px';
+    box.style.zIndex='99999';
+    box.style.boxShadow='0 4px 15px rgba(0,0,0,.2)';
+    box.innerHTML='🐝 BeeChat<br><span>'+msg+'</span>';
+    document.body.appendChild(box);
+    setTimeout(function(){box.remove();},2500);
+}
 
 function requestFriend(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
@@ -1838,10 +1852,7 @@ function openChat(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (db.users[id]?.isSuspended) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     chatWith = id;
-    var u = db.users[id] || {};
-    var avatar = u.photo || u.profilePhoto || '';
-    var img = avatar ? '<img src="'+avatar+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">' : '<span style="font-size:28px;">🐝</span>';
-    document.getElementById('ctitle').innerHTML = '<span style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="openChatProfile()">' + (u.photos && u.photos[0] ? '<img src="'+u.photos[0]+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">' : '<span style="width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#eee;font-size:18px;">👤</span>') + '<span>' + (u.name || 'User') + '</span></span>';
+    document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
     show('chat');
@@ -2741,4 +2752,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-                    </html>
+    </html>
