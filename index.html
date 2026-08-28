@@ -684,6 +684,22 @@
     else document.addEventListener('DOMContentLoaded',render,{once:true});
   }
   window.alert=showBeeAlert;
+function beeConfirm(message, onYes){
+  var old=document.getElementById('beeConfirmModal'); if(old) old.remove();
+  var m=document.createElement('div'); m.id='beeConfirmModal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999999;';
+  m.innerHTML='<div style="width:min(90%,360px);background:#fff;border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:system-ui;text-align:center"><div style="font-size:28px;margin-bottom:8px">🐝</div><div style="font-weight:800;font-size:17px;margin-bottom:18px;white-space:pre-line">'+String(message).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><div style="display:flex;gap:10px;justify-content:center"><button id="beeConfirmNo" style="flex:1;padding:11px;border:0;border-radius:12px;background:#eee">မလုပ်တော့ပါ</button><button id="beeConfirmYes" style="flex:1;padding:11px;border:0;border-radius:12px;background:#111;color:#fff">အတည်ပြုမည်</button></div></div>';
+  document.body.appendChild(m);
+  document.getElementById('beeConfirmNo').onclick=function(){m.remove();};
+  document.getElementById('beeConfirmYes').onclick=function(){m.remove(); if(typeof onYes==='function') onYes();};
+}
+function beePrompt(message,onDone){
+  var old=document.getElementById('beePromptModal'); if(old) old.remove();
+  var m=document.createElement('div'); m.id='beePromptModal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999999;';
+  m.innerHTML='<div style="width:min(90%,360px);background:#fff;border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:system-ui;text-align:center"><div style="font-size:28px;margin-bottom:8px">🐝</div><div style="font-weight:800;font-size:17px;margin-bottom:12px;white-space:pre-line">'+String(message).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><input id="beePromptInput" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:12px;margin-bottom:14px"><div style="display:flex;gap:10px"><button id="beePromptNo" style="flex:1;padding:11px;border:0;border-radius:12px;background:#eee">မလုပ်တော့ပါ</button><button id="beePromptYes" style="flex:1;padding:11px;border:0;border-radius:12px;background:#111;color:#fff">အတည်ပြုမည်</button></div></div>';
+  document.body.appendChild(m); document.getElementById('beePromptInput').focus();
+  document.getElementById('beePromptNo').onclick=function(){m.remove();};
+  document.getElementById('beePromptYes').onclick=function(){var v=document.getElementById('beePromptInput').value;m.remove();if(typeof onDone==='function')onDone(v);};
+}
 })();
 // ============================================================
 //  FIREBASE CONFIG
@@ -1203,50 +1219,49 @@ async function register() {
         alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
         return;
     }
-    var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
-    if (n === null) return;
-    var name = n.trim();
-    if (!name) { alert('အမည်ထည့်ပါ'); return; }
-    if (db.usedNames && db.usedNames.includes(name)) {
-        alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။');
-        return;
-    }
-    var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
-    if (p === null) return;
-    if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
-    var base = makeBaseName(name);
-    var num = 1;
-    var id = '';
-    do { id = base + (1000 + num); num++; } while (db.users[id]);
-    var user = { 
-        id: id, name: name, accountName: name, bio: '', dob: '', gender: '',
-        photos: [], photoLimit: 4, lat: null, lng: null, password: p,
-        region: '', adminPhotos: [], deviceHistory: [], currentDevice: null,
-        joined: new Date().toLocaleDateString('my-MM'), decoration: '',
-        violations: {}, isSuspended: false, suspensionReason: null
-    };
-    try {
-        await firebaseDB.ref('appData/users/' + id).set(user);
-        var verify = await firebaseDB.ref('appData/users/' + id).once('value');
-        if (!verify.exists()) throw new Error('Firebase account verification failed');
-        db.users[id] = user;
-        if (!db.usedNames) db.usedNames = [];
-        db.usedNames.push(name);
-        localSave();
-        me = id;
-        var device = getDeviceInfo();
-        db.users[me].currentDevice = JSON.stringify(device);
-        await save();
-        try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
-        alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id);
-        enter();
-        setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
-    } catch(e) {
-        console.error('Register:', e);
-        alert('❌ အကောင့်ဖွင့်မရပါ။');
-    }
+    beePrompt('အသုံးပြုမည့်အမည် ထည့်ပါ', function(n) {
+        var name = String(n || '').trim();
+        if (!name) { alert('အမည်ထည့်ပါ'); return; }
+        if (db.usedNames && db.usedNames.includes(name)) {
+            alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။');
+            return;
+        }
+        beePrompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)', async function(p) {
+            if (String(p || '').length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
+            var base = makeBaseName(name);
+            var num = 1;
+            var id = '';
+            do { id = base + (1000 + num); num++; } while (db.users[id]);
+            var user = {
+                id: id, name: name, accountName: name, bio: '', dob: '', gender: '',
+                photos: [], photoLimit: 4, lat: null, lng: null, password: p,
+                region: '', adminPhotos: [], deviceHistory: [], currentDevice: null,
+                joined: new Date().toLocaleDateString('my-MM'), decoration: '',
+                violations: {}, isSuspended: false, suspensionReason: null
+            };
+            try {
+                await firebaseDB.ref('appData/users/' + id).set(user);
+                var verify = await firebaseDB.ref('appData/users/' + id).once('value');
+                if (!verify.exists()) throw new Error('Firebase account verification failed');
+                db.users[id] = user;
+                if (!db.usedNames) db.usedNames = [];
+                db.usedNames.push(name);
+                localSave();
+                me = id;
+                var device = getDeviceInfo();
+                db.users[me].currentDevice = JSON.stringify(device);
+                await save();
+                try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
+                alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id);
+                enter();
+                setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
+            } catch(e) {
+                console.error('Register:', e);
+                alert('❌ အကောင့်ဖွင့်မရပါ။');
+            }
+        });
+    });
 }
-
 async function login() {
     if (firebaseInitPromise) await firebaseInitPromise;
     if (!db) { alert('ခဏစောင့်ပါ'); return; }
@@ -1715,7 +1730,7 @@ function unblockUser(userId) {
 function blockCurrentUser() {
     if (!chatWith) { alert('စကားပြောနေတဲ့သူမရှိပါ'); return; }
     if (isBlocked(chatWith)) { alert('ဒီသူကို ဘလော့လုပ်ထားပြီးသားပါ'); return; }
-    if (confirm('ဒီသုံးစွဲသူကို ဘလော့လုပ်မှာလား?')) blockUser(chatWith);
+    beeConfirm('ဒီသုံးစွဲသူကို ဘလော့လုပ်မှာလား?', function(){ blockUser(chatWith); });
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
 }
@@ -1929,7 +1944,7 @@ function renderChat() {
             delBtn.title = 'ဖျက်မည်';
             delBtn.onclick = function(e) {
                 e.stopPropagation();
-                if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+                beeConfirm('ဒီစာကို ဖျက်မှာလား?', function(){
                 var msgs2 = db.messages[key] || [];
                 if (idx >= 0 && idx < msgs2.length && msgs2[idx].f === me) {
                     msgs2.splice(idx, 1);
@@ -1937,6 +1952,7 @@ function renderChat() {
                     save();
                     renderChat();
                 }
+                });
             };
             d.appendChild(delBtn);
         }
@@ -2546,11 +2562,11 @@ function appointGroupAdminPrompt(groupId) {
     var candidates=(g.members||[]).filter(function(id){return id!==g.owner && !(Array.isArray(g.admins)&&g.admins.includes(id));});
     if(!candidates.length){alert('အုပ်ချုပ်သူခန့်ရန် အသင်းသားမရှိသေးပါ');return;}
     var msg='အုပ်ချုပ်သူခန့်မည့်သူကို ရွေးပါ:\n'; candidates.forEach(function(id,i){var u=db.users[id];if(u)msg+=(i+1)+'. '+u.name+' ('+id+')\n';});
-    var c=prompt(msg); if(c===null)return; var idx=parseInt(c)-1; if(idx<0||idx>=candidates.length){alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ');return;} appointGroupAdmin(groupId,candidates[idx]);
+    beePrompt(msg, function(c){ var idx=parseInt(c)-1; if(idx<0||idx>=candidates.length){alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ');return;} appointGroupAdmin(groupId,candidates[idx]); });
 }
 function appointGroupAdmin(groupId,userId){var g=db.groups.find(function(x){return x&&x.id===groupId;});if(!g||g.owner!==me){alert('ပါမောခသာ ခန့်နိုင်ပါတယ်');return;}if(!g.members||!g.members.includes(userId)){alert('အသင်းသားမဟုတ်ပါ');return;}g.admins=Array.isArray(g.admins)?g.admins:[];if(!g.admins.includes(userId))g.admins.push(userId);save();alert('✅ အုပ်ချုပ်သူခန့်ပြီးပါပြီ');renderGroupDetail();}
-function demoteGroupAdmin(groupId,userId){var g=db.groups.find(function(x){return x&&x.id===groupId;});if(!g||g.owner!==me){alert('ပါမောခသာ အုပ်ချုပ်သူကို ပြောင်းလဲနိုင်ပါတယ်');return;}g.admins=Array.isArray(g.admins)?g.admins:[];if(!g.admins.includes(userId))return;if(confirm('ဒီအုပ်ချုပ်သူကို အသင်းသားအဖြစ် ပြောင်းမှာလား?')){g.admins=g.admins.filter(function(id){return id!==userId;});save();alert('✅ အုပ်ချုပ်သူကို အသင်းသားအဖြစ် ပြောင်းပြီးပါပြီ');renderGroupDetail();}}
-function removeGroupMember(groupId,userId){var g=db.groups.find(function(x){return x&&x.id===groupId;});if(!g||!isGroupAdmin(g,me)||userId===g.owner){alert('ဒီအသင်းသားကို ထုတ်ပယ်ခွင့်မရှိပါ');return;}if(g.owner!==me && Array.isArray(g.admins)&&g.admins.includes(userId)){alert('အုပ်ချုပ်သူကို ထုတ်ပယ်ရန် ပါမောခကို ဆက်သွယ်ပါ');return;}var u=db.users[userId];if(!confirm((u?u.name:'ဒီအသင်းသား')+' ကို အသင်းမှ ထုတ်ပယ်မှာလား?'))return;g.members=(g.members||[]).filter(function(id){return id!==userId;});if(Array.isArray(g.admins))g.admins=g.admins.filter(function(id){return id!==userId;});if(g.memberRanks)delete g.memberRanks[userId];if(g.memberActivity)delete g.memberActivity[userId];save();alert('✅ အသင်းသားကို ထုတ်ပယ်ပြီးပါပြီ');renderGroupDetail();}
+function demoteGroupAdmin(groupId,userId){var g=db.groups.find(function(x){return x&&x.id===groupId;});if(!g||g.owner!==me){alert('ပါမောခသာ အုပ်ချုပ်သူကို ပြောင်းလဲနိုင်ပါတယ်');return;}g.admins=Array.isArray(g.admins)?g.admins:[];if(!g.admins.includes(userId))return;beeConfirm('ဒီအုပ်ချုပ်သူကို အသင်းသားအဖြစ် ပြောင်းမှာလား?', function(){g.admins=g.admins.filter(function(id){return id!==userId;});save();alert('✅ အုပ်ချုပ်သူကို အသင်းသားအဖြစ် ပြောင်းပြီးပါပြီ');renderGroupDetail();});}
+function removeGroupMember(groupId,userId){var g=db.groups.find(function(x){return x&&x.id===groupId;});if(!g||!isGroupAdmin(g,me)||userId===g.owner){alert('ဒီအသင်းသားကို ထုတ်ပယ်ခွင့်မရှိပါ');return;}if(g.owner!==me && Array.isArray(g.admins)&&g.admins.includes(userId)){alert('အုပ်ချုပ်သူကို ထုတ်ပယ်ရန် ပါမောခကို ဆက်သွယ်ပါ');return;}var u=db.users[userId];beeConfirm((u?u.name:'ဒီအသင်းသား')+' ကို အသင်းမှ ထုတ်ပယ်မှာလား?', function(){g.members=(g.members||[]).filter(function(id){return id!==userId;});if(Array.isArray(g.admins))g.admins=g.admins.filter(function(id){return id!==userId;});if(g.memberRanks)delete g.memberRanks[userId];if(g.memberActivity)delete g.memberActivity[userId];save();alert('✅ အသင်းသားကို ထုတ်ပယ်ပြီးပါပြီ');renderGroupDetail();});}
 
 function showGroupSettings() {
     var menu = document.getElementById('groupSettingsMenu');
@@ -2561,13 +2577,13 @@ function transferGroup(groupId, userId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
     if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
-    if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
+    beeConfirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?', function() {
         g.owner = userId;
         g.memberRanks[userId] = 5;
         save();
         renderGroupDetail();
         alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
-    }
+    });
 }
 
 function leaveGroup(groupId) {
@@ -2575,7 +2591,7 @@ function leaveGroup(groupId) {
     if (!g) return;
     if (g.owner === me) { alert('ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
     if (!g.members || !g.members.includes(me)) return;
-    if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
+    beeConfirm('ဒီအသင်းမှ ထွက်မှာလား?', function() {
         g.members = g.members.filter(id => id !== me);
         delete g.memberRanks[me];
         delete g.memberActivity[me];
@@ -2585,13 +2601,13 @@ function leaveGroup(groupId) {
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
-    }
+    });
 }
 
 function deleteGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-    if (confirm('ဒီအသင်းကို ဖျက်မှာလား?')) {
+    beeConfirm('ဒီအသင်းကို ဖျက်မှာလား?', function() {
         db.groups = db.groups.filter(x => x.id !== groupId);
         delete db.groupMessages[groupId];
         save();
@@ -2600,7 +2616,7 @@ function deleteGroup(groupId) {
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
-    }
+    });
 }
 
 function inviteFriendToGroup(groupId) {
@@ -2612,8 +2628,7 @@ function inviteFriendToGroup(groupId) {
     if (!available.length) { alert('ဖိတ်ခေါ်နိုင်တဲ့ သူငယ်ချင်းမရှိပါ'); return; }
     var msg = 'ဖိတ်ခေါ်မည့်သူကို ရွေးပါ:\n';
     available.forEach((id, idx) => { var u = db.users[id]; if (u) msg += (idx+1) + '. ' + u.name + ' (' + u.id + ')\n'; });
-    var choice = prompt(msg);
-    if (choice === null) return;
+    beePrompt(msg, function(choice){
     var idx = parseInt(choice) - 1;
     if (idx < 0 || idx >= available.length) { alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
     var targetId = available[idx];
@@ -2626,6 +2641,7 @@ function inviteFriendToGroup(groupId) {
     save();
     renderGroupDetail();
     alert('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ');
+    });
 }
 
 function openGroupChat(groupId) {
@@ -2686,7 +2702,7 @@ function sendGroupMessage() {
 
 function deleteGroupMessage(groupId, msgIndex) {
     if (!me) return;
-    if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+    beeConfirm('ဒီစာကို ဖျက်မှာလား?', function(){
     var msgs = db.groupMessages[groupId] || [];
     if (msgIndex >= 0 && msgIndex < msgs.length && msgs[msgIndex].f === me) {
         msgs.splice(msgIndex, 1);
@@ -2694,6 +2710,7 @@ function deleteGroupMessage(groupId, msgIndex) {
         save();
         renderGroupChat();
     }
+    });
 }
 
 // ============================================================
@@ -2838,4 +2855,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-                </html>
+    </html>
