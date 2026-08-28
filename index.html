@@ -12,6 +12,12 @@
         body.dark-mode header { background: #0f3460; color: #fff; }
         body.dark-mode .card { background: #16213e; border-color: #0f3460; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
         body.dark-mode .nav { background: #16213e; border-top-color: #0f3460; }
+        body.dark-mode .chat { background: #1a1a2e; }
+        body.dark-mode .msg { background: #16213e; color: #eee; }
+        body.dark-mode .msg.me .bubble { background: #0f3460; }
+        body.dark-mode input, body.dark-mode textarea, body.dark-mode select {
+            background: #16213e; color: #eee; border-color: #0f3460;
+        }
         body.dark-mode .settings-list { background: #16213e; border-color: #0f3460; }
         body.dark-mode .settings-item { background: #16213e; border-bottom-color: #0f3460; color: #eee; }
         body.dark-mode .settings-submenu { background: #0f3460; }
@@ -47,14 +53,6 @@
         body.dark-mode .profile-save { background: #e7ad21; color: #172130; }
         body.dark-mode .settings-logout { background: #e7ad21; color: #172130; }
         body.dark-mode .follow-avatar-placeholder { color: #aaa; }
-        body.dark-mode .msg:not(.me) { background: #16213e; color: #eee; }
-        body.dark-mode .msg.me { background: #0f3460; color: #eee; }
-        body.dark-mode .chat { background: #1a1a2e; }
-        body.dark-mode .chat-input-area { background: #16213e; border-top-color: #0f3460; }
-        body.dark-mode .chat-input-area #msg { background: #1a1a2e; color: #eee; }
-        body.dark-mode .chat-input-area #msg::placeholder { color: #777; }
-        body.dark-mode .chat-input-area .input-actions button { color: #aaa; }
-        
         .app { max-width: 900px; margin: auto; min-height: 100vh; background: #f5f5f5; padding-bottom: 78px; transition: background 0.3s; }
         header { padding: 10px 14px; background: #f4b400; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 30; color: #222; }
         .menu-btn { background: transparent; border: 0; color: #222; font-size: 24px; cursor: pointer; padding: 0 8px; }
@@ -78,255 +76,171 @@
         .hidden { display: none !important; }
         .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
 
-        /* ===== CHAT - CLEAN STYLE ===== */
-        
-        /* Chat Screen */
-        #chat {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            padding: 0;
-            padding-bottom: 100px;
-        }
-        
-        #chat .card {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding: 0;
-            margin: 0;
-            border: none;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-        }
-        
-        #chat .card > div:first-child {
-            padding: 12px 16px;
-            background: #ffffff;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        /* Chat Box */
+        /* ===== CHAT STYLES - သေသပ်အောင် ပြင်ထား ===== */
         .chat {
-            flex: 1;
-            height: auto;
-            overflow-y: auto;
-            background: #f0f2f5;
-            padding: 8px 12px;
-            border-radius: 0;
-            display: flex;
-            flex-direction: column;
+            height: 55vh;
+            overflow: auto;
+            background: #f7f7f7;
+            padding: 10px;
+            border-radius: 12px;
+            transition: background 0.3s;
         }
-        
-        /* Messages - Clean Style */
+
         .msg {
             max-width: 78%;
-            padding: 8px 14px;
+            padding: 9px 14px;
             border-radius: 18px;
-            margin: 3px 0;
-            background: #ffffff;
+            margin: 7px 0;
+            background: #e9ecef;
             color: #222;
             display: flex;
             align-items: flex-start;
             gap: 8px;
             position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-            border: none;
+            transition: background 0.3s, color 0.3s;
         }
-        
-        .msg.me {
-            align-self: flex-end;
-            background: #0084ff;
-            color: #fff;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .msg:not(.me) {
-            align-self: flex-start;
-            background: #ffffff;
-            border-bottom-left-radius: 4px;
-        }
-        
+
         .msg .avatar {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            background: #e9ecef;
+            background: #dee2e6;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            margin-top: 2px;
+            font-size: 16px;
+            cursor: pointer;
         }
         .msg .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .msg.me .avatar {
-            display: none;
+
+        .msg .bubble {
+            flex: 1;
         }
-        
         .msg .bubble .name {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             color: #0d6efd;
-            display: block;
-            margin-bottom: 2px;
         }
-        .msg.me .bubble .name {
-            color: #fff;
-        }
-        
         .msg .bubble .text {
-            font-size: 14px;
-            line-height: 1.4;
             word-break: break-word;
         }
-        
-        .msg .seen {
-            font-size: 10px;
-            color: #999;
-            margin-top: 2px;
-            text-align: right;
-        }
-        .msg.me .seen {
-            color: rgba(255,255,255,0.7);
-        }
-        
-        .msg .delete-msg-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: rgba(220,53,69,0.85);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .msg:hover .delete-msg-btn {
-            display: flex;
-        }
-        
         .msg .bubble .msg-image {
             max-width: 200px;
-            border-radius: 12px;
+            border-radius: 10px;
             margin-top: 4px;
             cursor: pointer;
         }
         .msg .bubble .msg-image img {
             width: 100%;
-            border-radius: 12px;
+            border-radius: 10px;
         }
-        
-        /* ===== INPUT AREA - CLEAN ===== */
+
+        .me {
+            justify-content: flex-end;
+        }
+        .me .avatar {
+            order: 2;
+        }
+        .me .bubble {
+            order: 1;
+            text-align: right;
+            background: #e7f3ff;
+        }
+        body.dark-mode .me .bubble {
+            background: #0f3460;
+        }
+
+        .seen {
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .msg .delete-msg-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(220,53,69,0.8);
+            color: #fff;
+            border: 0;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .msg:hover .delete-msg-btn {
+            display: flex;
+        }
+
+        /* ===== INPUT AREA ===== */
         .chat-input-area {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 16px 14px;
-            background: #ffffff;
-            border-top: 1px solid #e8e8e8;
-            border-radius: 0;
-            margin: 0;
-            width: 100%;
-            box-sizing: border-box;
-            position: fixed;
-            bottom: 56px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(900px, 100%);
-            z-index: 15;
+            margin-top: 8px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            padding: 4px 12px;
+            transition: background 0.3s, border-color 0.3s;
         }
-        
+        body.dark-mode .chat-input-area {
+            background: #16213e;
+            border-color: #0f3460;
+        }
         .chat-input-area .input-actions {
             display: flex;
             gap: 4px;
             align-items: center;
-            flex-shrink: 0;
         }
-        
         .chat-input-area .input-actions button {
             background: transparent;
-            border: none;
-            font-size: 24px;
-            padding: 4px 6px;
+            border: 0;
+            font-size: 20px;
+            padding: 4px;
             cursor: pointer;
             color: #777;
-            border-radius: 50%;
         }
-        
-        .chat-input-area .input-actions button:hover {
-            background: #f0f0f0;
-        }
-        
-        /* Hide sticker button */
-        .chat-input-area .input-actions button:last-child {
-            display: none;
-        }
-        
         .chat-input-area #msg {
             flex: 1;
-            border: none;
-            padding: 10px 16px;
+            border: 0;
+            padding: 8px 4px;
             margin: 0;
-            background: #f1f3f5;
+            background: transparent;
             color: #222;
             outline: none;
-            border-radius: 24px;
-            font-size: 16px;
-            height: 40px;
-            min-width: 60px;
-            width: 100%;
-            box-sizing: border-box;
         }
-        
-        .chat-input-area #msg::placeholder {
-            color: #999;
-            font-size: 15px;
+        body.dark-mode .chat-input-area #msg {
+            color: #eee;
         }
-        
-        .chat-input-area #msg:focus {
-            background: #e8eaed;
-        }
-        
-        /* Send Button - Small & Clean */
         .chat-input-area .send-btn {
-            background: #0084ff;
-            border: none;
+            background: #e7ad21;
+            border: 0;
             border-radius: 50%;
             width: 36px;
             height: 36px;
             font-size: 16px;
-            color: #fff;
+            color: #172130;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            transition: transform 0.2s, background 0.2s;
         }
-        
-        .chat-input-area .send-btn:hover {
-            transform: scale(1.05);
-            background: #0073e6;
-        }
-        
-        .chat-input-area .send-btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* ===== NAVIGATION BAR ===== */
+
+        /* ===== NAVIGATION ===== */
         .nav {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -343,9 +257,8 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
             transition: background 0.3s, border-color 0.3s;
         }
-        
         .nav button {
-            min-height: 52px;
+            min-height: 56px;
             margin: 0 2px;
             border-radius: 10px;
             background: transparent;
@@ -359,21 +272,17 @@
             cursor: pointer;
             border: 0;
         }
-        
         .nav button.active-nav {
-            color: #0084ff;
-            background: #e8f0fe;
+            color: #e7ad21;
+            background: #fff8e1;
         }
-        
         body.dark-mode .nav button.active-nav {
             background: #0f3460;
-            color: #0084ff;
         }
-        
         .nav button span {
             font-size: 22px;
         }
-        
+
         .badge {
             background: #dc3545;
             color: #fff;
@@ -386,8 +295,8 @@
             min-width: 18px;
             text-align: center;
         }
-        
-        /* ===== OTHER STYLES (unchanged) ===== */
+
+        /* ===== OTHER STYLES (မူရင်းအတိုင်း) ===== */
         .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .quick .btn { min-height: 50px; font-size: 14px; }
         .friend-user-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: transparent; transition: border-color 0.3s; }
@@ -503,9 +412,25 @@
         .my-groups-horizontal .group-card .group-name { font-weight: 600; margin-top: 6px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .my-groups-horizontal .group-card .group-members { font-size: 12px; color: #777; }
         .my-groups-horizontal .group-card .group-id { font-size: 10px; color: #aaa; margin-top: 2px; }
+        .group-detail-header { display: flex; justify-content: space-between; align-items: center; }
         .group-detail-header .group-title { margin: 0; }
         .group-detail-header .group-actions { display: flex; gap: 8px; align-items: center; }
         .group-detail-header .group-actions button { background: transparent; border: 0; font-size: 22px; cursor: pointer; color: #555; padding: 4px; }
+        .group-detail-avatar { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #aaa; margin-bottom: 8px; overflow: hidden; }
+        .group-detail-avatar img { width: 100%; height: auto; max-height: 200px; object-fit: cover; }
+        .group-member-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; transition: border-color 0.3s; }
+        .group-member-item .member-rank { font-size: 12px; color: #888; min-width: 30px; }
+        .group-member-item .member-name { flex: 1; font-weight: 500; }
+        .group-member-item .member-badge { font-size: 10px; padding: 2px 10px; border-radius: 12px; font-weight: bold; display: inline-block; }
+        .rank-1 { background: #28a745; color: #fff; }
+        .rank-2 { background: #17a2b8; color: #fff; }
+        .rank-3 { background: #ffc107; color: #222; }
+        .rank-4 { background: #fd7e14; color: #fff; }
+        .rank-5 { background: #dc3545; color: #fff; }
+        .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
+        .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+        .group-avatar-upload input[type="file"] { display: none; }
+        .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .profile-photo-note { color: #888; font-size: 12px; padding: 8px 4px 2px; }
         .user-profile-card { text-align: center; padding: 16px; }
         .user-profile-card .avatar { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 40px; }
@@ -556,21 +481,6 @@
         .chat-friend-name:hover { text-decoration: underline; }
         .inbox-chat-name { cursor: pointer; color: #0d6efd; font-weight: 600; }
         .inbox-chat-name:hover { text-decoration: underline; }
-        .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-        .group-avatar-upload input[type="file"] { display: none; }
-        .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .group-detail-avatar { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #aaa; margin-bottom: 8px; overflow: hidden; }
-        .group-detail-avatar img { width: 100%; height: auto; max-height: 200px; object-fit: cover; }
-        .group-member-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; transition: border-color 0.3s; }
-        .group-member-item .member-rank { font-size: 12px; color: #888; min-width: 30px; }
-        .group-member-item .member-name { flex: 1; font-weight: 500; }
-        .group-member-item .member-badge { font-size: 10px; padding: 2px 10px; border-radius: 12px; font-weight: bold; display: inline-block; }
-        .rank-1 { background: #28a745; color: #fff; }
-        .rank-2 { background: #17a2b8; color: #fff; }
-        .rank-3 { background: #ffc107; color: #222; }
-        .rank-4 { background: #fd7e14; color: #fff; }
-        .rank-5 { background: #dc3545; color: #fff; }
-        .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -858,7 +768,7 @@
                 <div class="input-actions">
                     <button onclick="openCameraForChat()" title="ကင်မရာ">📷</button>
                     <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
-                    <!-- Sticker button removed -->
+                    <button onclick="alert('Sticker မကြာမီ ထည့်ပေးပါမယ်')" title="စတစ်ကာ">😊</button>
                 </div>
                 <input id="msg" placeholder="စာရေးပါ..." onkeydown="if(event.key==='Enter')send()">
                 <button class="send-btn show" id="sendBtn" onclick="send()">➤</button>
@@ -2203,7 +2113,7 @@ function openChat(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (db.users[id]?.isSuspended) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     chatWith = id;
-    document.getElementById('ctitle').innerHTML = '💬 <span class="chat-friend-name" onclick="viewUserProfile(\''+id+'\')" style="color:#0d6efd;cursor:pointer;">' + esc(db.users[id].name) + '</span>';
+    document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
     show('chat');
@@ -2238,8 +2148,13 @@ function renderChat() {
     b.innerHTML = '';
     var key = [me, chatWith].sort().join('_');
     var msgs = db.messages[key] || [];
+    var seenIds = new Set();
     var lastDate = '';
     msgs.forEach(function(m, idx) {
+        var uniqueId = (m.time || Date.now()) + '_' + m.f + '_' + (m.t || '').substring(0, 10) + (m.image || '');
+        if (seenIds.has(uniqueId)) return;
+        seenIds.add(uniqueId);
+        
         var u = db.users[m.f] || {};
         var isMe = (m.f === me);
         var avatarHtml = getUserAvatar(u);
@@ -3143,7 +3058,7 @@ document.addEventListener('visibilitychange', function() {
 });
 
 console.log('✅ BeeChat Social v2.0 Loaded!');
-console.log('📌 Clean Messenger Style with Profile Avatars');
+console.log('📌 Clean Messenger Style');
 </script>
 </body>
-                </html>
+    </html>
