@@ -58,7 +58,7 @@
         .menu-btn { background: transparent; border: 0; color: #222; font-size: 24px; cursor: pointer; padding: 0 8px; }
         .header-title { font-size: 18px; font-weight: bold; flex: 1; text-align: center; }
         #head { font-size: 14px; }
-        .screen { display: none; padding: 15px; background: transparent; }
+        .screen { display: none; padding: 12px 15px; background: transparent; }
         .screen.active { display: block; }
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: background 0.3s, border-color 0.3s; }
         .btn { border: 0; border-radius: 10px; padding: 10px 16px; background: #e7ad21; color: #172130; font-weight: bold; margin: 3px; cursor: pointer; }
@@ -75,7 +75,7 @@
         .list:last-child { border-bottom: 0; }
         .hidden { display: none !important; }
         .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
-        .chat { height: 55vh; overflow: auto; background: #f7f7f7; padding: 10px; border-radius: 12px; transition: background 0.3s; }
+        .chat { height: 62vh; overflow: auto; background: #f7f7f7; padding: 10px; border-radius: 12px; transition: background 0.3s; }
         .msg { max-width: 78%; padding: 9px 14px; border-radius: 18px; margin: 7px 0; background: #e9ecef; color: #222; word-break: break-word; display: flex; align-items: flex-start; gap: 8px; position: relative; transition: background 0.3s, color 0.3s; }
         .msg .avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
         .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -560,7 +560,10 @@
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
+                <div id="chatTitleArea" onclick="if(chatWith) viewUserProfile(chatWith)" style="display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0;">
+                    <div id="chatHeaderAvatar" style="width:40px;height:40px;border-radius:50%;overflow:hidden;background:#e9ecef;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👤</div>
+                    <h3 id="ctitle" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💬 Chat</h3>
+                </div>
                 <div class="chat-header-actions">
                     <button onclick="toggleChatMenu()" style="font-size:22px;">☰</button>
                 </div>
@@ -1820,7 +1823,7 @@ function renderUserProfile(id) {
         userGroups.forEach(function(g) {
             var groupAvatar = g.avatar ? '<img src="' + g.avatar + '" alt="group">' : '🏆';
             var ownerLabel = g.owner === id ? ' • 👑 Owner' : '';
-            html += '<div class="group-card" onclick="viewPublicGroup(' + JSON.stringify(g.id) + ')">' +
+            html += '<div class="group-card" role="button" tabindex="0" onclick="event.stopPropagation();viewPublicGroup(' + JSON.stringify(g.id) + ')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){viewPublicGroup(' + JSON.stringify(g.id) + ')}">' +
                 '<div class="group-avatar">' + groupAvatar + '</div>' +
                 '<div class="group-name">' + esc(g.name || 'Unnamed Group') + '</div>' +
                 '<div class="group-members">👥 ' + (Array.isArray(g.members) ? g.members.length : 0) + ' ယောက်' + ownerLabel + '</div>' +
@@ -1864,15 +1867,11 @@ function openChat(id) {
     if (db.users[id]?.isSuspended) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     chatWith = id;
     var chatUser = db.users[id];
-    var chatTitle = document.getElementById('ctitle');
-    if (chatTitle && chatUser) {
-        var chatAvatar = (chatUser.photos && chatUser.photos[0])
-            ? '<img src=\"' + chatUser.photos[0] + '\" alt=\"avatar\" style=\"width:34px;height:34px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;\">'
-            : '<span style=\"font-size:28px;vertical-align:middle;margin-right:8px;\">👤</span>';
-        chatTitle.innerHTML = chatAvatar + '<span>' + esc(chatUser.name || id) + '</span>';
-        chatTitle.style.cursor = 'pointer';
-        chatTitle.onclick = function(){ viewUserProfile(id); };
-        chatTitle.title = 'Profile ကြည့်ရန်';
+    document.getElementById('ctitle').textContent = chatUser.name || id;
+    var chatAvatar = document.getElementById('chatHeaderAvatar');
+    if (chatAvatar) {
+        if (chatUser.photos && chatUser.photos[0]) chatAvatar.innerHTML = '<img src="' + chatUser.photos[0] + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;">';
+        else chatAvatar.innerHTML = '👤';
     }
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
@@ -2067,9 +2066,6 @@ function renderInbox() {
     if (!me || !db) return;
     var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
     if (!list || !req) return;
-    // Prevent the same Group Request card from accumulating every time Inbox refreshes.
-    var oldGroupCard = document.getElementById('inboxGroupRequestCard');
-    if (oldGroupCard) oldGroupCard.remove();
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id) && !db.users[id]?.isSuspended);
     list.innerHTML = '';
     if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
@@ -2115,7 +2111,6 @@ function renderInbox() {
     if (groupReqs.length) {
         var groupCard = document.createElement('div');
         groupCard.className = 'card';
-        groupCard.id = 'inboxGroupRequestCard';
         groupCard.innerHTML = '<h3>🏆 အသင်းဝင်ခွင့်တောင်းဆိုမှု <span class="badge">'+groupReqs.length+'</span></h3><div id="inboxGroupRequests"></div>';
         var grBox = groupCard.querySelector('#inboxGroupRequests');
         groupReqs.forEach(function(r){
@@ -2420,13 +2415,7 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(function(x){ return x && x.id === groupId; });
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     window.currentGroup = groupId;
-    // Open the public group detail directly so a visitor can inspect members
-    // and request to join even when they are not a member.
-    document.querySelectorAll('.screen').forEach(function(x){ x.classList.remove('active'); });
-    var detailScreen = document.getElementById('groupDetail');
-    if (detailScreen) detailScreen.classList.add('active');
-    var pt = document.getElementById('pageTitle');
-    if (pt) pt.textContent = 'Group';
+    show('groupDetail');
     renderPublicGroupDetail();
 }
 
@@ -2688,7 +2677,7 @@ function renderGroupChat() {
     var msgs = db.groupMessages[id] || [];
     var html = '<div class="group-detail-header"><h3 class="group-title">🏆 ' + esc(g.name) + '</h3><div class="group-actions"><button onclick="renderGroupDetail()" title="ပြန်">✖️</button></div></div>' +
         '<div class="small">အသင်းဝင် '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
-        '<div id="groupChatBox" class="chat" style="height:40vh;">';
+        '<div id="groupChatBox" class="chat" style="height:50vh;">';
     msgs.forEach((m, idx) => {
         var u = db.users[m.f] || {};
         var rank = getMemberRank(g, m.f);
@@ -2882,4 +2871,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-    </html>
+                    </html>
