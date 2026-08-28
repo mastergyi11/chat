@@ -1863,7 +1863,17 @@ function openChat(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။'); return; }
     if (db.users[id]?.isSuspended) { alert('🚫 ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
     chatWith = id;
-    document.getElementById('ctitle').textContent = '💬 ' + db.users[id].name;
+    var chatUser = db.users[id];
+    var chatTitle = document.getElementById('ctitle');
+    if (chatTitle && chatUser) {
+        var chatAvatar = (chatUser.photos && chatUser.photos[0])
+            ? '<img src=\"' + chatUser.photos[0] + '\" alt=\"avatar\" style=\"width:34px;height:34px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;\">'
+            : '<span style=\"font-size:28px;vertical-align:middle;margin-right:8px;\">👤</span>';
+        chatTitle.innerHTML = chatAvatar + '<span>' + esc(chatUser.name || id) + '</span>';
+        chatTitle.style.cursor = 'pointer';
+        chatTitle.onclick = function(){ viewUserProfile(id); };
+        chatTitle.title = 'Profile ကြည့်ရန်';
+    }
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
     show('chat');
@@ -2057,6 +2067,9 @@ function renderInbox() {
     if (!me || !db) return;
     var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
     if (!list || !req) return;
+    // Prevent the same Group Request card from accumulating every time Inbox refreshes.
+    var oldGroupCard = document.getElementById('inboxGroupRequestCard');
+    if (oldGroupCard) oldGroupCard.remove();
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id) && !db.users[id]?.isSuspended);
     list.innerHTML = '';
     if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
@@ -2102,6 +2115,7 @@ function renderInbox() {
     if (groupReqs.length) {
         var groupCard = document.createElement('div');
         groupCard.className = 'card';
+        groupCard.id = 'inboxGroupRequestCard';
         groupCard.innerHTML = '<h3>🏆 အသင်းဝင်ခွင့်တောင်းဆိုမှု <span class="badge">'+groupReqs.length+'</span></h3><div id="inboxGroupRequests"></div>';
         var grBox = groupCard.querySelector('#inboxGroupRequests');
         groupReqs.forEach(function(r){
@@ -2406,7 +2420,13 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(function(x){ return x && x.id === groupId; });
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     window.currentGroup = groupId;
-    show('groupDetail');
+    // Open the public group detail directly so a visitor can inspect members
+    // and request to join even when they are not a member.
+    document.querySelectorAll('.screen').forEach(function(x){ x.classList.remove('active'); });
+    var detailScreen = document.getElementById('groupDetail');
+    if (detailScreen) detailScreen.classList.add('active');
+    var pt = document.getElementById('pageTitle');
+    if (pt) pt.textContent = 'Group';
     renderPublicGroupDetail();
 }
 
