@@ -646,6 +646,45 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
+// BeeChat custom notification: hide browser native "The page at ... says:" alerts.
+(function(){
+  var beeAlertQueue = [];
+  var beeAlertOpen = false;
+  function showBeeAlert(message){
+    message = String(message == null ? '' : message);
+    if (beeAlertOpen) { beeAlertQueue.push(message); return; }
+    beeAlertOpen = true;
+    function render(){
+      var old=document.getElementById('beeCustomAlert');
+      if(old) old.remove();
+      var overlay=document.createElement('div');
+      overlay.id='beeCustomAlert';
+      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;z-index:2147483647;padding:20px;font-family:Arial,sans-serif;';
+      var box=document.createElement('div');
+      box.style.cssText='width:min(92vw,380px);background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden;text-align:center;';
+      var head=document.createElement('div');
+      head.style.cssText='padding:16px 18px 8px;font-size:18px;font-weight:700;color:#e7ad21;';
+      head.textContent='🐝 BeeChat';
+      var body=document.createElement('div');
+      body.style.cssText='padding:8px 20px 18px;font-size:15px;line-height:1.55;color:#222;white-space:pre-wrap;word-break:break-word;';
+      body.textContent=message;
+      var btn=document.createElement('button');
+      btn.type='button'; btn.textContent='OK';
+      btn.style.cssText='margin:0 20px 18px;width:calc(100% - 40px);border:0;border-radius:10px;padding:11px;background:#e7ad21;color:#fff;font-size:15px;font-weight:700;cursor:pointer;';
+      btn.onclick=function(){
+        overlay.remove();
+        if(beeAlertQueue.length){ render(); }
+        else { beeAlertOpen=false; }
+      };
+      box.appendChild(head); box.appendChild(body); box.appendChild(btn); overlay.appendChild(box);
+      (document.body||document.documentElement).appendChild(overlay);
+      btn.focus();
+    }
+    if(document.body) render();
+    else document.addEventListener('DOMContentLoaded',render,{once:true});
+  }
+  window.alert=showBeeAlert;
+})();
 // ============================================================
 //  FIREBASE CONFIG
 // ============================================================
@@ -2799,4 +2838,4 @@ console.log('✅ BeeChat Social v2.0 Loaded!');
 console.log('📌 Features: Following/Folowers List, Dark/Light Mode, Language Selector');
 </script>
 </body>
-    </html>
+                </html>
