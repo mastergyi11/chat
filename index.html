@@ -282,9 +282,14 @@
         .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
     </style>
 
-/* ===== BeeChat automatic moderation UI ===== */
 <style>
 .warning-badge{margin:7px 0;padding:8px 10px;border:1px solid #dc3545;border-radius:8px;background:#fff5f5;color:#dc3545;font-weight:700;font-size:13px;text-align:center}
+/* Android keyboard: keep the bottom navigation out of the keyboard area. */
+body.keyboard-open .nav{display:none !important;}
+body.keyboard-open .app{padding-bottom:0;}
+body.keyboard-open #chat .chat{height:calc(100vh - 220px);max-height:calc(100vh - 220px);min-height:180px;}
+body.keyboard-open #groupChatBox{height:calc(100vh - 250px) !important;max-height:calc(100vh - 250px);min-height:160px;}
+body.keyboard-open .chat-input-area{margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -2765,6 +2770,45 @@ function renderMyAccount() {
 // ============================================================
 firebaseInitPromise = initFirebase();
 restoreLogin();
+
+// ============================================================
+//  ANDROID KEYBOARD / CHAT LAYOUT
+//  When the keyboard opens, hide the fixed bottom navigation so it
+//  cannot move up and cover the chat composer.
+// ============================================================
+function isChatComposer(el) {
+    return !!(el && (el.id === 'msg' || el.id === 'groupMsg'));
+}
+
+function syncChatKeyboardLayout() {
+    var active = document.activeElement;
+    var focusedChat = isChatComposer(active);
+    var vv = window.visualViewport;
+    var keyboardLikely = !!(vv && (window.innerHeight - vv.height > 120));
+    document.body.classList.toggle('keyboard-open', focusedChat && (keyboardLikely || focusedChat));
+}
+
+document.addEventListener('focusin', function(e) {
+    if (isChatComposer(e.target)) {
+        document.body.classList.add('keyboard-open');
+        setTimeout(function() {
+            try { e.target.scrollIntoView({block:'center', inline:'nearest'}); } catch(err) {}
+            syncChatKeyboardLayout();
+        }, 180);
+    }
+});
+
+document.addEventListener('focusout', function(e) {
+    if (isChatComposer(e.target)) {
+        setTimeout(syncChatKeyboardLayout, 250);
+    }
+});
+
+window.addEventListener('resize', syncChatKeyboardLayout);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncChatKeyboardLayout);
+    window.visualViewport.addEventListener('scroll', syncChatKeyboardLayout);
+}
 
 document.addEventListener('visibilitychange', function() {
     if (!fbReady || !me) return;
