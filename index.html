@@ -398,10 +398,6 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
-            <div class="profile-decoration">
-                <label>🎨 အလှဆင်ရန် စာသား (သင်ကြိုက်နှစ်သက်ရာ ရေးပါ)</label>
-                <textarea id="profileDecoration" placeholder="ဥပမာ - ❤️ ပျော်ရွှင်စရာနေ့လေး..."></textarea>
-            </div>
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
                 <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
@@ -422,6 +418,10 @@
                     <label>📍 Region</label>
                     <div id="profileRegionDisplay" class="profile-region-value">-</div>
                 </div>
+            <div class="profile-decoration">
+                <label>🎨 အလှဆင်ရန် စာသား (သင်ကြိုက်နှစ်သက်ရာ ရေးပါ)</label>
+                <textarea id="profileDecoration" placeholder="ဥပမာ - ❤️ ပျော်ရွှင်စရာနေ့လေး..."></textarea>
+            </div>
                 <div class="profile-row"><label>အမည်</label><input id="profileName" type="text" placeholder="သင့်အမည်"></div>
                 <div class="profile-row"><label>Account ဖွင့်အမည်</label><div id="accountNameView" class="profile-value">-</div></div>
                 <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value">-</div></div>
@@ -684,7 +684,7 @@
     else document.addEventListener('DOMContentLoaded',render,{once:true});
   }
   window.alert=showBeeAlert;
-function beeConfirm(message, onYes){
+window.beeConfirm = function beeConfirm(message, onYes){
   var old=document.getElementById('beeConfirmModal'); if(old) old.remove();
   var m=document.createElement('div'); m.id='beeConfirmModal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999999;';
   m.innerHTML='<div style="width:min(90%,360px);background:#fff;border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:system-ui;text-align:center"><div style="font-size:28px;margin-bottom:8px">🐝</div><div style="font-weight:800;font-size:17px;margin-bottom:18px;white-space:pre-line">'+String(message).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><div style="display:flex;gap:10px;justify-content:center"><button id="beeConfirmNo" style="flex:1;padding:11px;border:0;border-radius:12px;background:#eee">မလုပ်တော့ပါ</button><button id="beeConfirmYes" style="flex:1;padding:11px;border:0;border-radius:12px;background:#111;color:#fff">အတည်ပြုမည်</button></div></div>';
@@ -692,7 +692,7 @@ function beeConfirm(message, onYes){
   document.getElementById('beeConfirmNo').onclick=function(){m.remove();};
   document.getElementById('beeConfirmYes').onclick=function(){m.remove(); if(typeof onYes==='function') onYes();};
 }
-function beePrompt(message,onDone){
+window.beePrompt = function beePrompt(message,onDone){
   var old=document.getElementById('beePromptModal'); if(old) old.remove();
   var m=document.createElement('div'); m.id='beePromptModal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999999;';
   m.innerHTML='<div style="width:min(90%,360px);background:#fff;border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:system-ui;text-align:center"><div style="font-size:28px;margin-bottom:8px">🐝</div><div style="font-weight:800;font-size:17px;margin-bottom:12px;white-space:pre-line">'+String(message).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><input id="beePromptInput" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:12px;margin-bottom:14px"><div style="display:flex;gap:10px"><button id="beePromptNo" style="flex:1;padding:11px;border:0;border-radius:12px;background:#eee">မလုပ်တော့ပါ</button><button id="beePromptYes" style="flex:1;padding:11px;border:0;border-radius:12px;background:#111;color:#fff">အတည်ပြုမည်</button></div></div>';
