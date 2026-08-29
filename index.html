@@ -1974,7 +1974,7 @@ function startPresence() {
             localSave();
             await presenceRef.update({ id: me, name: db.users[me].name || me, online: true, lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
             nearby();
-        }, function() {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 });
+        }, function() {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 });
         nearby();
     } catch(e) { console.error(e); }
 }
@@ -3568,4 +3568,4 @@ function confirmLocation() {
 </script>
 
 </body>
-</html>
+    </html>
