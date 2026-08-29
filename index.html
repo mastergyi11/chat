@@ -743,10 +743,8 @@
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
             
             <!-- Admin Message Box (Empty) -->
-            <div id="adminMessageBox" class="admin-message-box">
-                <div class="bee-icon">🐝</div>
-                <div id="adminMessageContent" class="admin-content"></div>
-            </div>
+            
+           
         </div>
     </section>
 
@@ -1278,6 +1276,21 @@ async function save() {
 function setStatus(t) {
     var el = document.getElementById('loginStatus');
     if (el) el.textContent = t;
+    
+    // Enable/disable buttons based on connection status
+    var loginBtn = document.getElementById('loginBtn');
+    var registerBtn = document.getElementById('registerBtn');
+    
+    // If connected successfully - enable buttons
+    if (t.includes('ချိတ်ဆက်ပြီးပါပြီ') || t.includes('✅')) {
+        if (loginBtn) loginBtn.disabled = false;
+        if (registerBtn) registerBtn.disabled = false;
+    } else {
+        // Still connecting or error - keep buttons disabled
+        if (loginBtn) loginBtn.disabled = true;
+        if (registerBtn) registerBtn.disabled = true;
+    }
+}
     
     // Enable/disable login and register buttons based on status
     var loginBtn = document.getElementById('loginBtn');
@@ -3420,4 +3433,4 @@ console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
 console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifications');
 </script>
 </body>
-            </html>
+    </html>
