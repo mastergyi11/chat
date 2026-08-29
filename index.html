@@ -2508,7 +2508,7 @@ function requestJoinGroupFromProfile(groupId, userId) {
         return;
     }
     
-    if (confirm('"' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
+   if (confirm('🐝 "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
         if (!db.groupInvites) db.groupInvites = [];
         db.groupInvites.push({ 
             id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7), 
@@ -3067,7 +3067,7 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-    if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
+   if (confirm('🐝 ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n🏆 '+esc(g.name)+'\n🆔 '+esc(g.id)+'\n👥 အသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
         if (!g.members) g.members = [];
         if (!g.members.includes(me)) {
             g.members.push(me);
