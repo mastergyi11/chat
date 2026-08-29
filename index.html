@@ -63,6 +63,7 @@
         .btn.small { padding: 4px 10px; font-size: 12px; }
         .btn.follow-btn { background: #0d6efd; color: #fff; }
         .btn.block-btn { background: #dc3545; color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         .small { font-size: 12px; color: #777; }
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: transparent; }
@@ -641,93 +642,66 @@
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
     
-/* Chat layout improvements */
-.group-chat-card{padding:0!important;overflow:hidden}
-.group-chat-topbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:5}
-.group-chat-top-title{font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px}
-.group-chat-menu-btn{border:0;background:transparent;font-size:22px;padding:8px 6px;cursor:pointer}
-#groupChatMenu{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:6px 0;margin:6px 10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-#groupChatMenu .menu-item{background:transparent;border:0;padding:10px 16px;width:100%;text-align:left;cursor:pointer;font-size:14px;color:#222;border-bottom:1px solid #f5f5f5}
-#groupChatMenu .menu-item:last-child{border-bottom:0}
-#groupChatMenu .menu-item.danger{color:#dc3545}
-body.dark-mode .group-chat-topbar{background:#16213e;color:#eee;border-bottom-color:#0f3460}
-body.dark-mode #groupChatMenu{background:#16213e;border-color:#0f3460}
-body.dark-mode #groupChatMenu .menu-item{color:#eee;border-bottom-color:#0f3460}
-.group-chat-card .group-detail-header{display:none}
-.group-chat-card #groupChatBox{min-height:calc(100vh - 260px)}
+        /* Chat layout improvements */
+        .group-chat-card{padding:0!important;overflow:hidden}
+        .group-chat-topbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:5}
+        .group-chat-top-title{font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px}
+        .group-chat-menu-btn{border:0;background:transparent;font-size:22px;padding:8px 6px;cursor:pointer}
+        #groupChatMenu{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:6px 0;margin:6px 10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+        #groupChatMenu .menu-item{background:transparent;border:0;padding:10px 16px;width:100%;text-align:left;cursor:pointer;font-size:14px;color:#222;border-bottom:1px solid #f5f5f5}
+        #groupChatMenu .menu-item:last-child{border-bottom:0}
+        #groupChatMenu .menu-item.danger{color:#dc3545}
+        body.dark-mode .group-chat-topbar{background:#16213e;color:#eee;border-bottom-color:#0f3460}
+        body.dark-mode #groupChatMenu{background:#16213e;border-color:#0f3460}
+        body.dark-mode #groupChatMenu .menu-item{color:#eee;border-bottom-color:#0f3460}
+        .group-chat-card .group-detail-header{display:none}
+        .group-chat-card #groupChatBox{min-height:calc(100vh - 260px)}
 
-.group-chat-input-area{padding-left:8px;padding-right:8px}
-.group-chat-input-area input{flex:1;min-width:0}
+        .group-chat-input-area{padding-left:8px;padding-right:8px}
+        .group-chat-input-area input{flex:1;min-width:0}
 
-/* Custom Bee Register Overlay */
-#beeRegisterOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 300;
-    padding: 20px;
-}
-#beeRegisterBox {
-    background: #fff;
-    border-radius: 28px;
-    max-width: 420px;
-    width: 100%;
-    padding: 24px 20px 30px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    text-align: center;
-    position: relative;
-}
-body.dark-mode #beeRegisterBox {
-    background: #16213e;
-    color: #eee;
-}
-#beeRegisterBox .bee-icon {
-    font-size: 64px;
-    margin-bottom: 6px;
-}
-#beeRegisterBox h2 {
-    color: #e7ad21;
-    margin-bottom: 16px;
-    font-size: 22px;
-}
-#beeRegisterBox input {
-    margin: 8px 0;
-    padding: 12px 16px;
-    border-radius: 16px;
-    border: 1px solid #ddd;
-    width: 100%;
-    font-size: 16px;
-    background: #f8f9fa;
-}
-body.dark-mode #beeRegisterBox input {
-    background: #1a1a2e;
-    color: #eee;
-    border-color: #0f3460;
-}
-#beeRegisterBox .btn {
-    width: 100%;
-    margin: 6px 0;
-    padding: 14px;
-    font-size: 16px;
-    border-radius: 16px;
-}
-#beeRegisterBox .btn-cancel {
-    background: transparent;
-    color: #888;
-    border: 1px solid #ddd;
-}
-body.dark-mode #beeRegisterBox .btn-cancel {
-    color: #aaa;
-    border-color: #0f3460;
-}
-#beeRegisterBox .small {
-    color: #888;
-    margin-top: 8px;
-}
-</style>
+        /* Admin Message Box */
+        .admin-message-box {
+            background: #f8f9fa;
+            border: 2px dashed #e7ad21;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-top: 12px;
+            min-height: 60px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        body.dark-mode .admin-message-box {
+            background: #16213e;
+            border-color: #e7ad21;
+        }
+        .admin-message-box .bee-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .admin-message-box .admin-content {
+            flex: 1;
+            min-height: 40px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        body.dark-mode .admin-message-box .admin-content {
+            color: #ccc;
+        }
+        .admin-message-box .admin-content:empty::before {
+            content: "📝 Admin မှ အကြောင်းကြားချက် ထည့်သွင်းနိုင်ပါသည်";
+            color: #aaa;
+            font-style: italic;
+        }
+        body.dark-mode .admin-message-box .admin-content:empty::before {
+            color: #666;
+        }
+    </style>
 </head>
 <body>
 <div class="app" id="app">
@@ -759,14 +733,20 @@ body.dark-mode #beeRegisterBox .btn-cancel {
             <p style="color:#888;margin-bottom:16px;">အကောင့်ဝင်ရန်</p>
             <input id="loginId" placeholder="Account ID ဥပမာ U10001">
             <input id="loginPassword" type="password" placeholder="Password">
-            <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
-            <button id="registerBtn" type="button" class="btn green" onclick="openBeeRegister()">
+            <button id="loginBtn" type="button" class="btn gold" onclick="login()" disabled>ဝင်မည်</button>
+            <button id="registerBtn" type="button" class="btn green" onclick="openBeeRegister()" disabled>
                 <span style="display:inline-flex;align-items:center;gap:6px;">
                     <span>🐝</span> အကောင့်အသစ်ဖွင့်မည်
                 </span>
             </button>
             <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
+            
+            <!-- Admin Message Box (Empty) -->
+            <div id="adminMessageBox" class="admin-message-box">
+                <div class="bee-icon">🐝</div>
+                <div id="adminMessageContent" class="admin-content"></div>
+            </div>
         </div>
     </section>
 
@@ -962,7 +942,7 @@ body.dark-mode #beeRegisterBox .btn-cancel {
     <!-- NOTIFICATIONS -->
     <section id="notifications" class="screen">
         <div class="card">
-            <h2>🔔 အသိပေးချက်များ</h2>
+            <h2>🐝 အသိပေးချက်များ</h2>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
                 <span>သူငယ်ချင်း / Chat အသိပေးချက်</span>
                 <button id="notifyToggle" class="toggle" onclick="toggleNotifications()"></button>
@@ -988,7 +968,7 @@ body.dark-mode #beeRegisterBox .btn-cancel {
 
     <!-- FRIENDS -->
     <section id="friends" class="screen">
-        <div class="card"><h3>🔎 အကောင့်ရှာရန်</h3><input id="userSearch" placeholder="အမည် သို့မဟုတ် ID နဲ့ရှာပါ" oninput="searchUsers()"><div id="searchResults"></div></div>
+        <div class="card"><h3>🐝 အကောင့်ရှာရန်</h3><input id="userSearch" placeholder="အမည် သို့မဟုတ် ID နဲ့ရှာပါ" oninput="searchUsers()"><div id="searchResults"></div></div>
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
@@ -999,15 +979,15 @@ body.dark-mode #beeRegisterBox .btn-cancel {
             <span class="sys-noti-time" id="sysNotiTimeDisplay"></span>
             <div id="systemNotificationContent" class="sys-noti-text">စနစ်ကျသော အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
         </div>
-        <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
-        <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
+        <div class="card"><h3>🐝 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
+        <div class="card"><h3>🐝 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
     <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
+                <h3 id="ctitle" style="margin:0;">🐝 Chat</h3>
                 <div class="chat-header-actions">
                     <button onclick="toggleChatMenu()" style="font-size:22px;">☰</button>
                 </div>
@@ -1295,7 +1275,26 @@ async function save() {
     try { await firebaseDB.ref('appData').set(db); } catch(e) { console.error(e); }
 }
 
-function setStatus(t) { var el = document.getElementById('loginStatus'); if (el) el.textContent = t; }
+function setStatus(t) {
+    var el = document.getElementById('loginStatus');
+    if (el) el.textContent = t;
+    
+    // Enable/disable login and register buttons based on status
+    var loginBtn = document.getElementById('loginBtn');
+    var registerBtn = document.getElementById('registerBtn');
+    
+    if (t.includes('ချိတ်ဆက်ပြီးပါပြီ') || t.includes('✅')) {
+        if (loginBtn) loginBtn.disabled = false;
+        if (registerBtn) registerBtn.disabled = false;
+    } else if (t.includes('ချိတ်ဆက်နေပါသည်') || t.includes('🔄')) {
+        if (loginBtn) loginBtn.disabled = true;
+        if (registerBtn) registerBtn.disabled = true;
+    } else {
+        // For other statuses like error, keep disabled
+        if (loginBtn) loginBtn.disabled = true;
+        if (registerBtn) registerBtn.disabled = true;
+    }
+}
 
 // ============================================================
 //  FIREBASE SYNC
@@ -1554,9 +1553,13 @@ function updateAdminMessageFromDB() {
     })[0];
     var msg = db.adminMessages[latestKey];
     if (!msg) return;
-    var contentEl = document.getElementById('systemMsgContent');
+    var contentEl = document.getElementById('adminMessageContent');
     if (contentEl) {
-        contentEl.innerHTML = '<div>' + esc(msg.body || '') + '</div>';
+        contentEl.textContent = msg.body || '';
+    }
+    var contentEl2 = document.getElementById('systemMsgContent');
+    if (contentEl2) {
+        contentEl2.innerHTML = '<div>' + esc(msg.body || '') + '</div>';
     }
     var timeEl = document.getElementById('sysTimeDisplay');
     if (timeEl) timeEl.textContent = msg.timestamp ? new Date(msg.timestamp).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
@@ -1730,7 +1733,6 @@ async function beeRegister() {
         await save();
         try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
         closeBeeRegister();
-        // Bee notification
         beeNotify('✅ အကောင့်ဖွင့်ပြီးပါပြီ 🐝\nAccount ID: ' + id);
         enter();
         setStatus('✅ ' + id + ' အကောင့်ကို သိမ်းပြီးပါပြီ');
@@ -2899,8 +2901,8 @@ function renderNotifications() {
     var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
     var items = [];
-    incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
-    friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
+    incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('🐝 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
+    friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('🐝 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
     list.innerHTML = items.length ? items.map(x => '<div class="list">' + x + '</div>').join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
 }
 
@@ -3418,4 +3420,4 @@ console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
 console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifications');
 </script>
 </body>
-    </html>
+            </html>
