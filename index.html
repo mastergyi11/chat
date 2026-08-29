@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BeeChat Social</title>
+    <title>🐝 BeeChat Social</title>
     <style>
         * { box-sizing: border-box; margin:0; padding:0; }
         body { background: #f5f5f5; color: #222; font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
@@ -189,48 +189,6 @@
             width: 100%;
             border-radius: 12px;
         }
-        .bee-dialog-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.48);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 1000000;
-        }
-        .bee-dialog-box {
-            width: min(92vw, 430px);
-            background: #fff;
-            color: #222;
-            border: 2px solid #e7ad21;
-            border-radius: 18px;
-            padding: 18px;
-            box-shadow: 0 12px 36px rgba(0,0,0,.28);
-        }
-        .bee-dialog-icon { text-align:center; font-size:42px; margin-bottom:4px; }
-        .bee-dialog-title { text-align:center; font-weight:700; font-size:17px; margin-bottom:10px; }
-        .bee-dialog-text { white-space:pre-wrap; line-height:1.5; font-size:15px; text-align:center; }
-        .bee-dialog-input {
-            width:100%;
-            height:44px;
-            margin-top:14px;
-            padding:8px 12px;
-            border:1px solid #ddd;
-            border-radius:10px;
-            background:#fff;
-            color:#222;
-            font-size:16px;
-            outline:none;
-        }
-        .bee-dialog-input:focus { border-color:#e7ad21; }
-        .bee-dialog-actions { display:flex; gap:8px; margin-top:16px; }
-        .bee-dialog-actions button { flex:1; min-height:42px; border:0; border-radius:10px; font-size:14px; cursor:pointer; }
-        .bee-dialog-cancel { background:#eee; color:#555; }
-        .bee-dialog-ok { background:#e7ad21; color:#172130; font-weight:700; }
-        body.dark-mode .bee-dialog-box { background:#16213e; color:#eee; border-color:#e7ad21; }
-        body.dark-mode .bee-dialog-input { background:#1a1a2e; color:#eee; border-color:#0f3460; }
-
         .bee-notify-box {
             position: fixed;
             top: 76px;
@@ -324,20 +282,20 @@
             border-radius: 50%;
         }
         .chat-input-area #msg {
-    flex: 1;
-    border: none;
-    padding: 12px 20px;           /* အတွင်းဘောင်းပိုကျယ် */
-    margin: 0;
-    background: #f1f3f5;
-    color: #222;
-    outline: none;
-    border-radius: 24px;
-    font-size: 16px;
-    height: 44px;
-    min-width: 100px;             /* အနည်းဆုံးအကျယ်ပိုကျယ် */
-    width: 100%;
-    box-sizing: border-box;
-}
+            flex: 1;
+            border: none;
+            padding: 12px 20px;
+            margin: 0;
+            background: #f1f3f5;
+            color: #222;
+            outline: none;
+            border-radius: 24px;
+            font-size: 16px;
+            height: 44px;
+            min-width: 100px;
+            width: 100%;
+            box-sizing: border-box;
+        }
         .chat-input-area #msg::placeholder {
             color: #999;
         }
@@ -682,7 +640,94 @@
         .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    </style>
+    
+/* Chat layout improvements */
+.group-chat-card{padding:0!important;overflow:hidden}
+.group-chat-topbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:5}
+.group-chat-top-title{font-size:18px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px}
+.group-chat-menu-btn{border:0;background:transparent;font-size:22px;padding:8px 6px;cursor:pointer}
+#groupChatMenu{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:6px 0;margin:6px 10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+#groupChatMenu .menu-item{background:transparent;border:0;padding:10px 16px;width:100%;text-align:left;cursor:pointer;font-size:14px;color:#222;border-bottom:1px solid #f5f5f5}
+#groupChatMenu .menu-item:last-child{border-bottom:0}
+#groupChatMenu .menu-item.danger{color:#dc3545}
+body.dark-mode .group-chat-topbar{background:#16213e;color:#eee;border-bottom-color:#0f3460}
+body.dark-mode #groupChatMenu{background:#16213e;border-color:#0f3460}
+body.dark-mode #groupChatMenu .menu-item{color:#eee;border-bottom-color:#0f3460}
+.group-chat-card .group-detail-header{display:none}
+.group-chat-card #groupChatBox{min-height:calc(100vh - 260px)}
+
+.group-chat-input-area{padding-left:8px;padding-right:8px}
+.group-chat-input-area input{flex:1;min-width:0}
+
+/* Custom Bee Register Overlay */
+#beeRegisterOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 20px;
+}
+#beeRegisterBox {
+    background: #fff;
+    border-radius: 28px;
+    max-width: 420px;
+    width: 100%;
+    padding: 24px 20px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center;
+    position: relative;
+}
+body.dark-mode #beeRegisterBox {
+    background: #16213e;
+    color: #eee;
+}
+#beeRegisterBox .bee-icon {
+    font-size: 64px;
+    margin-bottom: 6px;
+}
+#beeRegisterBox h2 {
+    color: #e7ad21;
+    margin-bottom: 16px;
+    font-size: 22px;
+}
+#beeRegisterBox input {
+    margin: 8px 0;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    width: 100%;
+    font-size: 16px;
+    background: #f8f9fa;
+}
+body.dark-mode #beeRegisterBox input {
+    background: #1a1a2e;
+    color: #eee;
+    border-color: #0f3460;
+}
+#beeRegisterBox .btn {
+    width: 100%;
+    margin: 6px 0;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 16px;
+}
+#beeRegisterBox .btn-cancel {
+    background: transparent;
+    color: #888;
+    border: 1px solid #ddd;
+}
+body.dark-mode #beeRegisterBox .btn-cancel {
+    color: #aaa;
+    border-color: #0f3460;
+}
+#beeRegisterBox .small {
+    color: #888;
+    margin-top: 8px;
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -690,7 +735,7 @@
     <!-- HEADER -->
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()">☰</button>
-        <div id="pageTitle" class="header-title">BeeChat Social</div>
+        <div id="pageTitle" class="header-title">🐝 BeeChat Social</div>
         <span id="head">Guest</span>
     </header>
 
@@ -708,12 +753,18 @@
 
     <!-- LOGIN -->
     <section id="login" class="screen active">
-        <div class="card">
-            <h2>အကောင့်ဝင်ရန်</h2>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:60px;margin-bottom:8px;">🐝</div>
+            <h2 style="color:#e7ad21;">BeeChat</h2>
+            <p style="color:#888;margin-bottom:16px;">အကောင့်ဝင်ရန်</p>
             <input id="loginId" placeholder="Account ID ဥပမာ U10001">
             <input id="loginPassword" type="password" placeholder="Password">
             <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
-            <button id="registerBtn" type="button" class="btn green" onclick="register()">အကောင့်အသစ်ဖွင့်မည်</button>
+            <button id="registerBtn" type="button" class="btn green" onclick="openBeeRegister()">
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span>🐝</span> အကောင့်အသစ်ဖွင့်မည်
+                </span>
+            </button>
             <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
         </div>
@@ -723,7 +774,7 @@
     <section id="onboarding" class="screen">
         <div class="onboard">
             <div id="systemMsgBox" class="system-msg-box">
-                <span class="sys-title">📢 Bee Chat Admin</span>
+                <span class="sys-title">🐝 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
                 <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! BeeChat Social ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
             </div>
@@ -799,7 +850,7 @@
         <div class="profile-page">
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
-                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
+                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။</div>
             </div>
             <div class="profile-stats">
                 <div onclick="showFollowList('following')" title="နှိပ်ပြီး Following စာရင်းကြည့်ပါ">
@@ -944,7 +995,7 @@
     <!-- INBOX -->
     <section id="inbox" class="screen">
         <div id="systemNotificationBox" class="system-notification-box">
-            <span class="sys-noti-title">🔔 System Notification</span>
+            <span class="sys-noti-title">🐝 System Notification</span>
             <span class="sys-noti-time" id="sysNotiTimeDisplay"></span>
             <div id="systemNotificationContent" class="sys-noti-text">စနစ်ကျသော အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
         </div>
@@ -962,10 +1013,11 @@
                 </div>
             </div>
             <div id="chatMenu">
+                <button class="menu-item danger" onclick="clearCurrentChatMessages()">🗑️ စာများအားလုံးရှင်းရန်</button>
                 <button class="menu-item danger" onclick="blockCurrentUser()">🚫 ဘလော့လုပ်မည်</button>
             </div>
             <div id="chatbox" class="chat"></div>
-            <div class="chat-input-area">
+            <div class="chat-input-area group-chat-input-area">
                 <div class="input-actions">
                     <button onclick="openCameraForChat()" title="ကင်မရာ">📷</button>
                     <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
@@ -981,8 +1033,15 @@
 
     <!-- GROUP DETAIL -->
     <section id="groupDetail" class="screen">
-        <div class="card">
-            <button class="btn outline" onclick="show('home')" style="margin-bottom:10px;">← နောက်သို့</button>
+        <div class="card group-chat-card">
+            <div id="groupChatTopbar" class="group-chat-topbar" style="display:none;">
+                <div id="groupChatTitle" class="group-chat-top-title"></div>
+                <button class="group-chat-menu-btn" onclick="toggleGroupChatMenu()" aria-label="Group chat menu">☰</button>
+            </div>
+            <div id="groupChatMenu" class="chat-menu" style="display:none;">
+                <button class="menu-item danger" onclick="clearCurrentGroupMessages()">🗑️ စာများအားလုံးရှင်းရန်</button>
+                <button class="menu-item" onclick="toggleGroupChatMenu()">✖️ ပိတ်မည်</button>
+            </div>
             <div id="groupDetailBox"></div>
         </div>
     </section>
@@ -1018,6 +1077,19 @@
             <button class="choice-btn camera" onclick="openCamera()">📷 ကင်မရာဖွင့်ပြီး ပုံရိုက်မည်</button>
             <button class="choice-btn" onclick="openGallery()">🖼️ ဖုန်းဓာတ်ပုံဖိုင်ထဲမှ ရွေးမည်</button>
             <button class="choice-btn cancel" onclick="closePhotoChoice()">မလုပ်တော့ပါ</button>
+        </div>
+    </div>
+
+    <!-- BEE REGISTER OVERLAY -->
+    <div id="beeRegisterOverlay" onclick="if(event.target===this)closeBeeRegister()">
+        <div id="beeRegisterBox">
+            <div class="bee-icon">🐝</div>
+            <h2>အကောင့်အသစ်ဖွင့်ရန်</h2>
+            <input id="beeRegName" placeholder="အသုံးပြုမည့်အမည်" />
+            <input id="beeRegPass" type="password" placeholder="Password (အနည်းဆုံး 6 လုံး)" />
+            <button class="btn gold" onclick="beeRegister()">🐝 အကောင့်ဖွင့်မည်</button>
+            <button class="btn btn-cancel" onclick="closeBeeRegister()">မလုပ်တော့ပါ</button>
+            <p class="small" id="beeRegStatus">အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။</p>
         </div>
     </div>
 
@@ -1313,8 +1385,8 @@ function toggleDisplaySettings() {
 //  LANGUAGE
 // ============================================================
 var translations = {
-    en: { appName: 'BeeChat Social' },
-    my: { appName: 'BeeChat လူမှုကွန်ရက်' }
+    en: { appName: '🐝 BeeChat Social' },
+    my: { appName: '🐝 BeeChat လူမှုကွန်ရက်' }
 };
 
 function setLanguage(lang) {
@@ -1327,7 +1399,7 @@ function setLanguage(lang) {
 
 function applyLanguage(lang) {
     var t = translations[lang] || translations.en;
-    document.getElementById('pageTitle').textContent = t.appName || 'BeeChat Social';
+    document.getElementById('pageTitle').textContent = t.appName || '🐝 BeeChat Social';
 }
 
 function updateLanguageCheckmarks(lang) {
@@ -1555,7 +1627,7 @@ function navGo(id) {
     if (el) el.classList.add('active-nav');
     var titles = { onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile', settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account', notifications:'Notifications', feedback:'Feedback / Report', groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups' };
     var pt = document.getElementById('pageTitle');
-    if (pt) pt.textContent = titles[id] || 'BeeChat Social';
+    if (pt) pt.textContent = titles[id] || '🐝 BeeChat Social';
     if (id === 'blockedUsers') renderBlockedUsers();
     if (id === 'groupDetail') renderGroupDetail();
     if (id === 'groupSearch') renderAllGroups();
@@ -1609,26 +1681,29 @@ function closeMenu() {
 }
 
 // ============================================================
-//  LOGIN / REGISTER
+//  🐝 BEE REGISTER OVERLAY
 // ============================================================
-async function register() {
-    if (firebaseInitPromise) await firebaseInitPromise;
-    if (!db) { alert('ခဏစောင့်ပါ'); return; }
-    if (!fbReady || !firebaseDB) {
-        alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
-        return;
-    }
-    var n = await beePrompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
-    if (n === null) return;
-    var name = n.trim();
-    if (!name) { alert('အမည်ထည့်ပါ'); return; }
+function openBeeRegister() {
+    document.getElementById('beeRegisterOverlay').style.display = 'flex';
+    document.getElementById('beeRegName').value = '';
+    document.getElementById('beeRegPass').value = '';
+    document.getElementById('beeRegStatus').textContent = 'အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။';
+}
+
+function closeBeeRegister() {
+    document.getElementById('beeRegisterOverlay').style.display = 'none';
+}
+
+async function beeRegister() {
+    var name = document.getElementById('beeRegName').value.trim();
+    var p = document.getElementById('beeRegPass').value;
+    var status = document.getElementById('beeRegStatus');
+    if (!name) { status.textContent = '❌ အမည်ထည့်ပါ'; return; }
+    if (p.length < 6) { status.textContent = '❌ Password အနည်းဆုံး 6 လုံးထည့်ပါ'; return; }
     if (db.usedNames && db.usedNames.includes(name)) {
-        alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။');
+        status.textContent = '❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။';
         return;
     }
-    var p = await beePrompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
-    if (p === null) return;
-    if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
     var base = makeBaseName(name);
     var num = 1;
     var id = '';
@@ -1641,9 +1716,10 @@ async function register() {
         violations: {}, isSuspended: false, suspensionReason: null
     };
     try {
-        await firebaseDB.ref('appData/users/' + id).set(user);
-        var verify = await firebaseDB.ref('appData/users/' + id).once('value');
-        if (!verify.exists()) throw new Error('Firebase account verification failed');
+        if (fbReady && firebaseDB) {
+            await firebaseDB.ref('appData/users/' + id).set(user);
+            await firebaseDB.ref('appData/usedNames').push(name);
+        }
         db.users[id] = user;
         if (!db.usedNames) db.usedNames = [];
         db.usedNames.push(name);
@@ -1653,15 +1729,20 @@ async function register() {
         db.users[me].currentDevice = JSON.stringify(device);
         await save();
         try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
-        alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id);
+        closeBeeRegister();
+        // Bee notification
+        beeNotify('✅ အကောင့်ဖွင့်ပြီးပါပြီ 🐝\nAccount ID: ' + id);
         enter();
-        setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
+        setStatus('✅ ' + id + ' အကောင့်ကို သိမ်းပြီးပါပြီ');
     } catch(e) {
         console.error('Register:', e);
-        alert('❌ အကောင့်ဖွင့်မရပါ။');
+        status.textContent = '❌ အကောင့်ဖွင့်မရပါ။ ' + e.message;
     }
 }
 
+// ============================================================
+//  LOGIN (unchanged)
+// ============================================================
 async function login() {
     if (firebaseInitPromise) await firebaseInitPromise;
     if (!db) { alert('ခဏစောင့်ပါ'); return; }
@@ -2042,7 +2123,7 @@ function beeNotify(msg){
     body.className='bee-notify-body';
     var title=document.createElement('div');
     title.className='bee-notify-title';
-    title.textContent='BeeChat';
+    title.textContent='🐝 BeeChat';
     var text=document.createElement('div');
     text.className='bee-notify-text';
     text.textContent=String(msg == null ? '' : msg);
@@ -2057,72 +2138,12 @@ function beeNotify(msg){
     box.appendChild(body);
     box.appendChild(close);
     document.body.appendChild(box);
-    setTimeout(function(){if(box.parentNode)box.remove();},3000);
+    setTimeout(function(){if(box.parentNode)box.remove();},4000);
 }
 
 /* Use BeeChat's own notification instead of the Android/WebView
    native JavaScript alert, so the page URL is never shown. */
 window.alert=function(msg){ beeNotify(msg); };
-
-function beeDialog(type, msg, defaultValue) {
-    return new Promise(function(resolve) {
-        var old=document.getElementById('beeDialogBackdrop');
-        if(old) old.remove();
-        var back=document.createElement('div');
-        back.id='beeDialogBackdrop';
-        back.className='bee-dialog-backdrop';
-        var box=document.createElement('div');
-        box.className='bee-dialog-box';
-        var icon=document.createElement('div');
-        icon.className='bee-dialog-icon';
-        icon.textContent='🐝';
-        var title=document.createElement('div');
-        title.className='bee-dialog-title';
-        title.textContent=type==='prompt'?'BeeChat — ထည့်သွင်းရန်':'BeeChat — အတည်ပြုရန်';
-        var text=document.createElement('div');
-        text.className='bee-dialog-text';
-        text.textContent=String(msg == null ? '' : msg);
-        box.appendChild(icon);
-        box.appendChild(title);
-        box.appendChild(text);
-        var input=null;
-        if(type==='prompt'){
-            input=document.createElement('input');
-            input.className='bee-dialog-input';
-            input.type='text';
-            input.value=defaultValue==null?'':String(defaultValue);
-            box.appendChild(input);
-        }
-        var actions=document.createElement('div');
-        actions.className='bee-dialog-actions';
-        var cancel=document.createElement('button');
-        cancel.type='button';
-        cancel.className='bee-dialog-cancel';
-        cancel.textContent='မလုပ်တော့ပါ';
-        var ok=document.createElement('button');
-        ok.type='button';
-        ok.className='bee-dialog-ok';
-        ok.textContent=type==='prompt'?'OK':'အတည်ပြုမည်';
-        actions.appendChild(cancel);
-        actions.appendChild(ok);
-        box.appendChild(actions);
-        back.appendChild(box);
-        document.body.appendChild(back);
-        function finish(value){ if(back.parentNode) back.remove(); resolve(value); }
-        cancel.onclick=function(){finish(type==='prompt'?null:false);};
-        ok.onclick=function(){finish(type==='prompt'?(input?input.value:''):true);};
-        back.onclick=function(e){if(e.target===back) finish(type==='prompt'?null:false);};
-        if(input){
-            setTimeout(function(){input.focus();input.select();},50);
-            input.onkeydown=function(e){
-                if(e.key==='Enter'){e.preventDefault();ok.click();}
-                if(e.key==='Escape'){e.preventDefault();cancel.click();}
-            };
-        }
-    });
-}
-function beeConfirm(msg){ return beeDialog('confirm',msg); }
-function beePrompt(msg, defaultValue){ return beeDialog('prompt',msg,defaultValue); }
 
 function requestFriend(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
@@ -2130,8 +2151,12 @@ function requestFriend(id) {
     if (!db.req.some(r => r.f === me && r.t === id) && !db.friends.some(x => (x.a === me && x.b === id) || (x.a === id && x.b === me))) {
         db.req.push({ f: me, t: id });
         save();
-        refresh();
-        beeNotify('Friend request ပို့ပြီးပါပြီ');
+        if (typeof searchOnboardUsers === 'function') {
+            searchOnboardUsers();
+        } else if (typeof searchUsers === 'function') {
+            searchUsers();
+        }
+        beeNotify('✅ Friend request ပို့ပြီးပါပြီ 🐝');
     }
 }
 
@@ -2140,6 +2165,7 @@ function accept(id) {
     if (!db.friends.some(x => (x.a === me && x.b === id) || (x.a === id && x.b === me))) db.friends.push({ a: me, b: id });
     save();
     refresh();
+    beeNotify('✅ ' + (db.users[id]?.name || id) + ' နှင့် Friend ဖြစ်သွားပါပြီ 🐝');
 }
 
 function decline(id) {
@@ -2186,6 +2212,57 @@ function friends() {
     if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
 }
 
+
+// ============================================================
+//  CHAT MESSAGE CLEARING
+// ============================================================
+function clearCurrentChatMessages() {
+    if (!chatWith || !db) return;
+    var key = [me, chatWith].sort().join('_');
+    var msgs = db.messages[key] || [];
+    if (!msgs.length) {
+        alert('ရှင်းရန် စာမရှိသေးပါ။');
+        document.getElementById('chatMenu').style.display = 'none';
+        chatMenuVisible = false;
+        return;
+    }
+    if (!confirm('ဒီ Chat ထဲက စာများအားလုံးကို ရှင်းမှာလား?')) return;
+    db.messages[key] = [];
+    save();
+    var menu = document.getElementById('chatMenu');
+    if (menu) menu.style.display = 'none';
+    chatMenuVisible = false;
+    renderChat();
+}
+
+function toggleGroupChatMenu() {
+    var menu = document.getElementById('groupChatMenu');
+    if (!menu) return;
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function clearCurrentGroupMessages() {
+    if (!me || !db) return;
+    var id = window.currentGroupChat;
+    if (!id) return;
+    var g = db.groups.find(function(x){ return x.id === id; });
+    if (!g || !(g.members && g.members.includes(me))) {
+        alert('အသင်းဝင်များသာ စာများရှင်းနိုင်ပါတယ်');
+        return;
+    }
+    var msgs = db.groupMessages[id] || [];
+    if (!msgs.length) {
+        alert('ရှင်းရန် စာမရှိသေးပါ။');
+        toggleGroupChatMenu();
+        return;
+    }
+    if (!confirm('ဒီအသင်း Chat ထဲက စာများအားလုံးကို ရှင်းမှာလား?')) return;
+    db.groupMessages[id] = [];
+    save();
+    toggleGroupChatMenu();
+    renderGroupChat();
+}
+
 // ============================================================
 //  BLOCK
 // ============================================================
@@ -2203,7 +2280,7 @@ function blockUser(userId) {
     db.req = db.req.filter(r => !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)));
     save();
     refresh();
-    alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ');
+    beeNotify('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ 🐝');
     if (chatWith === userId) { chatWith = null; show('inbox'); }
     renderBlockedUsers();
 }
@@ -2214,14 +2291,14 @@ function unblockUser(userId) {
     delete db.blocked[userId];
     save();
     refresh();
-    alert('✅ ဘလော့ဖြုတ်လိုက်ပါပြီ');
+    beeNotify('✅ ဘလော့ဖြုတ်လိုက်ပါပြီ 🐝');
     renderBlockedUsers();
 }
 
-async function blockCurrentUser() {
+function blockCurrentUser() {
     if (!chatWith) { alert('စကားပြောနေတဲ့သူမရှိပါ'); return; }
     if (isBlocked(chatWith)) { alert('ဒီသူကို ဘလော့လုပ်ထားပြီးသားပါ'); return; }
-    if (await beeConfirm('ဒီသုံးစွဲသူကို ဘလော့လုပ်မှာလား?')) blockUser(chatWith);
+    if (confirm('ဒီသုံးစွဲသူကို ဘလော့လုပ်မှာလား?')) blockUser(chatWith);
     document.getElementById('chatMenu').style.display = 'none';
     chatMenuVisible = false;
 }
@@ -2341,7 +2418,7 @@ function renderUserProfile(id) {
     box.innerHTML = html;
 }
 
-async function requestJoinGroupFromProfile(groupId, userId) {
+function requestJoinGroupFromProfile(groupId, userId) {
     if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
     if (me === userId) { alert('သင့်ကိုယ်ပိုင်အသင်းပါ'); return; }
     
@@ -2364,7 +2441,7 @@ async function requestJoinGroupFromProfile(groupId, userId) {
         return;
     }
     
-    if (await beeConfirm('"' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
+    if (confirm('"' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
         if (!db.groupInvites) db.groupInvites = [];
         db.groupInvites.push({ 
             id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7), 
@@ -2376,7 +2453,7 @@ async function requestJoinGroupFromProfile(groupId, userId) {
             message: me + ' သည် ' + g.name + ' အသင်းသို့ ဝင်ရောက်လိုပါသည်။'
         });
         save();
-        beeNotify('✅ ' + g.name + ' အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့ပြီးပါပြီ။');
+        beeNotify('✅ ' + g.name + ' အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့ပြီးပါပြီ 🐝');
         renderUserProfile(userId);
     }
 }
@@ -2490,7 +2567,15 @@ function renderChat() {
             delBtn.textContent = '✕';
             delBtn.onclick = function(e) {
                 e.stopPropagation();
-                confirmDeleteChatMessage(m, key);
+                if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+                var msgs2 = db.messages[key] || [];
+                var realIdx = msgs2.indexOf(m);
+                if (realIdx !== -1) {
+                    msgs2.splice(realIdx, 1);
+                    db.messages[key] = msgs2;
+                    save();
+                    renderChat();
+                }
             };
             d.appendChild(delBtn);
         }
@@ -2499,18 +2584,6 @@ function renderChat() {
     save();
     b.scrollTop = b.scrollHeight;
     updateBadges();
-}
-
-async function confirmDeleteChatMessage(m, key) {
-    if (!(await beeConfirm('ဒီစာကို ဖျက်မှာလား?'))) return;
-    var msgs2 = db.messages[key] || [];
-    var realIdx = msgs2.indexOf(m);
-    if (realIdx !== -1) {
-        msgs2.splice(realIdx, 1);
-        db.messages[key] = msgs2;
-        save();
-        renderChat();
-    }
 }
 
 function getUserAvatar(user) {
@@ -2548,7 +2621,7 @@ function openCameraForChat() {
                     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
                     var data = c.toDataURL('image/jpeg', 0.62);
                     sendChatImage(data);
-                    alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    beeNotify('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ 🐝');
                 };
                 img.src = r.result;
             };
@@ -2579,7 +2652,7 @@ function openGalleryForChat() {
                     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
                     var data = c.toDataURL('image/jpeg', 0.62);
                     sendChatImage(data);
-                    alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
+                    beeNotify('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ 🐝');
                 };
                 img.src = r.result;
             };
@@ -2732,7 +2805,7 @@ function addPhotoToSlot(e) {
             u.photos = u.photos.slice(0, 4);
             save();
             refresh();
-            alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
+            beeNotify('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ 🐝');
         };
         img.src = r.result;
     };
@@ -2777,7 +2850,7 @@ async function locate() {
         await save();
         startPresence();
         refresh();
-        alert('✅ တည်နေရာ သိမ်းပြီးပါပြီ');
+        beeNotify('✅ တည်နေရာ သိမ်းပြီးပါပြီ 🐝');
     }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
 }
 
@@ -2806,7 +2879,7 @@ function saveProfileForm() {
     if (decoTextarea) u.decoration = decoTextarea.value.trim();
     save();
     refresh();
-    alert('✅ Profile ကို သိမ်းပြီးပါပြီ');
+    beeNotify('✅ Profile ကို သိမ်းပြီးပါပြီ 🐝');
 }
 
 // ============================================================
@@ -2923,18 +2996,18 @@ function renderMyGroups() {
     });
 }
 
-async function viewPublicGroup(groupId) {
+function viewPublicGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-    if (await beeConfirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
+    if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
         if (!g.members) g.members = [];
         if (!g.members.includes(me)) {
             g.members.push(me);
             if (!g.memberActivity) g.memberActivity = {};
             g.memberActivity[me] = 0;
             save();
-            alert('✅ အသင်းထဲ ဝင်ပြီးပါပြီ');
+            beeNotify('✅ အသင်းထဲ ဝင်ပြီးပါပြီ 🐝');
             renderAllGroups();
             renderMyGroups();
             openGroup(groupId);
@@ -2982,6 +3055,10 @@ function openGroup(groupId) {
 function renderGroupDetail() {
     var box = document.getElementById('groupDetailBox');
     if (!box) return;
+    var groupTopbar = document.getElementById('groupChatTopbar');
+    var groupMenu = document.getElementById('groupChatMenu');
+    if (groupTopbar) groupTopbar.style.display = 'none';
+    if (groupMenu) groupMenu.style.display = 'none';
     var g = db.groups.find(x => x.id === window.currentGroup);
     if (!g) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
     var isOwner = g.owner === me;
@@ -3030,53 +3107,53 @@ function showGroupSettings() {
     if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
 }
 
-async function transferGroup(groupId, userId) {
+function transferGroup(groupId, userId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
     if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
-    if (await beeConfirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
+    if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
         g.owner = userId;
         g.memberRanks[userId] = 5;
         save();
         renderGroupDetail();
-        alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
+        beeNotify('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ 🐝');
     }
 }
 
-async function leaveGroup(groupId) {
+function leaveGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) return;
     if (g.owner === me) { alert('ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
     if (!g.members || !g.members.includes(me)) return;
-    if (await beeConfirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
+    if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
         g.members = g.members.filter(id => id !== me);
         delete g.memberRanks[me];
         delete g.memberActivity[me];
         save();
         show('home');
-        alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
+        beeNotify('✅ အသင်းမှထွက်ပြီးပါပြီ 🐝');
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
     }
 }
 
-async function deleteGroup(groupId) {
+function deleteGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-    if (await beeConfirm('ဒီအသင်းကို ဖျက်မှာလား?')) {
+    if (confirm('ဒီအသင်းကို ဖျက်မှာလား?')) {
         db.groups = db.groups.filter(x => x.id !== groupId);
         delete db.groupMessages[groupId];
         save();
         show('home');
-        alert('✅ အသင်းဖျက်ပြီးပါပြီ');
+        beeNotify('✅ အသင်းဖျက်ပြီးပါပြီ 🐝');
         renderAllGroups();
         renderMyGroups();
         renderProfileCreateGroup();
     }
 }
 
-async function inviteFriendToGroup(groupId) {
+function inviteFriendToGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
     if (g.members && g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
@@ -3085,7 +3162,7 @@ async function inviteFriendToGroup(groupId) {
     if (!available.length) { alert('ဖိတ်ခေါ်နိုင်တဲ့ သူငယ်ချင်းမရှိပါ'); return; }
     var msg = 'ဖိတ်ခေါ်မည့်သူကို ရွေးပါ:\n';
     available.forEach((id, idx) => { var u = db.users[id]; if (u) msg += (idx+1) + '. ' + u.name + ' (' + u.id + ')\n'; });
-    var choice = await beePrompt(msg);
+    var choice = prompt(msg);
     if (choice === null) return;
     var idx = parseInt(choice) - 1;
     if (idx < 0 || idx >= available.length) { alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
@@ -3098,7 +3175,7 @@ async function inviteFriendToGroup(groupId) {
     db.groupInvites.push({ id: 'GI'+Date.now()+Math.random().toString(36).slice(2,7), groupId: g.id, from: me, to: targetId, status: 'pending', time: Date.now() });
     save();
     renderGroupDetail();
-    alert('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ');
+    beeNotify('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ 🐝');
 }
 
 function openGroupChat(groupId) {
@@ -3122,13 +3199,14 @@ function renderGroupChat() {
         return;
     }
     var msgs = db.groupMessages[id] || [];
+    var topbar = document.getElementById('groupChatTopbar');
+    var titleBox = document.getElementById('groupChatTitle');
+    var groupMenu = document.getElementById('groupChatMenu');
+    if (topbar) topbar.style.display = 'flex';
+    if (titleBox) titleBox.textContent = '🏆 ' + (g.name || 'Group Chat');
+    if (groupMenu) groupMenu.style.display = 'none';
+
     var html = '';
-    html += '<div class="group-detail-header">';
-    html += '<h3 class="group-title" style="margin:0;font-size:16px;">🏆 ' + esc(g.name) + '</h3>';
-    html += '<div class="group-actions">';
-    html += '<button onclick="renderGroupDetail()" style="background:transparent;border:none;font-size:20px;cursor:pointer;">✖️</button>';
-    html += '</div>';
-    html += '</div>';
     html += '<div id="groupChatBox" class="chat">';
     var lastDate = '';
     msgs.forEach(function(m, idx) {
@@ -3186,9 +3264,9 @@ function sendGroupMessage() {
     renderGroupChat();
 }
 
-async function deleteGroupMessage(groupId, msgIndex) {
+function deleteGroupMessage(groupId, msgIndex) {
     if (!me) return;
-    if (!(await beeConfirm('ဒီစာကို ဖျက်မှာလား?'))) return;
+    if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
     var msgs = db.groupMessages[groupId] || [];
     if (msgIndex >= 0 && msgIndex < msgs.length && msgs[msgIndex].f === me) {
         msgs.splice(msgIndex, 1);
@@ -3267,7 +3345,7 @@ function createGroupFromProfile() {
     document.getElementById('profileCreateGroupBtn').style.display = 'block';
     save();
     refresh();
-    alert('✅ အသင်းဖန်တီးပြီးပါပြီ\nID: '+newId);
+    beeNotify('✅ အသင်းဖန်တီးပြီးပါပြီ 🐝\nID: '+newId);
     renderAllGroups();
     renderMyGroups();
     renderProfileCreateGroup();
@@ -3336,8 +3414,8 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
-console.log('✅ BeeChat Social v2.0 Loaded!');
-console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode');
+console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
+console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifications');
 </script>
 </body>
-</html>
+    </html>
