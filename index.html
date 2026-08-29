@@ -692,7 +692,7 @@
             color: #ccc;
         }
         .admin-message-box .admin-content:empty::before {
-            content: "⏳ ၁ မိနစ်အတွင်း ချိတ်ဆက်မှု မအောင်မြင်ပါက 🌐 VPN ချိတ်ဆက်ပြီး BeeChat ကို ပြန်ဝင်ကြည့်ပါ။";
+            content: "📝 Admin မှ အကြောင်းကြားချက် ထည့်သွင်းနိုင်ပါသည်";
             color: #aaa;
             font-style: italic;
         }
@@ -807,8 +807,7 @@
                 </span>
             </button>
             <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
-            <div id="loginStatus" class="status">🐝 BeeChat သို့ ချိတ်ဆက်နေပါသည်…
-ခဏလေး စောင့်ပေးပါနော် 💛</div>
+            <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
             
             <!-- Admin Message Box (Empty) -->
             <div id="adminMessageBox" class="admin-message-box" style="margin-top:12px;">
@@ -1975,7 +1974,7 @@ function startPresence() {
             localSave();
             await presenceRef.update({ id: me, name: db.users[me].name || me, online: true, lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy || null, lastSeen: firebase.database.ServerValue.TIMESTAMP });
             nearby();
-        }, function() {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 });
+        }, function() {}, { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 });
         nearby();
     } catch(e) { console.error(e); }
 }
@@ -3551,7 +3550,5 @@ document.addEventListener('visibilitychange', function() {
 console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
 console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifications');
 </script>
-
-
 </body>
-        </html>
+    </html>
