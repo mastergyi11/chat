@@ -1161,6 +1161,74 @@
 
 <script>
 // ============================================================
+//  OVERRIDE DEFAULT ALERT & CONFIRM WITH BEE STYLE
+// ============================================================
+
+// Override alert
+window.alert = function(msg) {
+    beeNotify('🐝 ' + msg);
+};
+
+// Custom confirm with Bee style
+function beeConfirm(message, callback) {
+    var old = document.getElementById('beeConfirmBox');
+    if (old) old.remove();
+    
+    var overlay = document.createElement('div');
+    overlay.id = 'beeConfirmBox';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999999;padding:20px;';
+    
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:24px;max-width:420px;width:100%;padding:28px 24px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;';
+    
+    if (document.body.classList.contains('dark-mode')) {
+        box.style.background = '#16213e';
+        box.style.color = '#eee';
+    }
+    
+    box.innerHTML = `
+        <div style="font-size:56px;margin-bottom:6px;">🐝</div>
+        <div style="font-size:18px;font-weight:700;color:#e7ad21;margin-bottom:12px;">BeeChat</div>
+        <div style="font-size:15px;color:#444;margin-bottom:22px;line-height:1.6;word-break:break-word;white-space:pre-wrap;text-align:center;${document.body.classList.contains('dark-mode') ? 'color:#ccc;' : ''}">${message.replace(/\n/g, '<br>')}</div>
+        <div style="display:flex;gap:10px;">
+            <button id="beeConfirmYes" style="flex:1;padding:12px 16px;border:0;border-radius:14px;background:#e7ad21;color:#172130;font-weight:bold;font-size:15px;cursor:pointer;">✅ ဟုတ်ကဲ့</button>
+            <button id="beeConfirmNo" style="flex:1;padding:12px 16px;border:0;border-radius:14px;background:#dc3545;color:#fff;font-weight:bold;font-size:15px;cursor:pointer;">❌ မလုပ်တော့ပါ</button>
+        </div>
+    `;
+    
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    
+    document.getElementById('beeConfirmYes').onclick = function() {
+        overlay.remove();
+        if (callback) callback(true);
+    };
+    
+    document.getElementById('beeConfirmNo').onclick = function() {
+        overlay.remove();
+        if (callback) callback(false);
+    };
+}
+
+// Override confirm with Bee style
+window.confirm = function(message) {
+    var result = false;
+    var done = false;
+    
+    beeConfirm(message, function(res) {
+        result = res;
+        done = true;
+    });
+    
+    var start = Date.now();
+    while (!done && Date.now() - start < 30000) {
+        // Wait for user response
+    }
+    
+    return result;
+};
+
+// ============================================================
 //  FIREBASE CONFIG
 // ============================================================
 const firebaseConfig = {
@@ -1346,16 +1414,13 @@ function setStatus(t) {
     var el = document.getElementById('loginStatus');
     if (el) el.textContent = t;
     
-    // Enable/disable buttons based on connection status
     var loginBtn = document.getElementById('loginBtn');
     var registerBtn = document.getElementById('registerBtn');
     
-    // If connected successfully - enable buttons
     if (t.includes('ချိတ်ဆက်ပြီးပါပြီ') || t.includes('✅')) {
         if (loginBtn) loginBtn.disabled = false;
         if (registerBtn) registerBtn.disabled = false;
     } else {
-        // Still connecting or error - keep buttons disabled
         if (loginBtn) loginBtn.disabled = true;
         if (registerBtn) registerBtn.disabled = true;
     }
@@ -2208,9 +2273,10 @@ function beeNotify(msg){
     setTimeout(function(){if(box.parentNode)box.remove();},4000);
 }
 
-/* Use BeeChat's own notification instead of the Android/WebView
-   native JavaScript alert, so the page URL is never shown. */
-window.alert=function(msg){ beeNotify(msg); };
+// Override alert again to use beeNotify
+window.alert = function(msg) {
+    beeNotify('🐝 ' + msg);
+};
 
 function requestFriend(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
@@ -2508,7 +2574,7 @@ function requestJoinGroupFromProfile(groupId, userId) {
         return;
     }
     
-   if (confirm('🐝 "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
+    if (confirm('🐝 "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
         if (!db.groupInvites) db.groupInvites = [];
         db.groupInvites.push({ 
             id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7), 
@@ -3067,21 +3133,7 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-  beeConfirm('🐝 ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n🏆 '+esc(g.name)+'\n🆔 '+esc(g.id)+'\n👥 အသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်', function(result) {
-    if (result) {
-        if (!g.members) g.members = [];
-        if (!g.members.includes(me)) {
-            g.members.push(me);
-            if (!g.memberActivity) g.memberActivity = {};
-            g.memberActivity[me] = 0;
-            save();
-            beeNotify('✅ အသင်းထဲ ဝင်ပြီးပါပြီ 🐝');
-            renderAllGroups();
-            renderMyGroups();
-            openGroup(groupId);
-        }
-    }
-});
+    if (confirm('🐝 ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n🏆 '+esc(g.name)+'\n🆔 '+esc(g.id)+'\n👥 အသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
         if (!g.members) g.members = [];
         if (!g.members.includes(me)) {
             g.members.push(me);
