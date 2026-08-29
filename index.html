@@ -3067,7 +3067,21 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-   if (confirm('🐝 ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n🏆 '+esc(g.name)+'\n🆔 '+esc(g.id)+'\n👥 အသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
+  beeConfirm('🐝 ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n🏆 '+esc(g.name)+'\n🆔 '+esc(g.id)+'\n👥 အသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်', function(result) {
+    if (result) {
+        if (!g.members) g.members = [];
+        if (!g.members.includes(me)) {
+            g.members.push(me);
+            if (!g.memberActivity) g.memberActivity = {};
+            g.memberActivity[me] = 0;
+            save();
+            beeNotify('✅ အသင်းထဲ ဝင်ပြီးပါပြီ 🐝');
+            renderAllGroups();
+            renderMyGroups();
+            openGroup(groupId);
+        }
+    }
+});
         if (!g.members) g.members = [];
         if (!g.members.includes(me)) {
             g.members.push(me);
