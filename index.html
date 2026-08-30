@@ -3516,5 +3516,79 @@ document.addEventListener('visibilitychange', function() {
 console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
 console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifications');
 </script>
+
+<script>
+/* ===== BeeChat Extra Group Member Features Patch ===== */
+(function(){
+    function userName(id){
+        var u=(window.db&&db.users&&db.users[id])||{};
+        return u.name || id;
+    }
+    function addSystem(groupId,msg){
+        try{
+            if(typeof addGroupSystemMessage==='function') addGroupSystemMessage(groupId,msg);
+        }catch(e){}
+    }
+
+    // Approved new member: show profile/name and group list support
+    var oldAccept=window.acceptJoinRequest;
+    if(oldAccept){
+        window.acceptJoinRequest=function(index){
+            var r=db.groupInvites[index];
+            var name=r?userName(r.from):'အသင်းဝင်';
+            var result=oldAccept.apply(this,arguments);
+            try{
+                if(r && r.groupId) addSystem(r.groupId,'👤 '+name+' အသင်းသို့ ဝင်ရောက်ပါသည်။ Profile ကိုနှိပ်၍ အချက်အလက်များ ကြည့်နိုင်ပါသည်။');
+            }catch(e){}
+            return result;
+        };
+    }
+
+    // Professor/Admin appointment notification
+    var oldAdmin=window.makeGroupAdmin;
+    if(oldAdmin){
+        window.makeGroupAdmin=function(groupId,userId){
+            var result=oldAdmin.apply(this,arguments);
+            addSystem(groupId,'🛡️ '+userName(userId)+' ကို အုပ်ချုပ်သူအဖြစ် ခန့်အပ်လိုက်ပါသည်။');
+            return result;
+        };
+    }
+
+    // Group messages always keep profile name reference
+    var oldSendGroup=window.sendGroupMessage;
+    if(oldSendGroup){
+        window.sendGroupMessage=function(){
+            var before=Date.now();
+            var r=oldSendGroup.apply(this,arguments);
+            try{
+                var arr=db.groupMessages[window.currentGroupChat]||[];
+                if(arr.length){
+                    var m=arr[arr.length-1];
+                    m.senderName=userName(me);
+                    m.senderProfile=me;
+                    save();
+                }
+            }catch(e){}
+            return r;
+        };
+    }
+
+    // Login/register notification
+    window.beeAccountNotice=function(text){
+        if(typeof beeNotify==='function') beeNotify('🐝 '+text);
+    };
+
+    // Leave group system message helper
+    window.leaveGroupWithNotice=function(groupId){
+        var g=db.groups.find(function(x){return x.id===groupId;});
+        if(!g) return;
+        var oldName=userName(me);
+        if(g.members) g.members=g.members.filter(function(x){return x!==me;});
+        addSystem(groupId,'🚪 '+oldName+' အသင်းမှ ထွက်သွားပါသည်။');
+        save();
+        if(typeof refresh==='function') refresh();
+    };
+})();
+</script>
 </body>
     </html>
