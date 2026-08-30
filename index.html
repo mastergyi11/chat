@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>🐝 BeeChat Social</title>
+    <title>BeeChat Social</title>
     <style>
-        /* မူလ CSS အကုန်လုံး ဒီမှာထားပါ */
         * { box-sizing: border-box; margin:0; padding:0; }
         body { background: #f5f5f5; color: #222; font-family: Arial, sans-serif; transition: background 0.3s, color 0.3s; }
         body.dark-mode { background: #1a1a2e; color: #eee; }
@@ -64,7 +63,6 @@
         .btn.small { padding: 4px 10px; font-size: 12px; }
         .btn.follow-btn { background: #0d6efd; color: #fff; }
         .btn.block-btn { background: #dc3545; color: #fff; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         .small { font-size: 12px; color: #777; }
         .list { border-bottom: 1px solid #f0f0f0; padding: 12px; background: transparent; }
@@ -73,56 +71,330 @@
         .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
 
         /* ===== TIKTOK STYLE CHAT ===== */
-        #chat .card { padding: 0; margin: 0; border: none; border-radius: 0; background: transparent; box-shadow: none; }
-        #chat .card > div:first-child { padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #f0f0f0; }
-        .chat { height: calc(100vh - 280px); overflow-y: auto; background: #f8f9fa; padding: 8px 12px; border-radius: 0; display: flex; flex-direction: column; }
-        .msg { max-width: 82%; padding: 8px 14px; border-radius: 18px; margin: 3px 0; background: #ffffff; color: #222; display: flex; align-items: flex-start; gap: 8px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.06); border: none; }
-        .msg.me { align-self: flex-end; background: #e7f3ff; border-bottom-right-radius: 4px; }
-        .msg:not(.me) { align-self: flex-start; background: #fff8e1; border: 1px solid #f0df9a; border-bottom-left-radius: 4px; }
-        .msg .avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-top: 2px; box-shadow: 0 1px 4px rgba(0,0,0,.12); cursor: pointer; }
-        .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .msg.me .avatar { display: none; }
-        .msg .bubble .name { font-weight: 600; font-size: 12px; cursor: pointer; color: #0d6efd; display: block; margin-bottom: 2px; }
-        .msg .bubble .text { font-size: 14px; line-height: 1.4; word-break: break-word; }
-        .msg .seen { font-size: 10px; color: #999; margin-top: 2px; text-align: right; }
-        .msg .delete-msg-btn { position: absolute; top: -6px; right: -6px; background: rgba(220,53,69,0.85); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: none; align-items: center; justify-content: center; }
-        .msg:hover .delete-msg-btn { display: flex; }
-        .msg .bubble .msg-image { max-width: 200px; border-radius: 12px; margin-top: 4px; cursor: pointer; }
-        .msg .bubble .msg-image img { width: 100%; border-radius: 12px; }
-        .bee-notify-box { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); width: min(92vw, 430px); display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #ffffff; color: #222; border: 2px solid #e7ad21; border-radius: 16px; box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 999999; animation: beeNotifyIn .18s ease-out; }
-        .bee-notify-icon { width: 46px; height: 46px; border-radius: 50%; background: #fff4bf; display: flex; align-items: center; justify-content: center; font-size: 28px; flex: 0 0 46px; }
+        #chat .card {
+            padding: 0;
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        #chat .card > div:first-child {
+            padding: 12px 16px;
+            background: #ffffff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .chat {
+            height: calc(100vh - 280px);
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .msg {
+            max-width: 82%;
+            padding: 8px 14px;
+            border-radius: 18px;
+            margin: 3px 0;
+            background: #ffffff;
+            color: #222;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            border: none;
+        }
+        .msg.me {
+            align-self: flex-end;
+            background: #e7f3ff;
+            border-bottom-right-radius: 4px;
+        }
+        .msg:not(.me) {
+            align-self: flex-start;
+            background: #fff8e1;
+            border: 1px solid #f0df9a;
+            border-bottom-left-radius: 4px;
+        }
+        .msg .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-top: 2px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.12);
+            cursor: pointer;
+        }
+        .msg .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .msg.me .avatar {
+            display: none;
+        }
+        .msg .bubble .name {
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            color: #0d6efd;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .msg .bubble .text {
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .msg .seen {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+            text-align: right;
+        }
+        .msg .delete-msg-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: rgba(220,53,69,0.85);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .msg:hover .delete-msg-btn {
+            display: flex;
+        }
+        .msg .bubble .msg-image {
+            max-width: 200px;
+            border-radius: 12px;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+        .msg .bubble .msg-image img {
+            width: 100%;
+            border-radius: 12px;
+        }
+        .bee-notify-box {
+            position: fixed;
+            top: 76px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 430px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #ffffff;
+            color: #222;
+            border: 2px solid #e7ad21;
+            border-radius: 16px;
+            box-shadow: 0 8px 26px rgba(0,0,0,.22);
+            z-index: 999999;
+            animation: beeNotifyIn .18s ease-out;
+        }
+        .bee-notify-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #fff4bf;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex: 0 0 46px;
+        }
         .bee-notify-body { flex: 1; min-width: 0; }
         .bee-notify-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
         .bee-notify-text { font-size: 14px; line-height: 1.45; word-break: break-word; }
-        .bee-notify-close { border: 0; background: transparent; color: #777; font-size: 16px; padding: 4px; cursor: pointer; }
-        @keyframes beeNotifyIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .bee-notify-close {
+            border: 0;
+            background: transparent;
+            color: #777;
+            font-size: 16px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        @keyframes beeNotifyIn {
+            from { opacity: 0; transform: translate(-50%, -8px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
         body.dark-mode .bee-notify-box { background:#16213e; color:#eee; border-color:#e7ad21; }
         body.dark-mode .bee-notify-icon { background:#0f3460; }
 
-        .chat-header-profile { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-        .chat-header-profile .avatar, .chat-header-profile img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #e9ecef; }
+        .chat-header-profile {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .chat-header-profile .avatar,
+        .chat-header-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+        }
         .chat-header-profile .chat-friend-name { color:#0d6efd; font-weight:600; }
 
-        .chat-input-area { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: #ffffff; border-top: 1px solid #e8e8e8; border-radius: 0; margin: 0; }
-        .chat-input-area .input-actions { display: flex; gap: 1px; align-items: center; flex: 0 0 auto; }
-        .chat-input-area .input-actions button { background: transparent; border: none; font-size: 22px; padding: 6px; cursor: pointer; color: #777; border-radius: 50%; }
-        .chat-input-area #msg { flex: 1; border: none; padding: 12px 20px; margin: 0; background: #f1f3f5; color: #222; outline: none; border-radius: 24px; font-size: 16px; height: 44px; min-width: 100px; width: 100%; box-sizing: border-box; }
-        .chat-input-area #msg::placeholder { color: #999; }
-        .chat-input-area .send-btn { background: #e7ad21; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; color: #172130; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        .chat-input-area .send-btn:hover { transform: scale(1.05); }
+        .chat-input-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            background: #ffffff;
+            border-top: 1px solid #e8e8e8;
+            border-radius: 0;
+            margin: 0;
+        }
+        .chat-input-area .input-actions {
+            display: flex;
+            gap: 1px;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+        .chat-input-area .input-actions button {
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            padding: 6px;
+            cursor: pointer;
+            color: #777;
+            border-radius: 50%;
+        }
+        .chat-input-area #msg {
+    flex: 1;
+    border: none;
+    padding: 12px 20px;           /* အတွင်းဘောင်းပိုကျယ် */
+    margin: 0;
+    background: #f1f3f5;
+    color: #222;
+    outline: none;
+    border-radius: 24px;
+    font-size: 16px;
+    height: 44px;
+    min-width: 100px;             /* အနည်းဆုံးအကျယ်ပိုကျယ် */
+    width: 100%;
+    box-sizing: border-box;
+}
+        .chat-input-area #msg::placeholder {
+            color: #999;
+        }
+        .chat-input-area .send-btn {
+            background: #e7ad21;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            color: #172130;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .chat-input-area .send-btn:hover {
+            transform: scale(1.05);
+        }
 
         /* ===== GROUP CHAT ===== */
-        #groupDetail .card { padding: 0; margin: 0; border: none; border-radius: 0; background: transparent; box-shadow: none; }
-        #groupDetail .group-detail-header { padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        #groupDetail .chat { height: calc(100vh - 300px); }
-        #groupDetail .chat-input-area #groupMsg { flex: 1; border: none; padding: 10px 14px; margin: 0; background: #f1f3f5; color: #222; outline: none; border-radius: 24px; font-size: 15px; }
-        #groupDetail .chat-input-area #groupMsg::placeholder { color: #999; }
-        #groupDetail .group-detail-avatar { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #aaa; margin-bottom: 8px; overflow: hidden; }
-        #groupDetail .group-detail-avatar img { width: 100%; height: auto; max-height: 200px; object-fit: cover; }
-        .group-member-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; transition: border-color 0.3s; }
-        .group-member-item .member-rank { font-size: 12px; color: #888; min-width: 30px; }
-        .group-member-item .member-name { flex: 1; font-weight: 500; }
-        .group-member-item .member-badge { font-size: 10px; padding: 2px 10px; border-radius: 12px; font-weight: bold; display: inline-block; }
+        #groupDetail .card {
+            padding: 0;
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        #groupDetail .group-detail-header {
+            padding: 12px 16px;
+            background: #ffffff;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #groupDetail .chat {
+            height: calc(100vh - 300px);
+        }
+        #groupDetail .chat-input-area #groupMsg {
+            flex: 1;
+            border: none;
+            padding: 10px 14px;
+            margin: 0;
+            background: #f1f3f5;
+            color: #222;
+            outline: none;
+            border-radius: 24px;
+            font-size: 15px;
+        }
+        #groupDetail .chat-input-area #groupMsg::placeholder {
+            color: #999;
+        }
+        #groupDetail .group-detail-avatar {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #aaa;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        #groupDetail .group-detail-avatar img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+        }
+        .group-member-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: border-color 0.3s;
+        }
+        .group-member-item .member-rank {
+            font-size: 12px;
+            color: #888;
+            min-width: 30px;
+        }
+        .group-member-item .member-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        .group-member-item .member-badge {
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
         .rank-1 { background: #28a745; color: #fff; }
         .rank-2 { background: #17a2b8; color: #fff; }
         .rank-3 { background: #ffc107; color: #222; }
@@ -131,24 +403,66 @@
         .badge-owner { background: #ffd700; color: #222; padding: 0 8px; border-radius: 4px; font-weight: bold; font-size: 10px; display: inline-block; }
 
         /* ===== DARK MODE ===== */
-        body.dark-mode #chat .card > div:first-child { background: #16213e; border-bottom-color: #0f3460; }
-        body.dark-mode .chat { background: #1a1a2e; }
-        body.dark-mode .msg:not(.me) { background: #16213e; color: #eee; }
-        body.dark-mode .msg.me { background: #0f3460; color: #eee; }
-        body.dark-mode .chat-input-area { background: #16213e; border-top-color: #0f3460; }
-        body.dark-mode .chat-input-area #msg { background: #1a1a2e; color: #eee; }
-        body.dark-mode .chat-input-area #msg::placeholder { color: #777; }
-        body.dark-mode .chat-input-area .input-actions button { color: #aaa; }
-        body.dark-mode .chat-input-area .input-actions button:hover { background: #0f3460; }
-        body.dark-mode #groupDetail .group-detail-header { background: #16213e; border-bottom-color: #0f3460; }
-        body.dark-mode #groupDetail .chat { background: #1a1a2e; }
-        body.dark-mode #groupDetail .msg:not(.me) { background: #16213e; color: #eee; }
-        body.dark-mode #groupDetail .msg.me { background: #0f3460; color: #eee; }
-        body.dark-mode #groupDetail .chat-input-area { background: #16213e; border-top-color: #0f3460; }
-        body.dark-mode #groupDetail .chat-input-area #groupMsg { background: #1a1a2e; color: #eee; }
-        body.dark-mode #groupDetail .chat-input-area #groupMsg::placeholder { color: #777; }
+        body.dark-mode #chat .card > div:first-child {
+            background: #16213e;
+            border-bottom-color: #0f3460;
+        }
+        body.dark-mode .chat {
+            background: #1a1a2e;
+        }
+        body.dark-mode .msg:not(.me) {
+            background: #16213e;
+            color: #eee;
+        }
+        body.dark-mode .msg.me {
+            background: #0f3460;
+            color: #eee;
+        }
+        body.dark-mode .chat-input-area {
+            background: #16213e;
+            border-top-color: #0f3460;
+        }
+        body.dark-mode .chat-input-area #msg {
+            background: #1a1a2e;
+            color: #eee;
+        }
+        body.dark-mode .chat-input-area #msg::placeholder {
+            color: #777;
+        }
+        body.dark-mode .chat-input-area .input-actions button {
+            color: #aaa;
+        }
+        body.dark-mode .chat-input-area .input-actions button:hover {
+            background: #0f3460;
+        }
+        body.dark-mode #groupDetail .group-detail-header {
+            background: #16213e;
+            border-bottom-color: #0f3460;
+        }
+        body.dark-mode #groupDetail .chat {
+            background: #1a1a2e;
+        }
+        body.dark-mode #groupDetail .msg:not(.me) {
+            background: #16213e;
+            color: #eee;
+        }
+        body.dark-mode #groupDetail .msg.me {
+            background: #0f3460;
+            color: #eee;
+        }
+        body.dark-mode #groupDetail .chat-input-area {
+            background: #16213e;
+            border-top-color: #0f3460;
+        }
+        body.dark-mode #groupDetail .chat-input-area #groupMsg {
+            background: #1a1a2e;
+            color: #eee;
+        }
+        body.dark-mode #groupDetail .chat-input-area #groupMsg::placeholder {
+            color: #777;
+        }
 
-        /* ===== OTHER STYLES ===== */
+        /* ===== OTHER STYLES (unchanged) ===== */
         .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); transition: background 0.3s, border-color 0.3s; }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
@@ -326,55 +640,6 @@
         .group-avatar-upload { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
         .group-avatar-upload input[type="file"] { display: none; }
         .group-avatar-upload label { background: #e7ad21; color: #172130; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    
-        .group-chat-card { padding:0!important; overflow:hidden; }
-        .group-chat-topbar { height:52px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:5; }
-        .group-chat-top-title { font-size:18px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; padding-right:8px; }
-        .group-chat-menu-btn { border:0; background:transparent; font-size:22px; padding:8px 6px; cursor:pointer; }
-        #groupChatMenu { background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:6px 0; margin:6px 10px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
-        #groupChatMenu .menu-item { background:transparent; border:0; padding:10px 16px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#222; border-bottom:1px solid #f5f5f5; }
-        #groupChatMenu .menu-item:last-child { border-bottom:0; }
-        #groupChatMenu .menu-item.danger { color:#dc3545; }
-        body.dark-mode .group-chat-topbar { background:#16213e; color:#eee; border-bottom-color:#0f3460; }
-        body.dark-mode #groupChatMenu { background:#16213e; border-color:#0f3460; }
-        body.dark-mode #groupChatMenu .menu-item { color:#eee; border-bottom-color:#0f3460; }
-        .group-chat-card .group-detail-header { display:none; }
-        .group-chat-card #groupChatBox { min-height:calc(100vh - 260px); }
-        .group-chat-input-area { padding-left:8px; padding-right:8px; }
-        .group-chat-input-area input { flex:1; min-width:0; }
-
-        /* Admin Message Box */
-        .admin-message-box { background: #f8f9fa; border: 2px dashed #e7ad21; border-radius: 12px; padding: 16px 18px; margin-top: 12px; min-height: 60px; display: flex; align-items: flex-start; gap: 12px; transition: background 0.3s, border-color 0.3s; }
-        body.dark-mode .admin-message-box { background: #16213e; border-color: #e7ad21; }
-        .admin-message-box .bee-icon { font-size: 32px; flex-shrink: 0; margin-top: 2px; }
-        .admin-message-box .admin-content { flex: 1; min-height: 40px; color: #555; font-size: 14px; line-height: 1.5; word-break: break-word; }
-        body.dark-mode .admin-message-box .admin-content { color: #ccc; }
-        .admin-message-box .admin-content:empty::before { content: "📝 Admin မှ အကြောင်းကြားချက် ထည့်သွင်းနိုင်ပါသည်"; color: #aaa; font-style: italic; }
-        body.dark-mode .admin-message-box .admin-content:empty::before { color: #666; }
-
-        /* Bee Register Overlay */
-        #beeRegisterOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
-        #beeRegisterBox { background: #fff; border-radius: 28px; max-width: 420px; width: 100%; padding: 24px 20px 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center; position: relative; }
-        body.dark-mode #beeRegisterBox { background: #16213e; color: #eee; }
-        #beeRegisterBox .bee-icon { font-size: 64px; margin-bottom: 6px; }
-        #beeRegisterBox h2 { color: #e7ad21; margin-bottom: 16px; font-size: 22px; }
-        #beeRegisterBox input { margin: 8px 0; padding: 12px 16px; border-radius: 16px; border: 1px solid #ddd; width: 100%; font-size: 16px; background: #f8f9fa; }
-        body.dark-mode #beeRegisterBox input { background: #1a1a2e; color: #eee; border-color: #0f3460; }
-        #beeRegisterBox .btn { width: 100%; margin: 6px 0; padding: 14px; font-size: 16px; border-radius: 16px; }
-        #beeRegisterBox .btn-cancel { background: transparent; color: #888; border: 1px solid #ddd; }
-        body.dark-mode #beeRegisterBox .btn-cancel { color: #aaa; border-color: #0f3460; }
-        #beeRegisterBox .small { color: #888; margin-top: 8px; }
-
-        /* Join Request Styles */
-        .join-request-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
-        .join-request-item .req-info { flex: 1; }
-        .join-request-item .req-name { font-weight: 600; }
-        .join-request-item .req-id { font-size: 12px; color: #888; }
-        .join-request-item .req-actions { display: flex; gap: 6px; }
-        .join-request-item .req-actions button { padding: 4px 12px; border: 0; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
-        .req-accept { background: #28a745; color: #fff; }
-        .req-decline { background: #dc3545; color: #fff; }
-        body.dark-mode .join-request-item { border-bottom-color: #0f3460; }
     </style>
 </head>
 <body>
@@ -383,7 +648,7 @@
     <!-- HEADER -->
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()">☰</button>
-        <div id="pageTitle" class="header-title">🐝 BeeChat Social</div>
+        <div id="pageTitle" class="header-title">BeeChat Social</div>
         <span id="head">Guest</span>
     </header>
 
@@ -401,26 +666,14 @@
 
     <!-- LOGIN -->
     <section id="login" class="screen active">
-        <div class="card" style="text-align:center;">
-            <div style="font-size:60px;margin-bottom:8px;">🐝</div>
-            <h2 style="color:#e7ad21;">BeeChat</h2>
-            <p style="color:#888;margin-bottom:16px;">အကောင့်ဝင်ရန်</p>
+        <div class="card">
+            <h2>အကောင့်ဝင်ရန်</h2>
             <input id="loginId" placeholder="Account ID ဥပမာ U10001">
             <input id="loginPassword" type="password" placeholder="Password">
-            <button id="loginBtn" type="button" class="btn gold" onclick="login()" disabled>ဝင်မည်</button>
-            <button id="registerBtn" type="button" class="btn green" onclick="openBeeRegister()" disabled>
-                <span style="display:inline-flex;align-items:center;gap:6px;">
-                    <span>🐝</span> အကောင့်အသစ်ဖွင့်မည်
-                </span>
-            </button>
+            <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
+            <button id="registerBtn" type="button" class="btn green" onclick="register()">အကောင့်အသစ်ဖွင့်မည်</button>
             <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
-            
-            <!-- Admin Message Box (Empty) -->
-            <div id="adminMessageBox" class="admin-message-box" style="margin-top:12px;">
-                <div class="bee-icon">🐝</div>
-                <div id="adminMessageContent" class="admin-content"></div>
-            </div>
         </div>
     </section>
 
@@ -428,7 +681,7 @@
     <section id="onboarding" class="screen">
         <div class="onboard">
             <div id="systemMsgBox" class="system-msg-box">
-                <span class="sys-title">🐝 Bee Chat Admin</span>
+                <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
                 <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! BeeChat Social ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
             </div>
@@ -504,7 +757,7 @@
         <div class="profile-page">
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
-                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။</div>
+                <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
             </div>
             <div class="profile-stats">
                 <div onclick="showFollowList('following')" title="နှိပ်ပြီး Following စာရင်းကြည့်ပါ">
@@ -616,7 +869,7 @@
     <!-- NOTIFICATIONS -->
     <section id="notifications" class="screen">
         <div class="card">
-            <h2>🐝 အသိပေးချက်များ</h2>
+            <h2>🔔 အသိပေးချက်များ</h2>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
                 <span>သူငယ်ချင်း / Chat အသိပေးချက်</span>
                 <button id="notifyToggle" class="toggle" onclick="toggleNotifications()"></button>
@@ -642,36 +895,35 @@
 
     <!-- FRIENDS -->
     <section id="friends" class="screen">
-        <div class="card"><h3>🐝 အကောင့်ရှာရန်</h3><input id="userSearch" placeholder="အမည် သို့မဟုတ် ID နဲ့ရှာပါ" oninput="searchUsers()"><div id="searchResults"></div></div>
+        <div class="card"><h3>🔎 အကောင့်ရှာရန်</h3><input id="userSearch" placeholder="အမည် သို့မဟုတ် ID နဲ့ရှာပါ" oninput="searchUsers()"><div id="searchResults"></div></div>
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
     <!-- INBOX -->
     <section id="inbox" class="screen">
         <div id="systemNotificationBox" class="system-notification-box">
-            <span class="sys-noti-title">🐝 System Notification</span>
+            <span class="sys-noti-title">🔔 System Notification</span>
             <span class="sys-noti-time" id="sysNotiTimeDisplay"></span>
             <div id="systemNotificationContent" class="sys-noti-text">စနစ်ကျသော အသိပေးချက်များ ဤနေရာတွင် ဖော်ပြပေးပါမည်။</div>
         </div>
-        <div class="card"><h3>🐝 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
-        <div class="card"><h3>🐝 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
+        <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
+        <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
     <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="ctitle" style="margin:0;">🐝 Chat</h3>
+                <h3 id="ctitle" style="margin:0;">💬 Chat</h3>
                 <div class="chat-header-actions">
                     <button onclick="toggleChatMenu()" style="font-size:22px;">☰</button>
                 </div>
             </div>
             <div id="chatMenu">
-                <button class="menu-item danger" onclick="clearCurrentChatMessages()">🗑️ စာများအားလုံးရှင်းရန်</button>
                 <button class="menu-item danger" onclick="blockCurrentUser()">🚫 ဘလော့လုပ်မည်</button>
             </div>
             <div id="chatbox" class="chat"></div>
-            <div class="chat-input-area group-chat-input-area">
+            <div class="chat-input-area">
                 <div class="input-actions">
                     <button onclick="openCameraForChat()" title="ကင်မရာ">📷</button>
                     <button onclick="openGalleryForChat()" title="ဓာတ်ပုံရွေး">🖼️</button>
@@ -687,15 +939,8 @@
 
     <!-- GROUP DETAIL -->
     <section id="groupDetail" class="screen">
-        <div class="card group-chat-card">
-            <div id="groupChatTopbar" class="group-chat-topbar" style="display:none;">
-                <div id="groupChatTitle" class="group-chat-top-title"></div>
-                <button class="group-chat-menu-btn" onclick="toggleGroupChatMenu()" aria-label="Group chat menu">☰</button>
-            </div>
-            <div id="groupChatMenu" class="chat-menu" style="display:none;">
-                <button class="menu-item danger" onclick="clearCurrentGroupMessages()">🗑️ စာများအားလုံးရှင်းရန်</button>
-                <button class="menu-item" onclick="toggleGroupChatMenu()">✖️ ပိတ်မည်</button>
-            </div>
+        <div class="card">
+            <button class="btn outline" onclick="show('home')" style="margin-bottom:10px;">← နောက်သို့</button>
             <div id="groupDetailBox"></div>
         </div>
     </section>
@@ -731,19 +976,6 @@
             <button class="choice-btn camera" onclick="openCamera()">📷 ကင်မရာဖွင့်ပြီး ပုံရိုက်မည်</button>
             <button class="choice-btn" onclick="openGallery()">🖼️ ဖုန်းဓာတ်ပုံဖိုင်ထဲမှ ရွေးမည်</button>
             <button class="choice-btn cancel" onclick="closePhotoChoice()">မလုပ်တော့ပါ</button>
-        </div>
-    </div>
-
-    <!-- BEE REGISTER OVERLAY -->
-    <div id="beeRegisterOverlay" onclick="if(event.target===this)closeBeeRegister()">
-        <div id="beeRegisterBox">
-            <div class="bee-icon">🐝</div>
-            <h2>အကောင့်အသစ်ဖွင့်ရန်</h2>
-            <input id="beeRegName" placeholder="အသုံးပြုမည့်အမည်" />
-            <input id="beeRegPass" type="password" placeholder="Password (အနည်းဆုံး 6 လုံး)" />
-            <button class="btn gold" onclick="beeRegister()">🐝 အကောင့်ဖွင့်မည်</button>
-            <button class="btn btn-cancel" onclick="closeBeeRegister()">မလုပ်တော့ပါ</button>
-            <p class="small" id="beeRegStatus">အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။</p>
         </div>
     </div>
 
@@ -876,7 +1108,6 @@ var DEFAULT = {
     groupMessages: {},
     blocked: {},
     groupInvites: [],
-    groupJoinRequests: {},
     usedNames: ['မောင်မောင်', 'လှလှ', 'koseinmyint1122', 'myatmyat'],
     systemNotifications: [],
     rules: { version: 1, updatedAt: new Date().toISOString(), list: [] },
@@ -906,7 +1137,6 @@ function normalize(x) {
     else x.groups = [];
     x.groupMessages = x.groupMessages || {};
     x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
-    x.groupJoinRequests = x.groupJoinRequests || {};
     x.blocked = x.blocked || {};
     x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
     x.systemNotifications = Array.isArray(x.systemNotifications) ? x.systemNotifications : [];
@@ -951,21 +1181,7 @@ async function save() {
     try { await firebaseDB.ref('appData').set(db); } catch(e) { console.error(e); }
 }
 
-function setStatus(t) {
-    var el = document.getElementById('loginStatus');
-    if (el) el.textContent = t;
-    
-    var loginBtn = document.getElementById('loginBtn');
-    var registerBtn = document.getElementById('registerBtn');
-    
-    if (t.includes('ချိတ်ဆက်ပြီးပါပြီ') || t.includes('✅')) {
-        if (loginBtn) loginBtn.disabled = false;
-        if (registerBtn) registerBtn.disabled = false;
-    } else {
-        if (loginBtn) loginBtn.disabled = true;
-        if (registerBtn) registerBtn.disabled = true;
-    }
-}
+function setStatus(t) { var el = document.getElementById('loginStatus'); if (el) el.textContent = t; }
 
 // ============================================================
 //  FIREBASE SYNC
@@ -987,7 +1203,6 @@ async function initFirebase() {
             var local = normalize(db);
             Object.keys(local.users).forEach(id => { if (!remote.users[id]) remote.users[id] = local.users[id]; });
             remote.blocked = remote.blocked || {};
-            remote.groupJoinRequests = remote.groupJoinRequests || {};
             local.groups.forEach(g => {
                 if (!remote.groups.some(rg => rg.id === g.id)) {
                     remote.groups.push(g);
@@ -1056,8 +1271,8 @@ function toggleDisplaySettings() {
 //  LANGUAGE
 // ============================================================
 var translations = {
-    en: { appName: '🐝 BeeChat Social' },
-    my: { appName: '🐝 BeeChat လူမှုကွန်ရက်' }
+    en: { appName: 'BeeChat Social' },
+    my: { appName: 'BeeChat လူမှုကွန်ရက်' }
 };
 
 function setLanguage(lang) {
@@ -1070,7 +1285,7 @@ function setLanguage(lang) {
 
 function applyLanguage(lang) {
     var t = translations[lang] || translations.en;
-    document.getElementById('pageTitle').textContent = t.appName || '🐝 BeeChat Social';
+    document.getElementById('pageTitle').textContent = t.appName || 'BeeChat Social';
 }
 
 function updateLanguageCheckmarks(lang) {
@@ -1225,13 +1440,9 @@ function updateAdminMessageFromDB() {
     })[0];
     var msg = db.adminMessages[latestKey];
     if (!msg) return;
-    var contentEl = document.getElementById('adminMessageContent');
+    var contentEl = document.getElementById('systemMsgContent');
     if (contentEl) {
-        contentEl.textContent = msg.body || '';
-    }
-    var contentEl2 = document.getElementById('systemMsgContent');
-    if (contentEl2) {
-        contentEl2.innerHTML = '<div>' + esc(msg.body || '') + '</div>';
+        contentEl.innerHTML = '<div>' + esc(msg.body || '') + '</div>';
     }
     var timeEl = document.getElementById('sysTimeDisplay');
     if (timeEl) timeEl.textContent = msg.timestamp ? new Date(msg.timestamp).toLocaleString('my-MM', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
@@ -1302,7 +1513,7 @@ function navGo(id) {
     if (el) el.classList.add('active-nav');
     var titles = { onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile', settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account', notifications:'Notifications', feedback:'Feedback / Report', groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups' };
     var pt = document.getElementById('pageTitle');
-    if (pt) pt.textContent = titles[id] || '🐝 BeeChat Social';
+    if (pt) pt.textContent = titles[id] || 'BeeChat Social';
     if (id === 'blockedUsers') renderBlockedUsers();
     if (id === 'groupDetail') renderGroupDetail();
     if (id === 'groupSearch') renderAllGroups();
@@ -1356,29 +1567,26 @@ function closeMenu() {
 }
 
 // ============================================================
-//  🐝 BEE REGISTER OVERLAY
+//  LOGIN / REGISTER
 // ============================================================
-function openBeeRegister() {
-    document.getElementById('beeRegisterOverlay').style.display = 'flex';
-    document.getElementById('beeRegName').value = '';
-    document.getElementById('beeRegPass').value = '';
-    document.getElementById('beeRegStatus').textContent = 'အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။';
-}
-
-function closeBeeRegister() {
-    document.getElementById('beeRegisterOverlay').style.display = 'none';
-}
-
-async function beeRegister() {
-    var name = document.getElementById('beeRegName').value.trim();
-    var p = document.getElementById('beeRegPass').value;
-    var status = document.getElementById('beeRegStatus');
-    if (!name) { status.textContent = '❌ အမည်ထည့်ပါ'; return; }
-    if (p.length < 6) { status.textContent = '❌ Password အနည်းဆုံး 6 လုံးထည့်ပါ'; return; }
-    if (db.usedNames && db.usedNames.includes(name)) {
-        status.textContent = '❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။';
+async function register() {
+    if (firebaseInitPromise) await firebaseInitPromise;
+    if (!db) { alert('ခဏစောင့်ပါ'); return; }
+    if (!fbReady || !firebaseDB) {
+        alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
         return;
     }
+    var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
+    if (n === null) return;
+    var name = n.trim();
+    if (!name) { alert('အမည်ထည့်ပါ'); return; }
+    if (db.usedNames && db.usedNames.includes(name)) {
+        alert('❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။');
+        return;
+    }
+    var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
+    if (p === null) return;
+    if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
     var base = makeBaseName(name);
     var num = 1;
     var id = '';
@@ -1391,10 +1599,9 @@ async function beeRegister() {
         violations: {}, isSuspended: false, suspensionReason: null
     };
     try {
-        if (fbReady && firebaseDB) {
-            await firebaseDB.ref('appData/users/' + id).set(user);
-            await firebaseDB.ref('appData/usedNames').push(name);
-        }
+        await firebaseDB.ref('appData/users/' + id).set(user);
+        var verify = await firebaseDB.ref('appData/users/' + id).once('value');
+        if (!verify.exists()) throw new Error('Firebase account verification failed');
         db.users[id] = user;
         if (!db.usedNames) db.usedNames = [];
         db.usedNames.push(name);
@@ -1404,19 +1611,15 @@ async function beeRegister() {
         db.users[me].currentDevice = JSON.stringify(device);
         await save();
         try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
-        closeBeeRegister();
-        beeNotify('✅ အကောင့်ဖွင့်ပြီးပါပြီ 🐝\nAccount ID: ' + id);
+        alert('✅ အကောင့်ဖွင့်ပြီးပါပြီ\nAccount ID: ' + id);
         enter();
-        setStatus('✅ ' + id + ' အကောင့်ကို သိမ်းပြီးပါပြီ');
+        setStatus('✅ ' + id + ' အကောင့်ကို Firebase Server မှာ သိမ်းပြီးပါပြီ');
     } catch(e) {
         console.error('Register:', e);
-        status.textContent = '❌ အကောင့်ဖွင့်မရပါ။ ' + e.message;
+        alert('❌ အကောင့်ဖွင့်မရပါ။');
     }
 }
 
-// ============================================================
-//  LOGIN
-// ============================================================
 async function login() {
     if (firebaseInitPromise) await firebaseInitPromise;
     if (!db) { alert('ခဏစောင့်ပါ'); return; }
@@ -1797,7 +2000,7 @@ function beeNotify(msg){
     body.className='bee-notify-body';
     var title=document.createElement('div');
     title.className='bee-notify-title';
-    title.textContent='🐝 BeeChat';
+    title.textContent='BeeChat';
     var text=document.createElement('div');
     text.className='bee-notify-text';
     text.textContent=String(msg == null ? '' : msg);
@@ -1812,721 +2015,78 @@ function beeNotify(msg){
     box.appendChild(body);
     box.appendChild(close);
     document.body.appendChild(box);
-    setTimeout(function(){if(box.parentNode)box.remove();},4000);
+    setTimeout(function(){if(box.parentNode)box.remove();},3000);
 }
 
-// Override alert
-window.alert = function(msg) {
-    beeNotify('🐝 ' + msg);
-};
+/* Use BeeChat's own notification instead of the Android/WebView
+   native JavaScript alert, so the page URL is never shown. */
+window.alert=function(msg){ beeNotify(msg); };
 
-// ============================================================
-//  GROUP FUNCTIONS WITH JOIN REQUEST SYSTEM
-// ============================================================
-
-function renderAllGroups() {
-    try {
-        var container = document.getElementById('allGroupsList');
-        if (!container) return;
-        var q = (document.getElementById('groupSearchInput')?.value || '').trim().toLowerCase();
-        var allGroups = Array.isArray(db.groups) ? db.groups : [];
-        if (!allGroups.length && Array.isArray(DEFAULT.groups)) allGroups = DEFAULT.groups.slice();
-        var filtered = allGroups.filter(g => {
-            if (!g) return false;
-            var nameMatch = (g.name || '').toLowerCase().includes(q);
-            var idMatch = (g.id || '').toLowerCase().includes(q);
-            return nameMatch || idMatch;
-        });
-        if (!filtered.length) { container.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>'; return; }
-        container.innerHTML = '';
-        filtered.forEach(g => {
-            var card = document.createElement('div');
-            card.className = 'group-card';
-            card.onclick = function() { viewPublicGroup(g.id); };
-            var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" alt="group">' : '🏆';
-            card.innerHTML = 
-                '<div class="group-avatar">'+avatarHtml+'</div>' +
-                '<div class="group-name">'+esc(g.name)+'</div>' +
-                '<div class="group-members">👥 '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
-                '<div class="group-id">ID: '+esc(g.id)+'</div>';
-            container.appendChild(card);
-        });
-    } catch(e) {
-        console.error('renderAllGroups error:', e);
-        beeNotify('⚠️ အသင်းစာရင်းပြရာတွင် အမှားဖြစ်သွားပါသည်။');
-    }
-}
-
-function renderMyGroups() {
-    try {
-        var container = document.getElementById('myGroupsList');
-        if (!container) return;
-        if (!me) { container.innerHTML = '<div class="small">အကောင့်ဝင်ပါ</div>'; return; }
-        var myGroups = db.groups.filter(g => g.members && g.members.includes(me));
-        if (!myGroups.length) { container.innerHTML = '<div class="small">အသင်းမပါဝင်သေးပါ</div>'; return; }
-        container.innerHTML = '';
-        myGroups.forEach(g => {
-            var card = document.createElement('div');
-            card.className = 'group-card';
-            card.onclick = function() { openGroup(g.id); };
-            var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" alt="group">' : '🏆';
-            card.innerHTML = 
-                '<div class="group-avatar">'+avatarHtml+'</div>' +
-                '<div class="group-name">'+esc(g.name)+'</div>' +
-                '<div class="group-members">👥 '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
-                '<div class="group-id">ID: '+esc(g.id)+'</div>';
-            container.appendChild(card);
-        });
-    } catch(e) {
-        console.error('renderMyGroups error:', e);
-        beeNotify('⚠️ သင့်အသင်းစာရင်းပြရာတွင် အမှားဖြစ်သွားပါသည်။');
-    }
-}
-
-function viewPublicGroup(groupId) {
-    try {
-        if (!db || !db.groups) {
-            beeNotify('⚠️ အသင်းစာရင်း မရှိသေးပါ');
-            return;
-        }
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g) {
-            beeNotify('⚠️ အသင်းမရှိပါ');
-            return;
-        }
-        if (g.members && g.members.includes(me)) {
-            openGroup(groupId);
-            return;
-        }
-        
-        // Check if already requested
-        if (db.groupJoinRequests && db.groupJoinRequests[g.id]) {
-            var alreadyRequested = db.groupJoinRequests[g.id].some(r => r.from === me && r.status === 'pending');
-            if (alreadyRequested) {
-                beeNotify('⚠️ သင်သည် ဤအသင်းသို့ တောင်းဆိုမှုပို့ထားပြီးသားပါ။ အုပ်ချုပ်သူ၏ ခွင့်ပြုချက်ကို စောင့်ပါ။');
-                return;
-            }
-        }
-        
-        if (confirm('🐝 "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?\n\n🏆 အုပ်ချုပ်သူ: ' + esc(db.users[g.owner]?.name || g.owner) + '\n👥 အသင်းဝင်: ' + (g.members ? g.members.length : 0) + ' ယောက်')) {
-            // Send join request
-            if (!db.groupJoinRequests) db.groupJoinRequests = {};
-            if (!db.groupJoinRequests[g.id]) db.groupJoinRequests[g.id] = [];
-            
-            db.groupJoinRequests[g.id].push({
-                from: me,
-                fromName: db.users[me]?.name || me,
-                to: g.owner,
-                time: Date.now(),
-                status: 'pending'
-            });
-            save();
-            beeNotify('✅ "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှုပို့ပြီးပါပြီ 🐝\nအုပ်ချုပ်သူ၏ ခွင့်ပြုချက်ကို စောင့်ပါ။');
-            
-            // Notify owner if online
-            if (fbReady && firebaseDB) {
-                firebaseDB.ref('presence/' + g.owner).once('value', function(snap) {
-                    if (snap.exists() && snap.val().online) {
-                        beeNotify('🔔 အသင်းအုပ်ချုပ်သူကို အကြောင်းကြားထားပါပြီ။');
-                    }
-                });
-            }
-        }
-    } catch(e) {
-        console.error('viewPublicGroup error:', e);
-        beeNotify('⚠️ အမှားတစ်ခုဖြစ်သွားပါသည်။ ပြန်စမ်းပါ။');
-    }
-}
-
-function openGroup(groupId) {
-    try {
-        if (!db || !db.groups) {
-            beeNotify('⚠️ အသင်းစာရင်း မရှိသေးပါ');
-            return;
-        }
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g) {
-            beeNotify('⚠️ အသင်းမရှိပါ');
-            return;
-        }
-        if (!(g.owner === me || (g.members && g.members.includes(me)))) {
-            beeNotify('⚠️ ဒီအသင်းထဲ ဝင်ခွင့်မရှိပါ');
-            return;
-        }
-        window.currentGroup = groupId;
-        show('groupDetail');
-        renderGroupDetail();
-    } catch(e) {
-        console.error('openGroup error:', e);
-        beeNotify('⚠️ အသင်းဖွင့်လို့မရပါ။ ပြန်စမ်းပါ။');
-    }
-}
-
-function renderGroupDetail() {
-    try {
-        var box = document.getElementById('groupDetailBox');
-        if (!box) return;
-        var groupTopbar = document.getElementById('groupChatTopbar');
-        var groupMenu = document.getElementById('groupChatMenu');
-        if (groupTopbar) groupTopbar.style.display = 'none';
-        if (groupMenu) groupMenu.style.display = 'none';
-        var g = db.groups.find(x => x.id === window.currentGroup);
-        if (!g) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
-        var isOwner = g.owner === me;
-        var isMember = g.members && g.members.includes(me);
-        var members = g.members ? g.members.map(id => db.users[id]).filter(Boolean) : [];
-        var avatarHtml = g.avatar ? '<div class="group-detail-avatar"><img src="'+g.avatar+'" alt="group"></div>' : '<div class="group-detail-avatar">🏆</div>';
-        
-        var html = '<div class="group-detail-header">' +
-            '<h3 class="group-title" style="margin:0;font-size:16px;">🏆 ' + esc(g.name) + '</h3>' +
-            '<div class="group-actions">' +
-            '<button onclick="showGroupSettings()" style="background:transparent;border:none;font-size:20px;cursor:pointer;">⚙️</button>' +
-            '</div>' +
-            '</div>' +
-            avatarHtml +
-            '<p class="small" style="padding:0 16px;">ID: '+esc(g.id)+' • Level ' + g.level + ' • Members '+(g.members ? g.members.length : 0)+'/20</p>' +
-            '<hr><h3 style="padding:0 16px;">👥 အသင်းဝင်များ</h3>';
-        
-        // Join Requests (only for owner)
-        if (isOwner) {
-            var requests = db.groupJoinRequests && db.groupJoinRequests[g.id] ? db.groupJoinRequests[g.id] : [];
-            var pendingRequests = requests.filter(r => r.status === 'pending');
-            if (pendingRequests.length > 0) {
-                html += '<div style="background:#fff8e1;padding:12px;border-radius:8px;margin:8px 16px;border:1px solid #e7ad21;">';
-                html += '<div style="font-weight:bold;color:#e7ad21;margin-bottom:8px;">📨 ဝင်ရောက်ရန်တောင်းဆိုမှုများ (' + pendingRequests.length + ')</div>';
-                pendingRequests.forEach(function(req) {
-                    var reqUser = db.users[req.from];
-                    html += '<div class="join-request-item">' +
-                        '<div class="req-info">' +
-                            '<div class="req-name">' + esc(reqUser?.name || req.from) + '</div>' +
-                            '<div class="req-id">ID: ' + esc(req.from) + ' • ' + new Date(req.time).toLocaleString('my-MM') + '</div>' +
-                        '</div>' +
-                        '<div class="req-actions">' +
-                            '<button class="req-accept" onclick="acceptJoinRequest(\'' + g.id + '\', \'' + req.from + '\')">လက်ခံ</button>' +
-                            '<button class="req-decline" onclick="declineJoinRequest(\'' + g.id + '\', \'' + req.from + '\')">ငြင်း</button>' +
-                        '</div>' +
-                    '</div>';
-                });
-                html += '</div>';
-            }
-        }
-        
-        html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 16px;">';
-        if (isOwner) {
-            html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
-            html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
-        } else if (isMember) {
-            html += '<button class="menu-item danger" onclick="leaveGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;color:#dc3545;">🚪 အသင်းမှထွက်မည်</button>';
-        }
-        html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;">✖️ ပိတ်မည်</button>';
-        html += '</div>';
-        
-        if (members.length) {
-            members.forEach(u => {
-                var rank = getMemberRank(g, u.id);
-                var isOwnerUser = u.id === g.owner;
-                var badgeHtml = isOwnerUser ? '<span class="badge-owner">ပါမောခ</span>' : '<span class="member-badge ' + getRankBadgeClass(rank) + '">' + getRankLabel(rank) + '</span>';
-                html += '<div class="group-member-item" style="padding:8px 16px;">' +
-                    '<span class="member-rank">#' + rank + '</span>' +
-                    '<span class="member-name">' + esc(u.name) + '</span>' +
-                    badgeHtml +
-                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
-                    '</div>';
-            });
-        } else { html += '<div class="small" style="padding:0 16px;">Member မရှိသေးပါ</div>'; }
-        
-        html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 16px;">' +
-            (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') +
-            '</div>';
-        box.innerHTML = html;
-    } catch(e) {
-        console.error('renderGroupDetail error:', e);
-        beeNotify('⚠️ အသင်းအသေးစိတ်ပြရာတွင် အမှားဖြစ်သွားပါသည်။');
-    }
-}
-
-// ============================================================
-//  JOIN REQUEST HANDLERS
-// ============================================================
-
-function acceptJoinRequest(groupId, userId) {
-    try {
-        if (!confirm('🐝 ' + (db.users[userId]?.name || userId) + ' ကို အသင်းထဲ လက်ခံမှာလား?')) return;
-        
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g) { beeNotify('⚠️ အသင်းမရှိပါ'); return; }
-        if (g.owner !== me) { beeNotify('⚠️ သင်သည် အုပ်ချုပ်သူမဟုတ်ပါ'); return; }
-        
-        // Add user to group
-        if (!g.members) g.members = [];
-        if (!g.members.includes(userId)) {
-            g.members.push(userId);
-        }
-        
-        // Update request status
-        if (db.groupJoinRequests && db.groupJoinRequests[g.id]) {
-            db.groupJoinRequests[g.id] = db.groupJoinRequests[g.id].map(function(req) {
-                if (req.from === userId && req.status === 'pending') {
-                    req.status = 'accepted';
-                }
-                return req;
-            });
-        }
-        
+function requestFriend(id) {
+    if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
+    if (db.users[id]?.isSuspended) { alert('ဒီသုံးစွဲသူကို ပိတ်ထားပါသည်။'); return; }
+    if (!db.req.some(r => r.f === me && r.t === id) && !db.friends.some(x => (x.a === me && x.b === id) || (x.a === id && x.b === me))) {
+        db.req.push({ f: me, t: id });
         save();
-        beeNotify('✅ ' + (db.users[userId]?.name || userId) + ' ကို အသင်းထဲ လက်ခံပြီးပါပြီ 🐝');
-        renderGroupDetail();
-        renderAllGroups();
-        renderMyGroups();
-    } catch(e) {
-        console.error('acceptJoinRequest error:', e);
-        beeNotify('⚠️ လက်ခံလို့မရပါ။ ပြန်စမ်းပါ။');
-    }
-}
-
-function declineJoinRequest(groupId, userId) {
-    try {
-        if (!confirm('🐝 ' + (db.users[userId]?.name || userId) + ' ရဲ့ တောင်းဆိုမှုကို ငြင်းမှာလား?')) return;
-        
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g) { beeNotify('⚠️ အသင်းမရှိပါ'); return; }
-        if (g.owner !== me) { beeNotify('⚠️ သင်သည် အုပ်ချုပ်သူမဟုတ်ပါ'); return; }
-        
-        // Update request status
-        if (db.groupJoinRequests && db.groupJoinRequests[g.id]) {
-            db.groupJoinRequests[g.id] = db.groupJoinRequests[g.id].map(function(req) {
-                if (req.from === userId && req.status === 'pending') {
-                    req.status = 'declined';
-                }
-                return req;
-            });
+        // Search result page မပျောက်စေရန် refresh မလုပ်ဘဲ လက်ရှိရှာထားတာကိုပဲ update ပြန်လုပ်ပါ
+        if (typeof searchOnboardUsers === 'function') {
+            searchOnboardUsers();
+        } else if (typeof searchUsers === 'function') {
+            searchUsers();
         }
-        
-        save();
-        beeNotify('❌ ' + (db.users[userId]?.name || userId) + ' ရဲ့ တောင်းဆိုမှုကို ငြင်းပြီးပါပြီ');
-        renderGroupDetail();
-    } catch(e) {
-        console.error('declineJoinRequest error:', e);
-        beeNotify('⚠️ ငြင်းလို့မရပါ။ ပြန်စမ်းပါ။');
+        beeNotify('Friend request ပို့ပြီးပါပြီ');
     }
 }
 
-// ============================================================
-//  OTHER GROUP FUNCTIONS
-// ============================================================
-
-function openGroupChat(groupId) {
-    try {
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g || !(g.members && g.members.includes(me))) {
-            beeNotify('⚠️ အသင်းဝင်များသာ Chat သုံးနိုင်ပါတယ်');
-            return;
-        }
-        window.currentGroupChat = groupId;
-        show('groupDetail');
-        renderGroupChat();
-    } catch(e) {
-        console.error('openGroupChat error:', e);
-        beeNotify('⚠️ Group Chat ဖွင့်လို့မရပါ။');
-    }
-}
-
-function renderGroupChat() {
-    try {
-        var box = document.getElementById('groupDetailBox');
-        if (!box) return;
-        var id = window.currentGroupChat;
-        var g = db.groups.find(x => x.id === id);
-        if (!g || !(g.members && g.members.includes(me))) {
-            box.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">အသင်းမရှိပါ</div>';
-            return;
-        }
-        var msgs = db.groupMessages[id] || [];
-        var topbar = document.getElementById('groupChatTopbar');
-        var titleBox = document.getElementById('groupChatTitle');
-        var groupMenu = document.getElementById('groupChatMenu');
-        if (topbar) topbar.style.display = 'flex';
-        if (titleBox) titleBox.textContent = '🏆 ' + (g.name || 'Group Chat');
-        if (groupMenu) groupMenu.style.display = 'none';
-
-        var html = '';
-        html += '<div id="groupChatBox" class="chat">';
-        var lastDate = '';
-        msgs.forEach(function(m, idx) {
-            var u = db.users[m.f] || {};
-            var isMe = (m.f === me);
-            var rank = getMemberRank(g, m.f);
-            var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
-            var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
-            var avatarHtml = getUserAvatar(u);
-            var nameDisplay = esc(u.name || m.f);
-            var msgText = esc(m.t || '');
-            var msgDate = new Date(m.time).toLocaleDateString('my-MM', { day: 'numeric', month: 'short' });
-            if (msgDate !== lastDate) {
-                html += '<div style="text-align:center;font-size:11px;color:#999;padding:8px 0;">' + msgDate + '</div>';
-                lastDate = msgDate;
-            }
-            html += '<div class="msg' + (isMe ? ' me' : '') + '">';
-            if (!isMe) {
-                html += '<div class="avatar" onclick="viewUserProfile(\'' + m.f + '\')">' + avatarHtml + '</div>';
-            }
-            html += '<div class="bubble">';
-            if (!isMe) {
-                html += '<span class="name" onclick="viewUserProfile(\'' + m.f + '\')">' + nameDisplay + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></span>';
-            }
-            html += '<div class="text">' + msgText + '</div>';
-            html += '</div>';
-            if (isMe) {
-                html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')">✕</button>';
-            }
-            html += '</div>';
-        });
-        html += '</div>';
-        html += '<div class="chat-input-area">';
-        html += '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">';
-        html += '<button class="send-btn" onclick="sendGroupMessage()">➤</button>';
-        html += '</div>';
-        box.innerHTML = html;
-        var cb = document.getElementById('groupChatBox');
-        if (cb) cb.scrollTop = cb.scrollHeight;
-    } catch(e) {
-        console.error('renderGroupChat error:', e);
-        beeNotify('⚠️ Group Chat ပြရာတွင် အမှားဖြစ်သွားပါသည်။');
-    }
-}
-
-function sendGroupMessage() {
-    try {
-        var id = window.currentGroupChat;
-        var g = db.groups.find(x => x.id === id);
-        if (!g || !(g.members && g.members.includes(me))) { beeNotify('⚠️ အသင်းဝင်မဟုတ်ပါ'); return; }
-        var input = document.getElementById('groupMsg');
-        var t = input.value.trim();
-        if (!t) return;
-        db.groupMessages = db.groupMessages || {};
-        db.groupMessages[id] = db.groupMessages[id] || [];
-        db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
-        addGroupActivity(id, me, 1);
-        input.value = '';
-        save();
-        renderGroupChat();
-    } catch(e) {
-        console.error('sendGroupMessage error:', e);
-        beeNotify('⚠️ စာပို့လို့မရပါ။ ပြန်စမ်းပါ။');
-    }
-}
-
-function deleteGroupMessage(groupId, msgIndex) {
-    try {
-        if (!me) return;
-        if (!confirm('🐝 ဒီစာကို ဖျက်မှာလား?')) return;
-        var msgs = db.groupMessages[groupId] || [];
-        if (msgIndex >= 0 && msgIndex < msgs.length && msgs[msgIndex].f === me) {
-            msgs.splice(msgIndex, 1);
-            db.groupMessages[groupId] = msgs;
-            save();
-            renderGroupChat();
-        }
-    } catch(e) {
-        console.error('deleteGroupMessage error:', e);
-        beeNotify('⚠️ စာဖျက်လို့မရပါ။');
-    }
-}
-
-function groups() {
-    var b = document.getElementById('glist');
-    var createCard = document.getElementById('groupCreateCard');
-    var groupData = Array.isArray(db.groups) ? db.groups : [];
-    var owned = groupData.find(g => g && g.owner === me);
-    if (createCard) createCard.style.display = owned ? 'none' : 'block';
-    if (b) {
-        b.innerHTML = '<h3>🏆 My Groups</h3>';
-        groupData.filter(g => g && (g.owner === me || (g.members && g.members.includes(me)))).forEach(g => {
-            var d = document.createElement('div');
-            d.className = 'list';
-            d.style.cursor = 'pointer';
-            d.onclick = function() { openGroup(g.id); };
-            var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '🏆';
-            d.innerHTML = avatarHtml + '<b>' + esc(g.name) + '</b> ⭐ Level ' + (g.level || 1) +
-                '<div class="small">ID: '+esc(g.id)+' • Members '+(g.members ? g.members.length : 0)+'/20 • Activity '+(g.activity||0)+'</div>' +
-                '<div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
-            b.appendChild(d);
-        });
-        if (!b.innerHTML || b.innerHTML === '<h3>🏆 My Groups</h3>') b.innerHTML += '<div class="small">အသင်းမရှိသေးပါ</div>';
-    }
-    renderAllGroups();
-    renderMyGroups();
-    renderProfileCreateGroup();
-}
-
-function showGroupSettings() {
-    var menu = document.getElementById('groupSettingsMenu');
-    if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-}
-
-function transferGroup(groupId, userId) {
-    try {
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g || g.owner !== me) { beeNotify('⚠️ သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-        if (!g.members || !g.members.includes(userId)) { beeNotify('⚠️ ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
-        if (confirm('🐝 ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
-            g.owner = userId;
-            g.memberRanks[userId] = 5;
-            save();
-            renderGroupDetail();
-            beeNotify('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ 🐝');
-        }
-    } catch(e) {
-        console.error('transferGroup error:', e);
-        beeNotify('⚠️ လွှဲပြောင်းလို့မရပါ။');
-    }
-}
-
-function leaveGroup(groupId) {
-    try {
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g) return;
-        if (g.owner === me) { beeNotify('⚠️ ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
-        if (!g.members || !g.members.includes(me)) return;
-        if (confirm('🐝 ဒီအသင်းမှ ထွက်မှာလား?')) {
-            g.members = g.members.filter(id => id !== me);
-            delete g.memberRanks[me];
-            delete g.memberActivity[me];
-            save();
-            show('home');
-            beeNotify('✅ အသင်းမှထွက်ပြီးပါပြီ 🐝');
-            renderAllGroups();
-            renderMyGroups();
-            renderProfileCreateGroup();
-        }
-    } catch(e) {
-        console.error('leaveGroup error:', e);
-        beeNotify('⚠️ အသင်းမှထွက်လို့မရပါ။');
-    }
-}
-
-function deleteGroup(groupId) {
-    try {
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g || g.owner !== me) { beeNotify('⚠️ သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-        if (confirm('🐝 ဒီအသင်းကို ဖျက်မှာလား?')) {
-            db.groups = db.groups.filter(x => x.id !== groupId);
-            delete db.groupMessages[groupId];
-            if (db.groupJoinRequests) delete db.groupJoinRequests[groupId];
-            save();
-            show('home');
-            beeNotify('✅ အသင်းဖျက်ပြီးပါပြီ 🐝');
-            renderAllGroups();
-            renderMyGroups();
-            renderProfileCreateGroup();
-        }
-    } catch(e) {
-        console.error('deleteGroup error:', e);
-        beeNotify('⚠️ အသင်းဖျက်လို့မရပါ။');
-    }
-}
-
-function inviteFriendToGroup(groupId) {
-    try {
-        var g = db.groups.find(x => x.id === groupId);
-        if (!g || g.owner !== me) { beeNotify('⚠️ သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-        if (g.members && g.members.length >= 20) { beeNotify('⚠️ အသင်းပြည့်နေပါပြီ'); return; }
-        var friends = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
-        var available = friends.filter(id => !(g.members && g.members.includes(id)) && !isBlocked(id));
-        if (!available.length) { beeNotify('⚠️ ဖိတ်ခေါ်နိုင်တဲ့ သူငယ်ချင်းမရှိပါ'); return; }
-        var msg = 'ဖိတ်ခေါ်မည့်သူကို ရွေးပါ:\n';
-        available.forEach((id, idx) => { var u = db.users[id]; if (u) msg += (idx+1) + '. ' + u.name + ' (' + u.id + ')\n'; });
-        var choice = prompt(msg);
-        if (choice === null) return;
-        var idx = parseInt(choice) - 1;
-        if (idx < 0 || idx >= available.length) { beeNotify('⚠️ မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
-        var targetId = available[idx];
-        if (!targetId) return;
-        if (db.groupInvites.some(i => i.groupId === g.id && i.to === targetId && i.status === 'pending')) {
-            beeNotify('⚠️ ဖိတ်ကြားထားပြီးသားပါ');
-            return;
-        }
-        db.groupInvites.push({ id: 'GI'+Date.now()+Math.random().toString(36).slice(2,7), groupId: g.id, from: me, to: targetId, status: 'pending', time: Date.now() });
-        save();
-        renderGroupDetail();
-        beeNotify('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ 🐝');
-    } catch(e) {
-        console.error('inviteFriendToGroup error:', e);
-        beeNotify('⚠️ ဖိတ်ကြားလို့မရပါ။');
-    }
-}
-
-// ============================================================
-//  PROFILE CREATE GROUP
-// ============================================================
-function renderProfileCreateGroup() {
-    if (!me || !db) return;
-    var myGroup = db.groups.find(g => g.owner === me);
-    var btnDiv = document.getElementById('profileCreateGroupBtn');
-    var formDiv = document.getElementById('profileCreateGroupForm');
-    var myGroupDiv = document.getElementById('profileMyGroupDisplay');
-    var myGroupCard = document.getElementById('profileMyGroupCard');
-    if (myGroup) {
-        btnDiv.style.display = 'none';
-        formDiv.style.display = 'none';
-        myGroupDiv.style.display = 'block';
-        var avatarHtml = myGroup.avatar ? '<img src="'+myGroup.avatar+'" style="width:50px;height:50px;border-radius:50%;object-fit:cover;margin-right:10px;">' : '🏆 ';
-        myGroupCard.innerHTML = avatarHtml + '<b>' + esc(myGroup.name) + '</b> <span class="small">('+esc(myGroup.id)+')</span><br><span class="small">Members: '+(myGroup.members ? myGroup.members.length : 0)+'/20</span>';
-    } else {
-        btnDiv.style.display = 'block';
-        formDiv.style.display = 'none';
-        myGroupDiv.style.display = 'none';
-    }
-}
-
-function showGroupCreation() {
-    document.getElementById('profileCreateGroupBtn').style.display = 'none';
-    document.getElementById('profileCreateGroupForm').style.display = 'block';
-    document.getElementById('profileMyGroupDisplay').style.display = 'none';
-}
-
-function previewProfileGroupAvatar(e) {
-    var f = e.target.files && e.target.files[0];
-    if (!f) return;
-    var r = new FileReader();
-    r.onload = function() {
-        tempProfileGroupAvatar = r.result;
-        document.getElementById('profileGroupAvatarStatus').textContent = '✅ ပုံရွေးပြီးပါပြီ';
-    };
-    r.readAsDataURL(f);
-}
-
-function createGroupFromProfile() {
-    if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
-    var n = document.getElementById('profileGname').value.trim();
-    if (!n) { alert('အသင်းအမည်ထည့်ပါ'); return; }
-    if (db.groups.some(g => g.owner === me)) {
-        alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
-        return;
-    }
-    var newId = '';
-    var exists = true;
-    var attempts = 0;
-    while (exists && attempts < 100) {
-        var num = Math.floor(10000000 + Math.random() * 90000000);
-        newId = String(num);
-        exists = db.groups.some(g => g.id === newId);
-        attempts++;
-    }
-    if (exists) { alert('ID ထုတ်လို့မရပါ၊ ထပ်စမ်းပါ'); return; }
-    var group = { id: newId, name: n, owner: me, members: [me], level: 1, activity: 0, avatar: tempProfileGroupAvatar || null, memberRanks: {}, memberActivity: {} };
-    group.memberRanks[me] = 5;
-    group.memberActivity[me] = 0;
-    db.groups.push(group);
-    document.getElementById('profileGname').value = '';
-    tempProfileGroupAvatar = null;
-    document.getElementById('profileGroupAvatarStatus').textContent = 'ပုံမရွေးရသေးပါ';
-    document.getElementById('profileCreateGroupForm').style.display = 'none';
-    document.getElementById('profileCreateGroupBtn').style.display = 'block';
+function accept(id) {
+    db.req = db.req.filter(r => !(r.f === id && r.t === me));
+    if (!db.friends.some(x => (x.a === me && x.b === id) || (x.a === id && x.b === me))) db.friends.push({ a: me, b: id });
     save();
     refresh();
-    beeNotify('✅ အသင်းဖန်တီးပြီးပါပြီ 🐝\nID: '+newId);
-    renderAllGroups();
-    renderMyGroups();
-    renderProfileCreateGroup();
 }
 
-function openMyGroupFromProfile() {
-    var myGroup = db.groups.find(g => g.owner === me);
-    if (myGroup) openGroup(myGroup.id);
-}
-
-function renderProfileGroups() {
-    if (!me || !db) return;
-    var container = document.getElementById('profileUserGroups');
-    if (!container) return;
-    var userGroups = db.groups.filter(g => g.members && g.members.includes(me));
-    if (userGroups.length) {
-        var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ (နှိပ်၍ဝင်ရန်):</div>';
-        userGroups.forEach(g => html += '<span class="group-chip" onclick="openGroup(\'' + g.id + '\')">🏆 '+esc(g.name)+'</span>');
-        container.innerHTML = html;
-        container.style.display = 'block';
-    } else { container.innerHTML = '<div class="small">📌 အသင်းမပါဝင်သေးပါ</div>'; container.style.display = 'block'; }
-}
-
-// ============================================================
-//  MY ACCOUNT
-// ============================================================
-function renderMyAccount() {
-    if (!me || !(db && db.users && db.users[me])) return;
-    var u = db.users[me];
-    var n = document.getElementById('myAccountName');
-    if (n) n.textContent = u.name || '-';
-    var id = document.getElementById('myAccountId');
-    if (id) id.textContent = 'ID: ' + (u.id || me);
-    var box = document.getElementById('myAccountPhoto');
-    if (!box) return;
-    box.innerHTML = '';
-    if (u.photos && u.photos[0]) {
-        var im = document.createElement('img');
-        im.src = u.photos[0];
-        im.style.cssText = 'width:100%;height:100%;object-fit:cover';
-        box.appendChild(im);
-    } else box.textContent = '👤';
-    var deviceDisplay = document.getElementById('deviceInfoDisplay');
-    if (deviceDisplay) {
-        if (u.currentDevice) {
-            try {
-                var dev = JSON.parse(u.currentDevice);
-                deviceDisplay.textContent = 'Device: ' + dev.deviceType + ' (' + (dev.platform || 'Unknown') + ')';
-            } catch(e) { deviceDisplay.textContent = 'Device: ' + u.currentDevice; }
-        } else { deviceDisplay.textContent = 'Device: Unknown'; }
-    }
-}
-
-// ============================================================
-//  CHAT MESSAGE CLEARING
-// ============================================================
-function clearCurrentChatMessages() {
-    if (!chatWith || !db) return;
-    var key = [me, chatWith].sort().join('_');
-    var msgs = db.messages[key] || [];
-    if (!msgs.length) {
-        alert('ရှင်းရန် စာမရှိသေးပါ။');
-        document.getElementById('chatMenu').style.display = 'none';
-        chatMenuVisible = false;
-        return;
-    }
-    if (!confirm('ဒီ Chat ထဲက စာများအားလုံးကို ရှင်းမှာလား?')) return;
-    db.messages[key] = [];
+function decline(id) {
+    db.req = db.req.filter(r => !(r.f === id && r.t === me));
     save();
-    var menu = document.getElementById('chatMenu');
-    if (menu) menu.style.display = 'none';
-    chatMenuVisible = false;
-    renderChat();
+    refresh();
 }
 
-function toggleGroupChatMenu() {
-    var menu = document.getElementById('groupChatMenu');
-    if (!menu) return;
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-}
-
-function clearCurrentGroupMessages() {
-    if (!me || !db) return;
-    var id = window.currentGroupChat;
-    if (!id) return;
-    var g = db.groups.find(function(x){ return x.id === id; });
-    if (!g || !(g.members && g.members.includes(me))) {
-        alert('အသင်းဝင်များသာ စာများရှင်းနိုင်ပါတယ်');
-        return;
-    }
-    var msgs = db.groupMessages[id] || [];
-    if (!msgs.length) {
-        alert('ရှင်းရန် စာမရှိသေးပါ။');
-        toggleGroupChatMenu();
-        return;
-    }
-    if (!confirm('ဒီအသင်း Chat ထဲက စာများအားလုံးကို ရှင်းမှာလား?')) return;
-    db.groupMessages[id] = [];
-    save();
-    toggleGroupChatMenu();
-    renderGroupChat();
+function friends() {
+    var b = document.getElementById('flist');
+    if (!b) return;
+    b.innerHTML = '';
+    db.req.filter(r => r.t === me && !isBlocked(r.f) && !db.users[r.f]?.isSuspended).forEach(r => {
+        var u = db.users[r.f];
+        if (!u) return;
+        var d = document.createElement('div');
+        d.className = 'list';
+        d.innerHTML = '<b>' + esc(u.name) + '</b> <span class="small">' + esc(u.id) + '</span><br><button class="btn green" onclick="accept(\'' + u.id + '\')">လက်ခံ</button><button class="btn red" onclick="decline(\'' + u.id + '\')">ငြင်း</button>';
+        b.appendChild(d);
+    });
+    db.friends.filter(x => (x.a === me || x.b === me) && !isBlocked(x.a === me ? x.b : x.a) && !db.users[x.a === me ? x.b : x.a]?.isSuspended).forEach(x => {
+        var id = x.a === me ? x.b : x.a;
+        var u = db.users[id];
+        if (!u) return;
+        var photo = (u.photos && u.photos[0]) ? '<img src="' + u.photos[0] + '">' : '👤';
+        var regionText = u.region && u.region.trim() ? '<div class="small" style="color:#2a6f8f;">📍 ' + esc(u.region) + '</div>' : '';
+        var d = document.createElement('div');
+        d.className = 'friend-user-card';
+        d.style.cursor = 'pointer';
+        d.onclick = function() { viewUserProfile(id); };
+        d.innerHTML = '<div class="friend-avatar">' + photo + '</div>' +
+            '<div class="friend-info">' +
+                '<b class="chat-friend-name" onclick="event.stopPropagation();viewUserProfile(\''+id+'\')">' + esc(u.name) + '</b>' +
+                '<div class="small">' + esc(u.id) + '</div>' +
+                regionText +
+                '<div class="friend-actions">' +
+                    '<button class="btn" onclick="event.stopPropagation();openChat(\'' + id + '\')">💬 Messenger</button>' +
+                    '<button class="btn gold" onclick="event.stopPropagation();viewUserProfile(\'' + id + '\')">👤 Friend</button>' +
+                    (isBlocked(id) ? '<span class="small" style="color:#dc3545;">🚫 Blocked</span>' : '') +
+                '</div>' +
+            '</div>';
+        b.appendChild(d);
+    });
+    if (!b.innerHTML) b.innerHTML = '<div class="small">Friend မရှိသေးပါ</div>';
 }
 
 // ============================================================
@@ -2546,7 +2106,7 @@ function blockUser(userId) {
     db.req = db.req.filter(r => !((r.f === me && r.t === userId) || (r.f === userId && r.t === me)));
     save();
     refresh();
-    beeNotify('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ 🐝');
+    alert('✅ သုံးစွဲသူကို ဘလော့လုပ်ထားပါပြီ');
     if (chatWith === userId) { chatWith = null; show('inbox'); }
     renderBlockedUsers();
 }
@@ -2557,7 +2117,7 @@ function unblockUser(userId) {
     delete db.blocked[userId];
     save();
     refresh();
-    beeNotify('✅ ဘလော့ဖြုတ်လိုက်ပါပြီ 🐝');
+    alert('✅ ဘလော့ဖြုတ်လိုက်ပါပြီ');
     renderBlockedUsers();
 }
 
@@ -2701,25 +2261,25 @@ function requestJoinGroupFromProfile(groupId, userId) {
         return;
     }
     
-    var existingRequest = db.groupJoinRequests && db.groupJoinRequests[g.id] ? 
-        db.groupJoinRequests[g.id].some(r => r.from === me && r.status === 'pending') : false;
-    if (existingRequest) {
-        alert('ဤအသင်းသို့ တောင်းဆိုမှုပို့ထားပြီးသားပါ။ အုပ်ချုပ်သူ၏ ခွင့်ပြုချက်ကို စောင့်ပါ။');
+    var existingInvite = db.groupInvites.some(i => i.groupId === g.id && i.to === me && i.status === 'pending');
+    if (existingInvite) {
+        alert('ဤအသင်းသို့ ဖိတ်ကြားချက် ပို့ထားပြီးသားပါ။');
         return;
     }
     
-    if (confirm('🐝 "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
-        if (!db.groupJoinRequests) db.groupJoinRequests = {};
-        if (!db.groupJoinRequests[g.id]) db.groupJoinRequests[g.id] = [];
-        db.groupJoinRequests[g.id].push({
-            from: me,
-            fromName: db.users[me]?.name || me,
-            to: g.owner,
+    if (confirm('"' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့မှာလား?')) {
+        if (!db.groupInvites) db.groupInvites = [];
+        db.groupInvites.push({ 
+            id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7), 
+            groupId: g.id, 
+            from: me, 
+            to: g.owner, 
+            status: 'pending_join',
             time: Date.now(),
-            status: 'pending'
+            message: me + ' သည် ' + g.name + ' အသင်းသို့ ဝင်ရောက်လိုပါသည်။'
         });
         save();
-        beeNotify('✅ "' + g.name + '" အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှုပို့ပြီးပါပြီ 🐝');
+        beeNotify('✅ ' + g.name + ' အသင်းသို့ ဝင်ရောက်ရန် တောင်းဆိုမှု ပို့ပြီးပါပြီ။');
         renderUserProfile(userId);
     }
 }
@@ -2887,7 +2447,7 @@ function openCameraForChat() {
                     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
                     var data = c.toDataURL('image/jpeg', 0.62);
                     sendChatImage(data);
-                    beeNotify('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ 🐝');
+                    alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
                 };
                 img.src = r.result;
             };
@@ -2918,7 +2478,7 @@ function openGalleryForChat() {
                     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
                     var data = c.toDataURL('image/jpeg', 0.62);
                     sendChatImage(data);
-                    beeNotify('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ 🐝');
+                    alert('✅ ဓာတ်ပုံ ပို့ပြီးပါပြီ');
                 };
                 img.src = r.result;
             };
@@ -3071,7 +2631,7 @@ function addPhotoToSlot(e) {
             u.photos = u.photos.slice(0, 4);
             save();
             refresh();
-            beeNotify('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ 🐝');
+            alert('✅ ဓာတ်ပုံ ' + (photoSlot + 1) + ' ကို သိမ်းပြီးပါပြီ');
         };
         img.src = r.result;
     };
@@ -3116,7 +2676,7 @@ async function locate() {
         await save();
         startPresence();
         refresh();
-        beeNotify('✅ တည်နေရာ သိမ်းပြီးပါပြီ 🐝');
+        alert('✅ တည်နေရာ သိမ်းပြီးပါပြီ');
     }, function() { alert('Location permission မပေးပါ'); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
 }
 
@@ -3145,7 +2705,7 @@ function saveProfileForm() {
     if (decoTextarea) u.decoration = decoTextarea.value.trim();
     save();
     refresh();
-    beeNotify('✅ Profile ကို သိမ်းပြီးပါပြီ 🐝');
+    alert('✅ Profile ကို သိမ်းပြီးပါပြီ');
 }
 
 // ============================================================
@@ -3165,8 +2725,8 @@ function renderNotifications() {
     var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
     var items = [];
-    incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('🐝 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
-    friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('🐝 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
+    incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
+    friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
     list.innerHTML = items.length ? items.map(x => '<div class="list">' + x + '</div>').join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
 }
 
@@ -3211,6 +2771,456 @@ async function submitReport() {
 }
 
 // ============================================================
+//  GROUPS
+// ============================================================
+function renderAllGroups() {
+    var container = document.getElementById('allGroupsList');
+    if (!container) return;
+    var q = (document.getElementById('groupSearchInput')?.value || '').trim().toLowerCase();
+    var allGroups = Array.isArray(db.groups) ? db.groups : [];
+    if (!allGroups.length && Array.isArray(DEFAULT.groups)) allGroups = DEFAULT.groups.slice();
+    var filtered = allGroups.filter(g => {
+        if (!g) return false;
+        var nameMatch = (g.name || '').toLowerCase().includes(q);
+        var idMatch = (g.id || '').toLowerCase().includes(q);
+        return nameMatch || idMatch;
+    });
+    if (!filtered.length) { container.innerHTML = '<div class="small">အသင်းမရှိသေးပါ</div>'; return; }
+    container.innerHTML = '';
+    filtered.forEach(g => {
+        var card = document.createElement('div');
+        card.className = 'group-card';
+        card.onclick = function() { viewPublicGroup(g.id); };
+        var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" alt="group">' : '🏆';
+        card.innerHTML = 
+            '<div class="group-avatar">'+avatarHtml+'</div>' +
+            '<div class="group-name">'+esc(g.name)+'</div>' +
+            '<div class="group-members">👥 '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
+            '<div class="group-id">ID: '+esc(g.id)+'</div>';
+        container.appendChild(card);
+    });
+}
+
+function renderMyGroups() {
+    var container = document.getElementById('myGroupsList');
+    if (!container) return;
+    if (!me) { container.innerHTML = '<div class="small">အကောင့်ဝင်ပါ</div>'; return; }
+    var myGroups = db.groups.filter(g => g.members && g.members.includes(me));
+    if (!myGroups.length) { container.innerHTML = '<div class="small">အသင်းမပါဝင်သေးပါ</div>'; return; }
+    container.innerHTML = '';
+    myGroups.forEach(g => {
+        var card = document.createElement('div');
+        card.className = 'group-card';
+        card.onclick = function() { openGroup(g.id); };
+        var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" alt="group">' : '🏆';
+        card.innerHTML = 
+            '<div class="group-avatar">'+avatarHtml+'</div>' +
+            '<div class="group-name">'+esc(g.name)+'</div>' +
+            '<div class="group-members">👥 '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
+            '<div class="group-id">ID: '+esc(g.id)+'</div>';
+        container.appendChild(card);
+    });
+}
+
+function viewPublicGroup(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g) { alert('အသင်းမရှိပါ'); return; }
+    if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
+    if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
+        if (!g.members) g.members = [];
+        if (!g.members.includes(me)) {
+            g.members.push(me);
+            if (!g.memberActivity) g.memberActivity = {};
+            g.memberActivity[me] = 0;
+            save();
+            alert('✅ အသင်းထဲ ဝင်ပြီးပါပြီ');
+            renderAllGroups();
+            renderMyGroups();
+            openGroup(groupId);
+        }
+    }
+}
+
+function groups() {
+    var b = document.getElementById('glist');
+    var createCard = document.getElementById('groupCreateCard');
+    var groupData = Array.isArray(db.groups) ? db.groups : [];
+    var owned = groupData.find(g => g && g.owner === me);
+    if (createCard) createCard.style.display = owned ? 'none' : 'block';
+    if (b) {
+        b.innerHTML = '<h3>🏆 My Groups</h3>';
+        groupData.filter(g => g && (g.owner === me || (g.members && g.members.includes(me)))).forEach(g => {
+            var d = document.createElement('div');
+            d.className = 'list';
+            d.style.cursor = 'pointer';
+            d.onclick = function() { openGroup(g.id); };
+            var avatarHtml = g.avatar ? '<img src="'+g.avatar+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;">' : '🏆';
+            d.innerHTML = avatarHtml + '<b>' + esc(g.name) + '</b> ⭐ Level ' + (g.level || 1) +
+                '<div class="small">ID: '+esc(g.id)+' • Members '+(g.members ? g.members.length : 0)+'/20 • Activity '+(g.activity||0)+'</div>' +
+                '<div class="small">နှိပ်ပြီး အသင်းထဲဝင်ကြည့်ပါ</div>';
+            b.appendChild(d);
+        });
+        if (!b.innerHTML || b.innerHTML === '<h3>🏆 My Groups</h3>') b.innerHTML += '<div class="small">အသင်းမရှိသေးပါ</div>';
+    }
+    renderAllGroups();
+    renderMyGroups();
+    renderProfileCreateGroup();
+}
+
+function openGroup(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g || !(g.owner === me || (g.members && g.members.includes(me)))) {
+        alert('ဒီအသင်းထဲ ဝင်ခွင့်မရှိပါ');
+        return;
+    }
+    window.currentGroup = groupId;
+    show('groupDetail');
+    renderGroupDetail();
+}
+
+function renderGroupDetail() {
+    var box = document.getElementById('groupDetailBox');
+    if (!box) return;
+    var g = db.groups.find(x => x.id === window.currentGroup);
+    if (!g) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
+    var isOwner = g.owner === me;
+    var isMember = g.members && g.members.includes(me);
+    var members = g.members ? g.members.map(id => db.users[id]).filter(Boolean) : [];
+    var avatarHtml = g.avatar ? '<div class="group-detail-avatar"><img src="'+g.avatar+'" alt="group"></div>' : '<div class="group-detail-avatar">🏆</div>';
+    var html = '<div class="group-detail-header">' +
+        '<h3 class="group-title" style="margin:0;font-size:16px;">🏆 ' + esc(g.name) + '</h3>' +
+        '<div class="group-actions">' +
+        '<button onclick="showGroupSettings()" style="background:transparent;border:none;font-size:20px;cursor:pointer;">⚙️</button>' +
+        '</div>' +
+        '</div>' +
+        avatarHtml +
+        '<p class="small" style="padding:0 16px;">ID: '+esc(g.id)+' • Level ' + g.level + ' • Members '+(g.members ? g.members.length : 0)+'/20</p>' +
+        '<hr><h3 style="padding:0 16px;">👥 အသင်းဝင်များ</h3>';
+    html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 16px;">';
+    if (isOwner) {
+        html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
+        html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
+    } else if (isMember) {
+        html += '<button class="menu-item danger" onclick="leaveGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;color:#dc3545;">🚪 အသင်းမှထွက်မည်</button>';
+    }
+    html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;width:100%;text-align:left;cursor:pointer;">✖️ ပိတ်မည်</button>';
+    html += '</div>';
+    if (members.length) {
+        members.forEach(u => {
+            var rank = getMemberRank(g, u.id);
+            var isOwnerUser = u.id === g.owner;
+            var badgeHtml = isOwnerUser ? '<span class="badge-owner">ပါမောခ</span>' : '<span class="member-badge ' + getRankBadgeClass(rank) + '">' + getRankLabel(rank) + '</span>';
+            html += '<div class="group-member-item" style="padding:8px 16px;">' +
+                '<span class="member-rank">#' + rank + '</span>' +
+                '<span class="member-name">' + esc(u.name) + '</span>' +
+                badgeHtml +
+                (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
+                '</div>';
+        });
+    } else { html += '<div class="small" style="padding:0 16px;">Member မရှိသေးပါ</div>'; }
+    html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 16px;">' +
+        (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') +
+        '</div>';
+    box.innerHTML = html;
+}
+
+function showGroupSettings() {
+    var menu = document.getElementById('groupSettingsMenu');
+    if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function transferGroup(groupId, userId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+    if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
+    if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
+        g.owner = userId;
+        g.memberRanks[userId] = 5;
+        save();
+        renderGroupDetail();
+        alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
+    }
+}
+
+function leaveGroup(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g) return;
+    if (g.owner === me) { alert('ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
+    if (!g.members || !g.members.includes(me)) return;
+    if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
+        g.members = g.members.filter(id => id !== me);
+        delete g.memberRanks[me];
+        delete g.memberActivity[me];
+        save();
+        show('home');
+        alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
+        renderAllGroups();
+        renderMyGroups();
+        renderProfileCreateGroup();
+    }
+}
+
+function deleteGroup(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+    if (confirm('ဒီအသင်းကို ဖျက်မှာလား?')) {
+        db.groups = db.groups.filter(x => x.id !== groupId);
+        delete db.groupMessages[groupId];
+        save();
+        show('home');
+        alert('✅ အသင်းဖျက်ပြီးပါပြီ');
+        renderAllGroups();
+        renderMyGroups();
+        renderProfileCreateGroup();
+    }
+}
+
+function inviteFriendToGroup(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
+    if (g.members && g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
+    var friends = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a);
+    var available = friends.filter(id => !(g.members && g.members.includes(id)) && !isBlocked(id));
+    if (!available.length) { alert('ဖိတ်ခေါ်နိုင်တဲ့ သူငယ်ချင်းမရှိပါ'); return; }
+    var msg = 'ဖိတ်ခေါ်မည့်သူကို ရွေးပါ:\n';
+    available.forEach((id, idx) => { var u = db.users[id]; if (u) msg += (idx+1) + '. ' + u.name + ' (' + u.id + ')\n'; });
+    var choice = prompt(msg);
+    if (choice === null) return;
+    var idx = parseInt(choice) - 1;
+    if (idx < 0 || idx >= available.length) { alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
+    var targetId = available[idx];
+    if (!targetId) return;
+    if (db.groupInvites.some(i => i.groupId === g.id && i.to === targetId && i.status === 'pending')) {
+        alert('ဖိတ်ကြားထားပြီးသားပါ');
+        return;
+    }
+    db.groupInvites.push({ id: 'GI'+Date.now()+Math.random().toString(36).slice(2,7), groupId: g.id, from: me, to: targetId, status: 'pending', time: Date.now() });
+    save();
+    renderGroupDetail();
+    alert('✅ ဖိတ်ကြားချက် ပို့ပြီးပါပြီ');
+}
+
+function openGroupChat(groupId) {
+    var g = db.groups.find(x => x.id === groupId);
+    if (!g || !(g.members && g.members.includes(me))) {
+        alert('အသင်းဝင်များသာ Chat သုံးနိုင်ပါတယ်');
+        return;
+    }
+    window.currentGroupChat = groupId;
+    show('groupDetail');
+    renderGroupChat();
+}
+
+function renderGroupChat() {
+    var box = document.getElementById('groupDetailBox');
+    if (!box) return;
+    var id = window.currentGroupChat;
+    var g = db.groups.find(x => x.id === id);
+    if (!g || !(g.members && g.members.includes(me))) {
+        box.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">အသင်းမရှိပါ</div>';
+        return;
+    }
+    var msgs = db.groupMessages[id] || [];
+    var html = '';
+    html += '<div class="group-detail-header">';
+    html += '<h3 class="group-title" style="margin:0;font-size:16px;">🏆 ' + esc(g.name) + '</h3>';
+    html += '<div class="group-actions">';
+    html += '<button onclick="renderGroupDetail()" style="background:transparent;border:none;font-size:20px;cursor:pointer;">✖️</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div id="groupChatBox" class="chat">';
+    var lastDate = '';
+    msgs.forEach(function(m, idx) {
+        var u = db.users[m.f] || {};
+        var isMe = (m.f === me);
+        var rank = getMemberRank(g, m.f);
+        var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
+        var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
+        var avatarHtml = getUserAvatar(u);
+        var nameDisplay = esc(u.name || m.f);
+        var msgText = esc(m.t || '');
+        var msgDate = new Date(m.time).toLocaleDateString('my-MM', { day: 'numeric', month: 'short' });
+        if (msgDate !== lastDate) {
+            html += '<div style="text-align:center;font-size:11px;color:#999;padding:8px 0;">' + msgDate + '</div>';
+            lastDate = msgDate;
+        }
+        html += '<div class="msg' + (isMe ? ' me' : '') + '">';
+        if (!isMe) {
+            html += '<div class="avatar" onclick="viewUserProfile(\'' + m.f + '\')">' + avatarHtml + '</div>';
+        }
+        html += '<div class="bubble">';
+        if (!isMe) {
+            html += '<span class="name" onclick="viewUserProfile(\'' + m.f + '\')">' + nameDisplay + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></span>';
+        }
+        html += '<div class="text">' + msgText + '</div>';
+        html += '</div>';
+        if (isMe) {
+            html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')">✕</button>';
+        }
+        html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="chat-input-area">';
+    html += '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">';
+    html += '<button class="send-btn" onclick="sendGroupMessage()">➤</button>';
+    html += '</div>';
+    box.innerHTML = html;
+    var cb = document.getElementById('groupChatBox');
+    if (cb) cb.scrollTop = cb.scrollHeight;
+}
+
+function sendGroupMessage() {
+    var id = window.currentGroupChat;
+    var g = db.groups.find(x => x.id === id);
+    if (!g || !(g.members && g.members.includes(me))) { alert('အသင်းဝင်မဟုတ်ပါ'); return; }
+    var input = document.getElementById('groupMsg');
+    var t = input.value.trim();
+    if (!t) return;
+    db.groupMessages = db.groupMessages || {};
+    db.groupMessages[id] = db.groupMessages[id] || [];
+    db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
+    addGroupActivity(id, me, 1);
+    input.value = '';
+    save();
+    renderGroupChat();
+}
+
+function deleteGroupMessage(groupId, msgIndex) {
+    if (!me) return;
+    if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+    var msgs = db.groupMessages[groupId] || [];
+    if (msgIndex >= 0 && msgIndex < msgs.length && msgs[msgIndex].f === me) {
+        msgs.splice(msgIndex, 1);
+        db.groupMessages[groupId] = msgs;
+        save();
+        renderGroupChat();
+    }
+}
+
+// ============================================================
+//  PROFILE CREATE GROUP
+// ============================================================
+function renderProfileCreateGroup() {
+    if (!me || !db) return;
+    var myGroup = db.groups.find(g => g.owner === me);
+    var btnDiv = document.getElementById('profileCreateGroupBtn');
+    var formDiv = document.getElementById('profileCreateGroupForm');
+    var myGroupDiv = document.getElementById('profileMyGroupDisplay');
+    var myGroupCard = document.getElementById('profileMyGroupCard');
+    if (myGroup) {
+        btnDiv.style.display = 'none';
+        formDiv.style.display = 'none';
+        myGroupDiv.style.display = 'block';
+        var avatarHtml = myGroup.avatar ? '<img src="'+myGroup.avatar+'" style="width:50px;height:50px;border-radius:50%;object-fit:cover;margin-right:10px;">' : '🏆 ';
+        myGroupCard.innerHTML = avatarHtml + '<b>' + esc(myGroup.name) + '</b> <span class="small">('+esc(myGroup.id)+')</span><br><span class="small">Members: '+(myGroup.members ? myGroup.members.length : 0)+'/20</span>';
+    } else {
+        btnDiv.style.display = 'block';
+        formDiv.style.display = 'none';
+        myGroupDiv.style.display = 'none';
+    }
+}
+
+function showGroupCreation() {
+    document.getElementById('profileCreateGroupBtn').style.display = 'none';
+    document.getElementById('profileCreateGroupForm').style.display = 'block';
+    document.getElementById('profileMyGroupDisplay').style.display = 'none';
+}
+
+function previewProfileGroupAvatar(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function() {
+        tempProfileGroupAvatar = r.result;
+        document.getElementById('profileGroupAvatarStatus').textContent = '✅ ပုံရွေးပြီးပါပြီ';
+    };
+    r.readAsDataURL(f);
+}
+
+function createGroupFromProfile() {
+    if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
+    var n = document.getElementById('profileGname').value.trim();
+    if (!n) { alert('အသင်းအမည်ထည့်ပါ'); return; }
+    if (db.groups.some(g => g.owner === me)) {
+        alert('ဒီအကောင့်က အသင်းတစ်ခုပဲ ထောင်ခွင့်ရှိပါတယ်');
+        return;
+    }
+    var newId = '';
+    var exists = true;
+    var attempts = 0;
+    while (exists && attempts < 100) {
+        var num = Math.floor(10000000 + Math.random() * 90000000);
+        newId = String(num);
+        exists = db.groups.some(g => g.id === newId);
+        attempts++;
+    }
+    if (exists) { alert('ID ထုတ်လို့မရပါ၊ ထပ်စမ်းပါ'); return; }
+    var group = { id: newId, name: n, owner: me, members: [me], level: 1, activity: 0, avatar: tempProfileGroupAvatar || null, memberRanks: {}, memberActivity: {} };
+    group.memberRanks[me] = 5;
+    group.memberActivity[me] = 0;
+    db.groups.push(group);
+    document.getElementById('profileGname').value = '';
+    tempProfileGroupAvatar = null;
+    document.getElementById('profileGroupAvatarStatus').textContent = 'ပုံမရွေးရသေးပါ';
+    document.getElementById('profileCreateGroupForm').style.display = 'none';
+    document.getElementById('profileCreateGroupBtn').style.display = 'block';
+    save();
+    refresh();
+    alert('✅ အသင်းဖန်တီးပြီးပါပြီ\nID: '+newId);
+    renderAllGroups();
+    renderMyGroups();
+    renderProfileCreateGroup();
+}
+
+function openMyGroupFromProfile() {
+    var myGroup = db.groups.find(g => g.owner === me);
+    if (myGroup) openGroup(myGroup.id);
+}
+
+function renderProfileGroups() {
+    if (!me || !db) return;
+    var container = document.getElementById('profileUserGroups');
+    if (!container) return;
+    var userGroups = db.groups.filter(g => g.members && g.members.includes(me));
+    if (userGroups.length) {
+        var html = '<div class="small" style="margin-bottom:6px;">📌 ပါဝင်သည့်အသင်းများ (နှိပ်၍ဝင်ရန်):</div>';
+        userGroups.forEach(g => html += '<span class="group-chip" onclick="openGroup(\'' + g.id + '\')">🏆 '+esc(g.name)+'</span>');
+        container.innerHTML = html;
+        container.style.display = 'block';
+    } else { container.innerHTML = '<div class="small">📌 အသင်းမပါဝင်သေးပါ</div>'; container.style.display = 'block'; }
+}
+
+// ============================================================
+//  MY ACCOUNT
+// ============================================================
+function renderMyAccount() {
+    if (!me || !(db && db.users && db.users[me])) return;
+    var u = db.users[me];
+    var n = document.getElementById('myAccountName');
+    if (n) n.textContent = u.name || '-';
+    var id = document.getElementById('myAccountId');
+    if (id) id.textContent = 'ID: ' + (u.id || me);
+    var box = document.getElementById('myAccountPhoto');
+    if (!box) return;
+    box.innerHTML = '';
+    if (u.photos && u.photos[0]) {
+        var im = document.createElement('img');
+        im.src = u.photos[0];
+        im.style.cssText = 'width:100%;height:100%;object-fit:cover';
+        box.appendChild(im);
+    } else box.textContent = '👤';
+    var deviceDisplay = document.getElementById('deviceInfoDisplay');
+    if (deviceDisplay) {
+        if (u.currentDevice) {
+            try {
+                var dev = JSON.parse(u.currentDevice);
+                deviceDisplay.textContent = 'Device: ' + dev.deviceType + ' (' + (dev.platform || 'Unknown') + ')';
+            } catch(e) { deviceDisplay.textContent = 'Device: ' + u.currentDevice; }
+        } else { deviceDisplay.textContent = 'Device: Unknown'; }
+    }
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 firebaseInitPromise = initFirebase();
@@ -3225,8 +3235,8 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
-console.log('✅ BeeChat Social v2.0 🐝 Loaded!');
-console.log('📌 Features: TikTok Style Chat, Group Chat, Join Request System, Bee Notifications');
+console.log('✅ BeeChat Social v2.0 Loaded!');
+console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode');
 </script>
 </body>
     </html>
