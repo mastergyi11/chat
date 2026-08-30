@@ -1224,6 +1224,12 @@
         html += '<div class="info-row"><span class="label">⚧️ Gender</span><span class="value">' + genderIcon + ' ' + (u.gender || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">🎂 Age</span><span class="value">' + (age || 'မသိ') + '</span></div>';
         html += '<div class="info-row"><span class="label">📅 Joined</span><span class="value">' + (u.joined || 'မသိရသေး') + '</span></div>';
+        var userGroups = db.groups.filter(function(g) { return g.members && g.members.includes(id); });
+        html += '<div style="margin-top:10px;text-align:left;"><b>🏆 အသင်းဝင်ထားသည့်နေရာ</b>';
+        if (userGroups.length) {
+            userGroups.forEach(function(g) { html += '<div class="info-row"><span class="label">🏆</span><span class="value" style="cursor:pointer;color:#0d6efd;" onclick="openGroup(\''+g.id+'\')">'+esc(g.name)+'</span></div>'; });
+        } else html += '<div class="small" style="margin-top:6px;">အသင်းမဝင်ထားသေးပါ</div>';
+        html += '</div>';
         
         html += '<div class="actions">';
         if (isMe) {
@@ -1607,19 +1613,7 @@
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g) { alert('အသင်းမရှိပါ'); return; }
         if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-        if (confirm('ဒီအသင်းထဲ ဝင်ချင်ပါသလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်')) {
-            if (!g.members) g.members = [];
-            if (!g.members.includes(me)) {
-                g.members.push(me);
-                if (!g.memberActivity) g.memberActivity = {};
-                g.memberActivity[me] = 0;
-                save();
-                alert('✅ အသင်းထဲ ဝင်ပြီးပါပြီ');
-                renderAllGroups();
-                renderMyGroups();
-                openGroup(groupId);
-            }
-        }
+        requestJoinGroup(groupId);
     }
 
     // ===== PROFILE CREATE GROUP =====
@@ -1688,13 +1682,13 @@
             name: n, 
             owner: me, 
             members: [me], 
-            admins: [me],
-            joinRequests: [],
             level: 1, 
             activity: 0,
             avatar: tempProfileGroupAvatar || null,
             memberRanks: {},
-            memberActivity: {}
+            memberActivity: {},
+            admins: [],
+            joinRequests: []
         };
         group.memberRanks[me] = 5;
         group.memberActivity[me] = 0;
@@ -2383,13 +2377,13 @@
             name: n, 
             owner: me, 
             members: [me], 
-            admins: [me],
-            joinRequests: [],
             level: 1, 
             activity: 0,
             avatar: tempGroupAvatar || null,
             memberRanks: {},
-            memberActivity: {}
+            memberActivity: {},
+            admins: [],
+            joinRequests: []
         };
         group.memberRanks[me] = 5;
         group.memberActivity[me] = 0;
@@ -2428,61 +2422,123 @@
         renderProfileCreateGroup();
     }
 
+    function isGroupAdmin(group, userId) {
+        return !!(group && group.admins && group.admins.includes(userId));
+    }
+
+    function isGroupManager(group, userId) {
+        return !!(group && (group.owner === userId || isGroupAdmin(group, userId)));
+    }
+
+    function addGroupSystemMessage(group, text) {
+        if (!group || !text) return;
+        db.groupMessages = db.groupMessages || {};
+        db.groupMessages[group.id] = db.groupMessages[group.id] || [];
+        db.groupMessages[group.id].push({ system: true, t: text, time: Date.now(), seen: false });
+    }
+
     function requestJoinGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g || !me) return;
-        if (!g.joinRequests) g.joinRequests = [];
-        if (g.owner === me || (g.members && g.members.includes(me))) return;
+        g.members = Array.isArray(g.members) ? g.members : [];
+        g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
+        g.admins = Array.isArray(g.admins) ? g.admins : [];
+        if (g.owner === me || g.members.includes(me)) {
+            openGroup(groupId);
+            return;
+        }
+        if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
         if (g.joinRequests.includes(me)) {
-            alert('ဝင်ခွင့်တောင်းထားပြီးပါပြီ');
+            alert('⏳ အသင်းဝင်ခွင့်တောင်းထားပြီးပါပြီ။ ပိုင်ရှင်/အုပ်ချုပ်သူ လက်ခံပေးရန် စောင့်ပါ။');
+            renderGroupDetail();
             return;
         }
         g.joinRequests.push(me);
         save();
-        alert('✅ အသင်းဝင်ခွင့်တောင်းပြီးပါပြီ');
+        alert('📨 အသင်းဝင်ခွင့်တောင်းပြီးပါပြီ။ ပိုင်ရှင် သို့မဟုတ် အုပ်ချုပ်သူ လက်ခံပြီးမှ အသင်းထဲဝင်ရပါမယ်။');
         renderGroupDetail();
-    }
-
-    function isGroupManager(g){
-        return g && (g.owner === me || (g.admins || []).includes(me));
     }
 
     function approveJoinGroup(groupId, userId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
-        if (!g || !isGroupManager(g)) return;
-        if (!g.members) g.members = [];
-        if (!g.members.includes(userId)) g.members.push(userId);
-        g.joinRequests = (g.joinRequests || []).filter(function(x){return x!==userId;});
-        addGroupSystemMessage(g, db.users[userId] ? db.users[userId].name : userId, 'join');
+        if (!g || !isGroupManager(g, me)) { alert('ပိုင်ရှင်/အုပ်ချုပ်သူသာ လက်ခံပေးနိုင်ပါတယ်'); return; }
+        g.members = Array.isArray(g.members) ? g.members : [];
+        g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
+        if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
+        var u = db.users[userId];
+        if (!u) return;
+        if (!g.members.includes(userId)) {
+            g.members.push(userId);
+            g.memberActivity = g.memberActivity || {};
+            g.memberRanks = g.memberRanks || {};
+            g.memberActivity[userId] = 0;
+            g.memberRanks[userId] = 1;
+            addGroupSystemMessage(g, '👋 ' + (u.name || userId) + ' သည် အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံး ကြိုဆိုကြပါ။');
+        }
+        g.joinRequests = g.joinRequests.filter(function(x) { return x !== userId; });
+        save();
+        refresh();
+        renderGroupDetail();
+        alert('✅ ' + (u.name || userId) + ' ကို အသင်းဝင်အဖြစ် လက်ခံပြီးပါပြီ');
+    }
+
+    function rejectJoinGroup(groupId, userId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || !isGroupManager(g, me)) { alert('ပိုင်ရှင်/အုပ်ချုပ်သူသာ ငြင်းပယ်နိုင်ပါတယ်'); return; }
+        g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
+        g.joinRequests = g.joinRequests.filter(function(x) { return x !== userId; });
         save();
         renderGroupDetail();
+        alert('❌ အသင်းဝင်ခွင့်တောင်းဆိုမှုကို ငြင်းပယ်ပြီးပါပြီ');
     }
 
-    function addGroupSystemMessage(g, name, type){
-        g.systemMessages = g.systemMessages || [];
-        var text = type==='join' ? name+' သည်အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံးကြိုဆိုကြပါ' : name+' သည်အသင်းမှထွက်သွားပါသည်';
-        g.systemMessages.push({text:text,time:Date.now()});
-    }
-
-    function leaveGroup(groupId) {
+    function appointGroupAdmin(groupId, userId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
-        if (!g) return;
-        if (g.owner === me) { alert('ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
-        if (!g.members || !g.members.includes(me)) return;
-        if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
-            var name = db.users[me] ? db.users[me].name : me;
-            g.members = g.members.filter(function(id) { return id !== me; });
-            g.admins = (g.admins||[]).filter(function(id){return id!==me;});
-            addGroupSystemMessage(g,name,'leave');
-            delete g.memberRanks[me];
-            delete g.memberActivity[me];
+        if (!g || g.owner !== me) { alert('အသင်းပိုင်ရှင်သာ အုပ်ချုပ်သူခန့်နိုင်ပါတယ်'); return; }
+        if (!g.members || !g.members.includes(userId) || userId === g.owner) return;
+        g.admins = Array.isArray(g.admins) ? g.admins : [];
+        if (!g.admins.includes(userId)) {
+            g.admins.push(userId);
+            var u = db.users[userId] || {};
+            addGroupSystemMessage(g, '🛡️ ' + (u.name || userId) + ' ကို အသင်းအုပ်ချုပ်သူအဖြစ် ခန့်အပ်လိုက်ပါသည်။');
             save();
-            show('home');
-            alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
-            renderAllGroups();
-            renderMyGroups();
-            renderProfileCreateGroup();
+            renderGroupDetail();
+            alert('✅ ' + (u.name || userId) + ' ကို အုပ်ချုပ်သူခန့်ပြီးပါပြီ');
         }
+    }
+
+    function removeGroupAdmin(groupId, userId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('အသင်းပိုင်ရှင်သာ အုပ်ချုပ်သူဖြုတ်နိုင်ပါတယ်'); return; }
+        g.admins = Array.isArray(g.admins) ? g.admins : [];
+        if (g.admins.includes(userId)) {
+            g.admins = g.admins.filter(function(x) { return x !== userId; });
+            var u = db.users[userId] || {};
+            addGroupSystemMessage(g, '🛡️ ' + (u.name || userId) + ' ၏ အုပ်ချုပ်သူတာဝန်ကို ဖြုတ်လိုက်ပါသည်။');
+            save();
+            renderGroupDetail();
+            alert('✅ အုပ်ချုပ်သူတာဝန် ဖြုတ်ပြီးပါပြီ');
+        }
+    }
+
+    function chooseAdminMember(groupId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('အသင်းပိုင်ရှင်သာ အုပ်ချုပ်သူခန့်နိုင်ပါတယ်'); return; }
+        var candidates = (g.members || []).filter(function(id) { return id !== g.owner; });
+        if (!candidates.length) { alert('အုပ်ချုပ်သူခန့်ရန် အခြားအသင်းဝင်မရှိသေးပါ'); return; }
+        var msg = 'အုပ်ချုပ်သူခန့်မည့် အသင်းဝင်ကို နံပါတ်ရွေးပါ:\n';
+        candidates.forEach(function(id, i) {
+            var u = db.users[id] || {};
+            var adminMark = isGroupAdmin(g, id) ? ' [လက်ရှိအုပ်ချုပ်သူ]' : '';
+            msg += (i + 1) + '. ' + (u.name || id) + ' (' + id + ')' + adminMark + '\n';
+        });
+        var choice = prompt(msg);
+        if (choice === null) return;
+        var idx = parseInt(choice, 10) - 1;
+        if (idx < 0 || idx >= candidates.length) { alert('မှန်ကန်တဲ့ နံပါတ်ရွေးပါ'); return; }
+        var id = candidates[idx];
+        if (isGroupAdmin(g, id)) removeGroupAdmin(groupId, id);
+        else appointGroupAdmin(groupId, id);
     }
 
     function openGroup(groupId) {
@@ -2498,75 +2554,63 @@
         if (!box) return;
         var g = db.groups.find(function(x) { return x.id === window.currentGroup; });
         if (!g) { box.innerHTML = '<div class="small">အသင်းမရှိပါ</div>'; return; }
+        g.members = Array.isArray(g.members) ? g.members : [];
+        g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
+        g.admins = Array.isArray(g.admins) ? g.admins : [];
+        g.memberRanks = g.memberRanks || {};
+        g.memberActivity = g.memberActivity || {};
         var isOwner = g.owner === me;
-        var isMember = g.members && g.members.includes(me);
-        var canRequestJoin = !isMember && g.owner !== me;
-        var members = g.members ? g.members.map(function(id) { return db.users[id]; }).filter(Boolean) : [];
-
+        var isManager = isGroupManager(g, me);
+        var isMember = g.members.includes(me);
+        var hasPending = g.joinRequests.includes(me);
+        var members = g.members.map(function(id) { return db.users[id]; }).filter(Boolean);
         var avatarHtml = g.avatar ? '<div class="group-detail-avatar"><img src="'+g.avatar+'" alt="group"></div>' : '<div class="group-detail-avatar">🏆</div>';
 
-        if (canRequestJoin) {
-            html += '<button class="btn green" onclick="requestJoinGroup(\''+g.id+'\')">🙋 ဝင်ခွင့်တောင်း</button>';
-        }
         var html = '<div class="group-detail-header">' +
             '<h3 class="group-title">🏆 ' + esc(g.name) + '</h3>' +
-            '<div class="group-actions">' +
-            '<button onclick="showGroupSettings()" title="အသင်းဆက်တင်">⚙️</button>' +
-            '</div>' +
-            '</div>' +
-            avatarHtml +
-            '<p class="small">ID: '+esc(g.id)+' • Level ' + g.level + ' • Members '+(g.members ? g.members.length : 0)+'/20</p>' +
-            ((g.systemMessages&&g.systemMessages.length)?'<div class="system-msg-box">'+g.systemMessages.slice(-5).map(function(s){return s.text;}).join('<br>')+'</div>':'')+
-            '<hr><h3>👥 အသင်းဝင်များ</h3>';
+            '<div class="group-actions"><button onclick="showGroupSettings()" title="အသင်းဆက်တင်">⚙️</button></div>' +
+            '</div>' + avatarHtml +
+            '<p class="small">ID: '+esc(g.id)+' • Level ' + (g.level || 1) + ' • Members '+g.members.length+'/20</p>';
+
+        if (!isMember && g.owner !== me) {
+            html += hasPending ? '<div class="status">⏳ ဝင်ခွင့်တောင်းထားပြီးပါပြီ။ ပိုင်ရှင်/အုပ်ချုပ်သူ လက်ခံပေးရန် စောင့်နေပါသည်။</div>' : '<button class="btn green" onclick="requestJoinGroup(\''+g.id+'\')">🙋 အသင်းဝင်ခွင့်တောင်း</button>';
+        }
 
         html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 0;">';
         if (isOwner) {
             html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
-            html += '<button class="menu-item" onclick="alert(\'အုပ်ချုပ်သူခန့်ခြင်းကို နောက်တစ်ဆင့်တွင် ထည့်သွင်းနိုင်ပါသည်။\')" style="border:0;background:transparent;padding:8px;">⚙️ အုပ်ချုပ်သူခန့်</button>';
+            html += '<button class="menu-item" onclick="chooseAdminMember(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">🛡️ အုပ်ချုပ်သူခန့်/ဖြုတ်</button>';
             html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
         } else if (isMember) {
             html += '<button class="menu-item danger" onclick="leaveGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;color:#dc3545;">🚪 အသင်းမှထွက်မည်</button>';
         }
-        html += '<button class="menu-item" onclick="document.getElementById(\'groupSettingsMenu\').style.display=\'none\'" style="border:0;background:transparent;padding:8px;">✖️ ပိတ်မည်</button>';
-        html += '</div>';
+        html += '<button class="menu-item" onclick="showGroupSettings()" style="border:0;background:transparent;padding:8px;">✖️ ပိတ်မည်</button></div>';
 
-        if (isGroupManager(g) && g.joinRequests && g.joinRequests.length) {
-            html += '<h4>⏳ ဝင်ခွင့်တောင်းထားသူများ</h4>';
-            g.joinRequests.forEach(function(id){
-                var ru=db.users[id];
-                if(ru) html += '<div class="group-member-item"><span class="member-name">'+esc(ru.name)+'</span><button class="btn green small" onclick="approveJoinGroup(\''+g.id+'\',\''+id+'\')">လက်ခံ</button></div>';
+        if (isManager && g.joinRequests.length) {
+            html += '<hr><h3>📨 အသင်းဝင်ခွင့်တောင်းထားသူများ ('+g.joinRequests.length+')</h3>';
+            g.joinRequests.forEach(function(id) {
+                var u = db.users[id] || {};
+                var av = getUserAvatar(u);
+                html += '<div class="onboard-user-card"><div class="avatar">'+av+'</div><div class="info" onclick="viewUserProfile(\''+id+'\')"><div class="name">'+esc(u.name || id)+'</div><div class="id">ID: '+esc(id)+'</div></div><div class="actions"><button class="btn green small" onclick="approveJoinGroup(\''+g.id+'\',\''+id+'\')">✅ လက်ခံ</button><button class="btn red small" onclick="rejectJoinGroup(\''+g.id+'\',\''+id+'\')">❌ ငြင်း</button></div></div>';
             });
         }
 
+        html += '<hr><h3>👥 အသင်းဝင်များ</h3>';
         if (members.length) {
             members.forEach(function(u) {
                 var rank = getMemberRank(g, u.id);
                 var isOwnerUser = u.id === g.owner;
-                var badgeHtml = '';
-                
-                if (isOwnerUser) {
-                    badgeHtml = '<span class="badge-owner">ပါမောခ</span>';
-                } else {
-                    var rankLabel = getRankLabel(rank);
-                    var rankClass = getRankBadgeClass(rank);
-                    badgeHtml = '<span class="member-badge ' + rankClass + '">' + rankLabel + '</span>';
-                }
-                
-                html += '<div class="group-member-item">' +
+                var isAdminUser = isGroupAdmin(g, u.id);
+                var badgeHtml = isOwnerUser ? '<span class="badge-owner">ပါမောခ</span>' : (isAdminUser ? '<span class="member-badge rank-4">အုပ်ချုပ်သူ</span>' : '<span class="member-badge '+getRankBadgeClass(rank)+'">'+getRankLabel(rank)+'</span>');
+                html += '<div class="group-member-item" style="cursor:pointer" onclick="viewUserProfile(\''+u.id+'\')">' +
                     '<span class="member-rank">#' + rank + '</span>' +
-                    '<span class="member-name">' + esc(u.name) + '</span>' +
-                    badgeHtml +
-                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
+                    '<span class="member-name">' + esc(u.name) + '</span>' + badgeHtml +
+                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="event.stopPropagation();transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
                     '</div>';
             });
-        } else {
-            html += '<div class="small">Member မရှိသေးပါ</div>';
-        }
+        } else html += '<div class="small">Member မရှိသေးပါ</div>';
 
-        html += '<hr><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
-            (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') +
-            '</div>';
-
+        html += '<hr><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' + (isMember ? '<button class="btn" onclick="openGroupChat(\''+g.id+'\')">💬 Chat</button>' : '') + '</div>';
         box.innerHTML = html;
     }
 
@@ -2596,15 +2640,22 @@
         if (g.owner === me) { alert('ပိုင်ရှင်သည် အသင်းမှမထွက်နိုင်ပါ'); return; }
         if (!g.members || !g.members.includes(me)) return;
         if (confirm('ဒီအသင်းမှ ထွက်မှာလား?')) {
+            var u = db.users[me] || {};
+            var leavingName = u.name || me;
             g.members = g.members.filter(function(id) { return id !== me; });
+            g.admins = Array.isArray(g.admins) ? g.admins.filter(function(id) { return id !== me; }) : [];
+            g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests.filter(function(id) { return id !== me; }) : [];
+            g.memberRanks = g.memberRanks || {};
+            g.memberActivity = g.memberActivity || {};
             delete g.memberRanks[me];
             delete g.memberActivity[me];
+            addGroupSystemMessage(g, '👋 ' + leavingName + ' သည် အသင်းမှ ထွက်သွားပါသည်။');
             save();
             show('home');
-            alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
             renderAllGroups();
             renderMyGroups();
             renderProfileCreateGroup();
+            alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
         }
     }
 
@@ -2670,22 +2721,23 @@
             '<div class="small">အသင်းဝင် '+(g.members ? g.members.length : 0)+' ယောက်</div>' +
             '<div id="groupChatBox" class="chat" style="height:40vh;">';
         msgs.forEach(function(m, idx) {
+            if (m.system) {
+                html += '<div class="system-msg-box" style="margin:8px 0;text-align:center;"><div class="sys-title">📢 အသင်းအသိပေးချက်</div><div class="sys-msg-text">'+esc(m.t || '')+'</div><div class="sys-time" style="float:none;display:block;margin-top:4px;">'+new Date(m.time || Date.now()).toLocaleString('my-MM',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'})+'</div></div>';
+                return;
+            }
             var u = db.users[m.f] || {};
             var rank = getMemberRank(g, m.f);
-            var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
-            var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
+            var rankLabel = m.f === g.owner ? 'ပါမောခ' : (isGroupAdmin(g, m.f) ? 'အုပ်ချုပ်သူ' : getRankLabel(rank));
+            var rankClass = m.f === g.owner ? 'badge-owner' : (isGroupAdmin(g, m.f) ? 'rank-4' : getRankBadgeClass(rank));
             var isMe = (m.f === me);
+            var avatar = getUserAvatar(u);
             html += '<div class="msg ' + (isMe ? 'me' : '') + '" style="position:relative;">' +
-                '<div class="bubble"><b>' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div>';
-            if (isMe) {
-                html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')" style="position:absolute;top:2px;right:2px;background:rgba(220,53,69,0.8);color:#fff;border:0;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>';
-            }
+                '<div class="avatar" onclick="viewUserProfile(\''+m.f+'\')">'+avatar+'</div>' +
+                '<div class="bubble"><b onclick="viewUserProfile(\''+m.f+'\')" style="cursor:pointer;color:#0d6efd;">' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t || '') + '</div>';
+            if (isMe) html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')" style="position:absolute;top:2px;right:2px;background:rgba(220,53,69,0.8);color:#fff;border:0;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>';
             html += '</div>';
         });
-        html += '</div><div class="chat-input-area">' +
-            '<input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()">' +
-            '<button class="send-btn show" onclick="sendGroupMessage()">➤</button>' +
-            '</div>';
+        html += '</div><div class="chat-input-area"><input id="groupMsg" placeholder="အသင်းထဲ စာရေးပါ..." onkeydown="if(event.key===\'Enter\')sendGroupMessage()"><button class="send-btn show" onclick="sendGroupMessage()">➤</button></div>';
         box.innerHTML = html;
         var cb = document.getElementById('groupChatBox');
         if (cb) cb.scrollTop = cb.scrollHeight;
@@ -2731,4 +2783,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+                    </html>
