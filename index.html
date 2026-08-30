@@ -351,37 +351,24 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
-            <!-- Sticker Section -->
-            <div class="sticker-section">
-                <div class="current-sticker-display" id="currentStickerDisplay">😊</div>
-                <div style="font-size:12px;color:#777;text-align:center;margin-bottom:4px;">သင့်စတစ်ကာကို ရွေးပါ (သိမ်းရန် အောက်ဆုံးခလုပ်)</div>
-                <div class="sticker-grid" id="stickerGrid">
-                    <button class="sticker-btn" onclick="selectSticker('😊')">😊</button>
-                    <button class="sticker-btn" onclick="selectSticker('❤️')">❤️</button>
-                    <button class="sticker-btn" onclick="selectSticker('😂')">😂</button>
-                    <button class="sticker-btn" onclick="selectSticker('😍')">😍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤩')">🤩</button>
-                    <button class="sticker-btn" onclick="selectSticker('😘')">😘</button>
-                    <button class="sticker-btn" onclick="selectSticker('🥰')">🥰</button>
-                    <button class="sticker-btn" onclick="selectSticker('😁')">😁</button>
-                    <button class="sticker-btn" onclick="selectSticker('🙏')">🙏</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤗')">🤗</button>
-                    <button class="sticker-btn" onclick="selectSticker('👍')">👍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🔥')">🔥</button>
-                    <button class="sticker-btn" onclick="selectSticker('💯')">💯</button>
-                    <button class="sticker-btn" onclick="selectSticker('⭐')">⭐</button>
-                    <button class="sticker-btn" onclick="selectSticker('✨')">✨</button>
-                    <button class="sticker-btn" onclick="selectSticker('💪')">💪</button>
-                </div>
-            </div>
-            
+            <!-- Profile photo area starts clean; decoration controls are placed below the stats. -->
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
                 <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
             </div>
             <div class="profile-stats">
-                <div><b id="followingCount">0</b><span>Following</span></div>
-                <div><b id="followersCount">0</b><span>Followers</span></div>
+                <div onclick="showFollowList('following')" style="cursor:pointer" title="Following စာရင်းကြည့်ရန်"><b id="followingCount">0</b><span>Following</span></div>
+                <div onclick="showFollowList('followers')" style="cursor:pointer" title="Followers စာရင်းကြည့်ရန်"><b id="followersCount">0</b><span>Followers</span></div>
+            </div>
+            <div class="profile-decoration-area">
+                <div class="profile-decoration-row">
+                    <label>😊 သင့်စတစ်ကာ</label>
+                    <input id="profileStickerInput" class="profile-sticker-input" type="text" maxlength="8" placeholder="စတစ်ကာထည့်ပါ" autocomplete="off">
+                </div>
+                <div class="profile-decoration-row">
+                    <label>🎨 အလှဆင်စာသား</label>
+                    <textarea id="profileDecorationInput" maxlength="120" placeholder="သင်ကြိုက်တဲ့စာသား/emoji များထည့်ပြီး အလှဆင်ပါ"></textarea>
+                </div>
             </div>
             <div class="profile-form">
                 <div class="profile-region-row">
@@ -704,7 +691,8 @@
                 if (u.region === undefined) u.region = '';
                 if (!u.deviceHistory) u.deviceHistory = [];
                 if (!u.currentDevice) u.currentDevice = null;
-                if (u.sticker === undefined) u.sticker = '😊';
+                if (u.sticker === undefined) u.sticker = '';
+        if (u.decorationText === undefined) u.decorationText = '';
             }
         });
         return x;
@@ -896,10 +884,7 @@
     }
 
     function saveStickerToProfile() {
-        if (!me || !db.users[me]) return;
-        db.users[me].sticker = selectedSticker;
-        save();
-        alert('✅ စတစ်ကာကို သိမ်းပြီးပါပြီ!');
+        saveProfileForm();
     }
 
     // ===== DELETE MESSAGE FUNCTIONS =====
@@ -1107,7 +1092,7 @@
             var friend = db.friends.some(function(x) { return (x.a === me && x.b === u.id) || (x.a === u.id && x.b === me); });
             var sent = db.req.some(function(r) { return r.f === me && r.t === u.id; });
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
-            var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + u.id + '\')">Add Friend</button>';
+            var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="event.stopPropagation();return requestFriend(\'' + u.id + '\')">Add Friend</button>';
             var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
             var age = calcAge(u.dob);
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
@@ -1269,7 +1254,7 @@
             html += '<button class="btn green" onclick="acceptFriendFromProfile(\'' + id + '\')">✅ Accept</button>';
             html += '<button class="btn red" onclick="declineFriendFromProfile(\'' + id + '\')">❌ Decline</button>';
         } else {
-            html += '<button class="btn follow-btn" onclick="requestFriend(\'' + id + '\')">➕ Add Friend</button>';
+            html += '<button class="btn follow-btn" onclick="event.stopPropagation();return requestFriend(\'' + id + '\')">➕ Add Friend</button>';
         }
         html += '</div>';
         html += '</div>';
@@ -1488,13 +1473,11 @@
 
     function renderSticker() {
         if (!me || !db.users[me]) return;
-        var sticker = db.users[me].sticker || '😊';
-        selectedSticker = sticker;
-        var display = document.getElementById('currentStickerDisplay');
-        if (display) display.textContent = sticker;
-        document.querySelectorAll('.sticker-btn').forEach(function(btn) {
-            btn.classList.toggle('selected', btn.textContent === sticker);
-        });
+        var sticker = db.users[me].sticker || '';
+        var display = document.getElementById('profileStickerInput');
+        if (display && document.activeElement !== display) display.value = sticker;
+        var decoration = document.getElementById('profileDecorationInput');
+        if (decoration && document.activeElement !== decoration) decoration.value = db.users[me].decorationText || '';
     }
 
     // ===== SETTINGS: DARK MODE / LANGUAGE =====
@@ -1572,7 +1555,7 @@
         u.dob = u.dob || '';
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
-        if (u.sticker === undefined) u.sticker = '😊';
+        if (u.sticker === undefined) u.sticker = '';
         document.getElementById('head').textContent = u.name;
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
@@ -1598,10 +1581,14 @@
         if (age) age.textContent = calcAge(u.dob) || '-';
         var regionDisplay = document.getElementById('profileRegionDisplay');
         if (regionDisplay) { regionDisplay.textContent = u.region && u.region.trim() ? u.region : '-'; }
+        var stickerInput = document.getElementById('profileStickerInput');
+        if (stickerInput) stickerInput.value = u.sticker || '';
+        var decorationInput = document.getElementById('profileDecorationInput');
+        if (decorationInput) decorationInput.value = u.decorationText || '';
         var fc = document.getElementById('followersCount');
-        if (fc) fc.textContent = db.req.filter(function(r) { return r.t === me; }).length + db.friends.filter(function(x) { return x.a === me || x.b === me; }).length;
+        if (fc) fc.textContent = db.friends.filter(function(x) { return x.b === me; }).length;
         var fwc = document.getElementById('followingCount');
-        if (fwc) fwc.textContent = db.friends.filter(function(x) { return x.a === me || x.b === me; }).length;
+        if (fwc) fwc.textContent = db.friends.filter(function(x) { return x.a === me; }).length;
         renderPhotos();
         nearby();
         friends();
@@ -2385,7 +2372,7 @@
                 var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
                 d.innerHTML = '<b>' + esc(u.name || x.u.name || x.id) + '</b><div class="small">ID: ' + esc(x.id) + ' • ' + (x.km < 1 ? (x.km * 1000).toFixed(0) + ' m' : x.km.toFixed(1) + ' km') + (regionText ? ' • ' + regionText : '') + '</div>' +
                     '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' + 
-                    (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="requestFriend(\'' + x.id + '\')">Add Friend</button>');
+                    (f ? '<span>✅ Friend</span>' : q ? '<span>📨 Request ပို့ထားပြီး</span>' : '<button class="btn" onclick="event.stopPropagation();return requestFriend(\'' + x.id + '\')">Add Friend</button>');
                 b.appendChild(d);
             });
         } catch (e) { console.error(e); b.innerHTML = '<div class="small">⚠️ အနီးနား User data ဖတ်မရပါ။</div>'; }
@@ -2420,14 +2407,61 @@
         if (presenceRef) { presenceRef.remove().catch(function() {}); presenceRef = null; }
     }
 
-    function requestFriend(id) {
-        if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
-        if (!db.req.some(function(r) { return r.f === me && r.t === id; }) && !db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
-            db.req.push({ f: me, t: id });
-            save();
-            refresh();
-            alert('Friend request ပို့ပြီးပါပြီ');
+    function showToast(message) {
+        var old = document.getElementById('beeToast');
+        if (old) old.remove();
+        var t = document.createElement('div');
+        t.id = 'beeToast';
+        t.textContent = message;
+        t.style.cssText = 'position:fixed;left:50%;bottom:95px;transform:translateX(-50%);z-index:11000;background:#222;color:#fff;padding:11px 16px;border-radius:22px;font-size:14px;box-shadow:0 4px 18px rgba(0,0,0,.25);max-width:85%;text-align:center;';
+        document.body.appendChild(t);
+        setTimeout(function(){ if(t.parentNode) t.remove(); }, 1800);
+    }
+
+    function showFollowList(type) {
+        if (!me || !db) return;
+        var ids = [];
+        if (type === 'following') {
+            ids = db.friends.filter(function(x){ return x.a === me; }).map(function(x){ return x.b; });
+        } else {
+            ids = db.friends.filter(function(x){ return x.b === me; }).map(function(x){ return x.a; });
         }
+        var old = document.getElementById('followListSheet');
+        if (old) old.remove();
+        var sh=document.createElement('div'); sh.id='followListSheet'; sh.className='follow-list-sheet';
+        sh.onclick=function(e){ if(e.target===sh) sh.remove(); };
+        var panel=document.createElement('div'); panel.className='follow-list-panel';
+        var title = type === 'following' ? '👤 Following စာရင်း' : '👥 Followers စာရင်း';
+        panel.innerHTML='<div class="follow-list-head"><h3 style="margin:0">'+title+'</h3><button class="btn outline small" onclick="document.getElementById(\'followListSheet\').remove()">✖️</button></div><div id="followListItems"></div>';
+        sh.appendChild(panel); document.body.appendChild(sh);
+        var box=document.getElementById('followListItems');
+        if(!ids.length){ box.innerHTML='<div class="small" style="padding:20px;text-align:center">စာရင်းမရှိသေးပါ။</div>'; return; }
+        ids.forEach(function(id){
+            var u=db.users[id]; if(!u) return;
+            var row=document.createElement('div'); row.className='follow-user';
+            row.onclick=function(){ sh.remove(); viewUserProfile(id); };
+            var photo=(u.photos&&u.photos[0]) ? '<img src="'+u.photos[0]+'">' : '<div class="fu-avatar">👤</div>';
+            row.innerHTML=photo+'<div><b>'+esc(u.name||id)+'</b><div class="small">ID: '+esc(u.id||id)+(u.region?' • 📍 '+esc(u.region):'')+'</div></div>';
+            box.appendChild(row);
+        });
+    }
+
+    function requestFriend(id) {
+        if (!me || !db || !id || id === me) return false;
+        if (isBlocked(id)) { showToast('🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return false; }
+        if (db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
+            showToast('✅ Friend ဖြစ်ပြီးသားပါ');
+            return false;
+        }
+        if (!db.req.some(function(r) { return r.f === me && r.t === id; })) {
+            db.req.push({ f: me, t: id, seen: false, time: Date.now() });
+            save();
+            updateBadges();
+            showToast('📨 Friend request ပို့ပြီးပါပြီ');
+        } else {
+            showToast('📨 Request ပို့ထားပြီးပါပြီ');
+        }
+        return false;
     }
 
     function accept(id) {
@@ -2896,4 +2930,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-    </html>
+</html>
