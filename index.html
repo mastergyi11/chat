@@ -2495,9 +2495,8 @@ function renderUserProfile(id) {
     box.innerHTML = html;
 }
 
-function requestJoinGroupFromProfile(groupId, userId) {
+function requestJoinGroupFromProfile(groupId) {
     if (!me) { alert('အကောင့်ဝင်ပါ'); return; }
-    if (me === userId) { alert('သင့်ကိုယ်ပိုင်အသင်းပါ'); return; }
     
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
@@ -3103,7 +3102,7 @@ function viewPublicGroup(groupId) {
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
     var ok = confirm('ဒီအသင်းသို့ ပါဝင်ခွင့်တောင်းမလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်\n\nOK = ပါဝင်ခွင့်တောင်းမယ်\nCancel = မပါဝင်တော့ပါ');
     if (ok) {
-        requestJoinGroupFromProfile(groupId, me);
+        requestJoinGroupFromProfile(groupId);
     }
 }
 
