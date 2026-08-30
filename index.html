@@ -203,13 +203,13 @@
         .gender-filter-label input[type="radio"] { margin: 0; width: auto; }
         /* Onboarding search result with gender/age */
         .onboard-user-card .info .gender-age { font-size: 11px; color: #888; }
-        /* Sticker section in profile */
-        .sticker-section { padding: 10px 16px; border-bottom: 1px solid #eee; }
+        /* Sticker section relocated under Region */
+        .sticker-section { padding: 10px 16px; border-bottom: 1px solid #eee; background: #fafafa; }
         .sticker-section .sticker-grid { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
-        .sticker-section .sticker-grid .sticker-btn { font-size: 28px; padding: 4px 8px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff; transition: all 0.2s; }
+        .sticker-section .sticker-grid .sticker-btn { font-size: 24px; padding: 4px 8px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff; transition: all 0.2s; }
         .sticker-section .sticker-grid .sticker-btn:hover { border-color: #e7ad21; transform: scale(1.1); }
         .sticker-section .sticker-grid .sticker-btn.selected { border-color: #e7ad21; background: #fff8e1; }
-        .sticker-section .current-sticker-display { text-align: center; font-size: 48px; padding: 8px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
+        .sticker-section .current-sticker-display { text-align: center; font-size: 36px; padding: 6px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
         /* Profile nav button slight right shift */
         #navProfile { margin-left: 4px; }
     </style>
@@ -250,7 +250,6 @@
     <!-- ONBOARDING (Location + Search) -->
     <section id="onboarding" class="screen">
         <div class="onboard">
-            <!-- System Message Box like screenshot 2 -->
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
@@ -259,7 +258,6 @@
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
             
-            <!-- Filter Section: Gender + Age -->
             <div class="filter-section">
                 <select id="filterGender" onchange="searchOnboardUsers()" style="flex:1;">
                     <option value="">ကျား/မ အားလုံး</option>
@@ -330,30 +328,6 @@
     <!-- PROFILE -->
     <section id="profile" class="screen">
         <div class="profile-page">
-            <!-- Sticker Section -->
-            <div class="sticker-section">
-                <div class="current-sticker-display" id="currentStickerDisplay">😊</div>
-                <div style="font-size:12px;color:#777;text-align:center;margin-bottom:4px;">သင့်စတစ်ကာကို ရွေးပါ (သိမ်းရန် အောက်ဆုံးခလုပ်)</div>
-                <div class="sticker-grid" id="stickerGrid">
-                    <button class="sticker-btn" onclick="selectSticker('😊')">😊</button>
-                    <button class="sticker-btn" onclick="selectSticker('❤️')">❤️</button>
-                    <button class="sticker-btn" onclick="selectSticker('😂')">😂</button>
-                    <button class="sticker-btn" onclick="selectSticker('😍')">😍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤩')">🤩</button>
-                    <button class="sticker-btn" onclick="selectSticker('😘')">😘</button>
-                    <button class="sticker-btn" onclick="selectSticker('🥰')">🥰</button>
-                    <button class="sticker-btn" onclick="selectSticker('😁')">😁</button>
-                    <button class="sticker-btn" onclick="selectSticker('🙏')">🙏</button>
-                    <button class="sticker-btn" onclick="selectSticker('🤗')">🤗</button>
-                    <button class="sticker-btn" onclick="selectSticker('👍')">👍</button>
-                    <button class="sticker-btn" onclick="selectSticker('🔥')">🔥</button>
-                    <button class="sticker-btn" onclick="selectSticker('💯')">💯</button>
-                    <button class="sticker-btn" onclick="selectSticker('⭐')">⭐</button>
-                    <button class="sticker-btn" onclick="selectSticker('✨')">✨</button>
-                    <button class="sticker-btn" onclick="selectSticker('💪')">💪</button>
-                </div>
-            </div>
-            
             <div class="profile-gallery-wrap">
                 <div id="photos" class="profile-photos"></div>
                 <div class="profile-photo-note">* ပုံကိုနှိပ်ပြီး ပြောင်းနိုင်သည်။ ပုံ ၄ ပုံအထိ တင်နိုင်သည်။</div>
@@ -366,6 +340,29 @@
                 <div class="profile-region-row">
                     <label>📍 Region</label>
                     <div id="profileRegionDisplay" class="profile-region-value">-</div>
+                </div>
+                <!-- Sticker section relocated under Region -->
+                <div class="sticker-section">
+                    <div class="current-sticker-display" id="currentStickerDisplay">😊</div>
+                    <div style="font-size:12px;color:#777;text-align:center;margin-bottom:4px;">သင့်စတစ်ကာကို ရွေးပါ (သိမ်းရန် အောက်ဆုံးခလုပ်)</div>
+                    <div class="sticker-grid" id="stickerGrid">
+                        <button class="sticker-btn" onclick="selectSticker('😊')">😊</button>
+                        <button class="sticker-btn" onclick="selectSticker('❤️')">❤️</button>
+                        <button class="sticker-btn" onclick="selectSticker('😂')">😂</button>
+                        <button class="sticker-btn" onclick="selectSticker('😍')">😍</button>
+                        <button class="sticker-btn" onclick="selectSticker('🤩')">🤩</button>
+                        <button class="sticker-btn" onclick="selectSticker('😘')">😘</button>
+                        <button class="sticker-btn" onclick="selectSticker('🥰')">🥰</button>
+                        <button class="sticker-btn" onclick="selectSticker('😁')">😁</button>
+                        <button class="sticker-btn" onclick="selectSticker('🙏')">🙏</button>
+                        <button class="sticker-btn" onclick="selectSticker('🤗')">🤗</button>
+                        <button class="sticker-btn" onclick="selectSticker('👍')">👍</button>
+                        <button class="sticker-btn" onclick="selectSticker('🔥')">🔥</button>
+                        <button class="sticker-btn" onclick="selectSticker('💯')">💯</button>
+                        <button class="sticker-btn" onclick="selectSticker('⭐')">⭐</button>
+                        <button class="sticker-btn" onclick="selectSticker('✨')">✨</button>
+                        <button class="sticker-btn" onclick="selectSticker('💪')">💪</button>
+                    </div>
                 </div>
                 <div class="profile-row"><label>အမည်</label><input id="profileName" type="text" placeholder="သင့်အမည်"></div>
                 <div class="profile-row"><label>Account ဖွင့်အမည်</label><div id="accountNameView" class="profile-value">-</div></div>
@@ -474,9 +471,8 @@
         <div class="card"><h3>👥 Friends / Requests</h3><div id="flist"></div></div>
     </section>
 
-    <!-- INBOX (Chats) with System Message like screenshot 2 -->
+    <!-- INBOX (Chats) -->
     <section id="inbox" class="screen">
-        <!-- System Message Box like screenshot 2 -->
         <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
             <span class="sys-title">📢 Bee Chat Admin</span>
             <span class="sys-time" id="sysTimeDisplayInbox"></span>
@@ -486,7 +482,7 @@
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
     </section>
 
-    <!-- CHAT (with Send button always visible and delete message) -->
+    <!-- CHAT -->
     <section id="chat" class="screen">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -2670,4 +2666,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-            </html>
+</html>
