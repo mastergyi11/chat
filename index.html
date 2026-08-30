@@ -212,6 +212,27 @@
         .sticker-section .current-sticker-display { text-align: center; font-size: 48px; padding: 8px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
         /* Profile nav button slight right shift */
         #navProfile { margin-left: 4px; }
+
+        /* ===== BEECHAT SETTINGS / DARK MODE / LANGUAGE ===== */
+        .settings-control { cursor:pointer; }
+        .settings-state { margin-left:auto; font-size:12px; font-weight:700; color:#8a6a00; background:#fff7d6; padding:4px 9px; border-radius:20px; }
+        .dark-mode .settings-state { color:#ffd54f; background:#3b321b; }
+        .language-sheet { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.48); display:flex; align-items:flex-end; justify-content:center; }
+        .language-panel { width:min(520px,100%); max-height:82vh; overflow:auto; background:#fff; border-radius:22px 22px 0 0; padding:18px; box-shadow:0 -8px 30px rgba(0,0,0,.25); }
+        .language-panel h3 { margin:0 0 12px; }
+        .language-option { width:100%; display:flex; align-items:center; gap:12px; border:1px solid #e5e5e5; background:#fff; border-radius:13px; padding:12px; margin:7px 0; cursor:pointer; font-size:15px; text-align:left; }
+        .language-option.active { border-color:#e7ad21; background:#fff8df; }
+        .language-flag { width:30px; text-align:center; font-size:21px; }
+        .dark-mode { background:#121212 !important; color:#eee !important; }
+        .dark-mode .card,.dark-mode .settings-page,.dark-mode .settings-list,.dark-mode .language-panel,.dark-mode .list,.dark-mode .group-card,.dark-mode .profile-page,.dark-mode .onboard-user-card { background:#1d1d1d !important; color:#eee !important; border-color:#333 !important; }
+        .dark-mode input,.dark-mode textarea,.dark-mode select { background:#242424 !important; color:#eee !important; border-color:#555 !important; }
+        .dark-mode .small,.dark-mode .id,.dark-mode .gender-age { color:#aaa !important; }
+        .dark-mode .settings-item { border-color:#333 !important; }
+        .dark-mode .language-option { background:#242424; color:#eee; border-color:#444; }
+        .dark-mode .language-option.active { background:#3b321b; border-color:#e7ad21; }
+        .dark-mode .group-detail-avatar { background:#292929; }
+        .group-system-message { text-align:center; padding:8px 12px; margin:8px auto; border-radius:12px; background:#fff8df; color:#6d5600; font-size:13px; max-width:90%; }
+        .dark-mode .group-system-message { background:#3b321b; color:#ffe082; }
     </style>
 </head>
 <body>
@@ -408,15 +429,16 @@
     <section id="settings" class="screen">
         <div class="settings-page">
             <div class="settings-list">
-                <div class="settings-item" onclick="navGo('myAccount')"><span class="sicon">🔗</span><span>My Accounts</span></div>
-                <div class="settings-item" onclick="alert('Preferences ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">ℹ</span><span>Preferences</span></div>
-                <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span>Notifications</span></div>
-                <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span>Privacy</span></div>
-                <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span>Feedback / Report</span></div>
-                <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span>Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
-                <div class="settings-item" onclick="alert('Bee Chat\nVersion 2.0')"><span class="sicon">ⓘ</span><span>About</span></div>
+                <div class="settings-item" onclick="navGo('myAccount')"><span class="sicon">🔗</span><span data-i18n="myAccounts">My Accounts</span></div>
+                <div class="settings-item settings-control" onclick="toggleDarkMode()"><span class="sicon">🌙</span><span data-i18n="darkMode">Dark Mode</span><span id="darkModeState" class="settings-state">OFF</span></div>
+                <div class="settings-item settings-control" onclick="openLanguagePicker()"><span class="sicon">🌐</span><span data-i18n="language">Language</span><span id="languageState" class="settings-state">မြန်မာ</span></div>
+                <div class="settings-item" onclick="navGo('notifications')"><span class="sicon">🔔</span><span data-i18n="notifications">Notifications</span><span id="groupNotificationBadge" class="blocked-badge" style="display:none"></span></div>
+                <div class="settings-item" onclick="alert('Privacy ကို နောက်တစ်ဆင့် ထည့်နိုင်ပါတယ်')"><span class="sicon">🔑</span><span data-i18n="privacy">Privacy</span></div>
+                <div class="settings-item" onclick="navGo('feedback')"><span class="sicon">✉</span><span data-i18n="feedback">Feedback / Report</span></div>
+                <div class="settings-item" onclick="navGo('blockedUsers')"><span class="sicon">🚫</span><span data-i18n="blocked">Blocked Users</span><span class="blocked-badge" id="blockedBadge">0</span></div>
+                <div class="settings-item" onclick="alert('Bee Chat\nVersion 2.0')"><span class="sicon">ⓘ</span><span data-i18n="about">About</span></div>
             </div>
-            <button class="settings-logout" onclick="logout()">Logout</button>
+            <button class="settings-logout" onclick="logout()" data-i18n="logout">Logout</button>
         </div>
     </section>
 
@@ -668,6 +690,7 @@
         x.groupMessages = x.groupMessages || {};
         x.groupInvites = Array.isArray(x.groupInvites) ? x.groupInvites : [];
         x.blocked = x.blocked || {};
+        x.groupNotifications = Array.isArray(x.groupNotifications) ? x.groupNotifications : [];
         x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
         Object.keys(DEFAULT.users).forEach(id => { if (!x.users[id]) x.users[id] = DEFAULT.users[id]; });
         Object.keys(x.users).forEach(id => {
@@ -945,7 +968,8 @@
             });
         });
 
-        var total = requestCount + unreadCount;
+        var groupNoticeCount = (db.groupNotifications || []).filter(function(n){ return n.to === me && !n.seen; }).length;
+        var total = requestCount + unreadCount + groupNoticeCount;
         var inboxBadge = document.getElementById('inboxBadge');
         if (inboxBadge) {
             inboxBadge.textContent = total > 0 ? total : '';
@@ -1473,6 +1497,73 @@
         });
     }
 
+    // ===== SETTINGS: DARK MODE / LANGUAGE =====
+    var BEE_LANGS = [
+        {code:'my', flag:'🇲🇲', name:'မြန်မာ'},
+        {code:'en', flag:'🇬🇧', name:'English'},
+        {code:'th', flag:'🇹🇭', name:'ไทย'},
+        {code:'ja', flag:'🇯🇵', name:'日本語'},
+        {code:'id', flag:'🇮🇩', name:'Bahasa Indonesia'},
+        {code:'zh', flag:'🇨🇳', name:'中文'},
+        {code:'ms', flag:'🇲🇾', name:'Bahasa Melayu'},
+        {code:'fa', flag:'🇮🇷', name:'فارسی (Iran)'}
+    ];
+
+    var BEE_I18N = {
+        my:{myAccounts:'My Accounts',darkMode:'Dark Mode',language:'Language',notifications:'Notifications',privacy:'Privacy',feedback:'Feedback / Report',blocked:'Blocked Users',about:'About',logout:'Logout'},
+        en:{myAccounts:'My Account',darkMode:'Dark Mode',language:'Language',notifications:'Notifications',privacy:'Privacy',feedback:'Feedback / Report',blocked:'Blocked Users',about:'About',logout:'Logout'},
+        th:{myAccounts:'บัญชีของฉัน',darkMode:'โหมดมืด',language:'ภาษา',notifications:'การแจ้งเตือน',privacy:'ความเป็นส่วนตัว',feedback:'ข้อเสนอแนะ / รายงาน',blocked:'ผู้ใช้ที่บล็อก',about:'เกี่ยวกับ',logout:'ออกจากระบบ'},
+        ja:{myAccounts:'マイアカウント',darkMode:'ダークモード',language:'言語',notifications:'通知',privacy:'プライバシー',feedback:'フィードバック / 報告',blocked:'ブロックしたユーザー',about:'情報',logout:'ログアウト'},
+        id:{myAccounts:'Akun Saya',darkMode:'Mode Gelap',language:'Bahasa',notifications:'Notifikasi',privacy:'Privasi',feedback:'Masukan / Laporan',blocked:'Pengguna Diblokir',about:'Tentang',logout:'Keluar'},
+        zh:{myAccounts:'我的账户',darkMode:'深色模式',language:'语言',notifications:'通知',privacy:'隐私',feedback:'反馈 / 举报',blocked:'已屏蔽用户',about:'关于',logout:'退出登录'},
+        ms:{myAccounts:'Akaun Saya',darkMode:'Mod Gelap',language:'Bahasa',notifications:'Pemberitahuan',privacy:'Privasi',feedback:'Maklum Balas / Laporan',blocked:'Pengguna Disekat',about:'Tentang',logout:'Log Keluar'},
+        fa:{myAccounts:'حساب من',darkMode:'حالت تاریک',language:'زبان',notifications:'اعلان‌ها',privacy:'حریم خصوصی',feedback:'بازخورد / گزارش',blocked:'کاربران مسدودشده',about:'درباره',logout:'خروج'}
+    };
+
+    function isDarkMode(){ return localStorage.getItem('beechat_darkmode') === 'on'; }
+    function toggleDarkMode(){
+        var on = !isDarkMode();
+        localStorage.setItem('beechat_darkmode', on ? 'on' : 'off');
+        applyDarkMode();
+    }
+    function applyDarkMode(){
+        document.body.classList.toggle('dark-mode', isDarkMode());
+        var st = document.getElementById('darkModeState');
+        if(st) st.textContent = isDarkMode() ? 'ON' : 'OFF';
+    }
+    function currentLanguage(){ return localStorage.getItem('beechat_language') || 'my'; }
+    function applyLanguage(code){
+        var lang = BEE_LANGS.some(function(x){return x.code===code;}) ? code : 'my';
+        localStorage.setItem('beechat_language', lang);
+        document.documentElement.lang = lang;
+        var pack = BEE_I18N[lang] || BEE_I18N.my;
+        document.querySelectorAll('[data-i18n]').forEach(function(el){ var k=el.getAttribute('data-i18n'); if(pack[k]) el.textContent=pack[k]; });
+        var chosen = BEE_LANGS.find(function(x){return x.code===lang;}) || BEE_LANGS[0];
+        var ls=document.getElementById('languageState'); if(ls) ls.textContent=chosen.name;
+        renderLanguagePicker();
+    }
+    function openLanguagePicker(){
+        var old=document.getElementById('languageSheet'); if(old) old.remove();
+        var sh=document.createElement('div'); sh.id='languageSheet'; sh.className='language-sheet';
+        sh.onclick=function(e){if(e.target===sh) sh.remove();};
+        var panel=document.createElement('div'); panel.className='language-panel';
+        panel.innerHTML='<h3>🌐 Language / ဘာသာစကား</h3><div id="languageOptions"></div><button class="btn outline" style="width:100%;margin-top:8px" onclick="document.getElementById(\'languageSheet\').remove()">✖️ Close</button>';
+        sh.appendChild(panel); document.body.appendChild(sh); renderLanguagePicker();
+    }
+    function renderLanguagePicker(){
+        var box=document.getElementById('languageOptions'); if(!box) return;
+        var cur=currentLanguage();
+        box.innerHTML=BEE_LANGS.map(function(x){return '<button class="language-option '+(x.code===cur?'active':'')+'" onclick="applyLanguage(\''+x.code+'\');document.getElementById(\'languageSheet\').remove()"><span class="language-flag">'+x.flag+'</span><span>'+esc(x.name)+'</span>'+(x.code===cur?'<b style="margin-left:auto">✓</b>':'')+'</button>';}).join('');
+    }
+
+    function renderGroupNotifications(){
+        if(!me || !db) return;
+        db.groupNotifications=Array.isArray(db.groupNotifications)?db.groupNotifications:[];
+        var mine=db.groupNotifications.filter(function(n){return n.to===me && !n.seen;});
+        var b=document.getElementById('groupNotificationBadge');
+        if(b){b.textContent=mine.length?mine.length:''; b.style.display=mine.length?'inline-block':'none';}
+    }
+
     function refresh() {
         if (!me || !db || !db.users[me]) return;
         db = normalize(db);
@@ -1525,6 +1616,9 @@
         renderProfileCreateGroup();
         renderSticker();
         updateBadges();
+        renderGroupNotifications();
+        applyDarkMode();
+        applyLanguage(currentLanguage());
         
         var deviceDisplay = document.getElementById('deviceInfoDisplay');
         if (deviceDisplay && u.currentDevice) {
@@ -1612,8 +1706,9 @@
     function viewPublicGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g) { alert('အသင်းမရှိပါ'); return; }
-        if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-        requestJoinGroup(groupId);
+        // Search result ကိုနှိပ်တာနဲ့ တန်းမဝင်၊ တန်းမတောင်းပါ။
+        // အသင်းအချက်အလက်/အဖွဲ့ဝင်များကို အရင်ကြည့်ပြီးမှ "အသင်းဝင်ရန်" ကို ကိုယ်တိုင်နှိပ်ရပါမယ်။
+        openGroup(groupId);
     }
 
     // ===== PROFILE CREATE GROUP =====
@@ -2013,6 +2108,7 @@
     }
 
     function renderNotifications() {
+        if(me && db && Array.isArray(db.groupNotifications)){ db.groupNotifications.forEach(function(n){ if(n.to===me) n.seen=true; }); localSave(); }
         var t = document.getElementById('notifyToggle');
         if (t) t.classList.toggle('on', notificationEnabled());
         var list = document.getElementById('notificationList');
@@ -2020,6 +2116,13 @@
         var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
         var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id); });
         var items = [];
+        db.groupNotifications = Array.isArray(db.groupNotifications) ? db.groupNotifications : [];
+        db.groupNotifications.filter(function(n){return n.to===me;}).forEach(function(n){
+            var g=db.groups.find(function(x){return x.id===n.groupId;}); var u=db.users[n.from]||{};
+            if(n.type==='join_request') items.push('📨 '+esc(u.name||n.from)+' က '+esc(g?g.name:'အသင်း')+' ထဲဝင်ခွင့်တောင်းထားပါတယ်');
+            else if(n.type==='join_approved') items.push('✅ '+esc(g?g.name:'အသင်း')+' ထဲဝင်ခွင့်ကို လက်ခံပြီးပါပြီ');
+            else if(n.type==='join_rejected') items.push('❌ '+esc(g?g.name:'အသင်း')+' ထဲဝင်ခွင့်ကို ငြင်းပယ်ထားပါတယ်');
+        });
         incoming.forEach(function(r) { var u = db.users[r.f]; if (u) items.push('👥 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
         friendIds.forEach(function(id) { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('💬 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
         list.innerHTML = items.length ? items.map(function(x) { return '<div class="list">' + x + '</div>'; }).join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
@@ -2437,6 +2540,12 @@
         db.groupMessages[group.id].push({ system: true, t: text, time: Date.now(), seen: false });
     }
 
+    function addGroupNotification(userId, item) {
+        if (!userId || !item) return;
+        db.groupNotifications = Array.isArray(db.groupNotifications) ? db.groupNotifications : [];
+        db.groupNotifications.push(Object.assign({id:'GN'+Date.now()+Math.random().toString(36).slice(2,7), seen:false}, item, {to:userId}));
+    }
+
     function requestJoinGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g || !me) return;
@@ -2454,9 +2563,11 @@
             return;
         }
         g.joinRequests.push(me);
+        addGroupNotification(g.owner, {type:'join_request', groupId:g.id, from:me, time:Date.now(), seen:false});
+        (g.admins || []).forEach(function(adminId){ addGroupNotification(adminId, {type:'join_request', groupId:g.id, from:me, time:Date.now(), seen:false}); });
         save();
-        alert('📨 အသင်းဝင်ခွင့်တောင်းပြီးပါပြီ။ ပိုင်ရှင် သို့မဟုတ် အုပ်ချုပ်သူ လက်ခံပြီးမှ အသင်းထဲဝင်ရပါမယ်။');
         renderGroupDetail();
+        updateBadges();
     }
 
     function approveJoinGroup(groupId, userId) {
@@ -2474,6 +2585,7 @@
             g.memberActivity[userId] = 0;
             g.memberRanks[userId] = 1;
             addGroupSystemMessage(g, '👋 ' + (u.name || userId) + ' သည် အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံး ကြိုဆိုကြပါ။');
+            addGroupNotification(userId, {type:'join_approved', groupId:g.id, from:me, time:Date.now(), seen:false});
         }
         g.joinRequests = g.joinRequests.filter(function(x) { return x !== userId; });
         save();
@@ -2487,9 +2599,10 @@
         if (!g || !isGroupManager(g, me)) { alert('ပိုင်ရှင်/အုပ်ချုပ်သူသာ ငြင်းပယ်နိုင်ပါတယ်'); return; }
         g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
         g.joinRequests = g.joinRequests.filter(function(x) { return x !== userId; });
+        addGroupNotification(userId, {type:'join_rejected', groupId:g.id, from:me, time:Date.now(), seen:false});
         save();
         renderGroupDetail();
-        alert('❌ အသင်းဝင်ခွင့်တောင်းဆိုမှုကို ငြင်းပယ်ပြီးပါပြီ');
+        updateBadges();
     }
 
     function appointGroupAdmin(groupId, userId) {
@@ -2655,7 +2768,7 @@
             renderAllGroups();
             renderMyGroups();
             renderProfileCreateGroup();
-            alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
+            updateBadges();
         }
     }
 
@@ -2783,4 +2896,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-                    </html>
+    </html>
