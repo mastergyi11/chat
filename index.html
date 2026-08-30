@@ -2251,23 +2251,6 @@ function beeConfirm(message, callback) {
     };
 }
 
-// Override confirm with Bee style
-window.confirm = function(message) {
-    var result = false;
-    var done = false;
-    
-    beeConfirm(message, function(res) {
-        result = res;
-        done = true;
-    });
-    
-    var start = Date.now();
-    while (!done && Date.now() - start < 300) {
-        // Wait for user response
-    }
-    
-    return result;
-};
 
 function requestFriend(id) {
     if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
