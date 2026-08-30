@@ -1659,12 +1659,28 @@ function getMemberRank(group, userId) {
 }
 
 function getRankLabel(rank) {
-    var labels = { 1: 'New Member', 2: 'Active', 3: 'Dedicated', 4: 'Leader', 5: 'Legend' };
+    var labels = { 1: '🌱 New Member', 2: '👤 Member', 3: '💎 Senior Member', 4: '🛡️ Admin', 5: '👑 Owner' };
     return labels[rank] || 'Rank ' + rank;
 }
 
 function getRankBadgeClass(rank) {
     return 'rank-' + rank;
+}
+
+function autoUpdateMemberRank(group, userId) {
+    if (!group || userId === group.owner) return;
+    if (!group.memberRanks) group.memberRanks = {};
+    if (!group.memberActivity) group.memberActivity = {};
+    var pts = group.memberActivity[userId] || 0;
+    var join = group.joinDates && group.joinDates[userId] ? group.joinDates[userId] : Date.now();
+    var days = Math.floor((Date.now() - join) / 86400000);
+    group.memberRanks[userId] = pts >= 100 || days >= 60 ? 3 : (days >= 7 || pts >= 10 ? 2 : 1);
+}
+
+function addGroupSystemMessage(groupId, text) {
+    db.groupMessages = db.groupMessages || {};
+    db.groupMessages[groupId] = db.groupMessages[groupId] || [];
+    db.groupMessages[groupId].push({f:'system', t:text, time:Date.now()});
 }
 
 function addGroupActivity(groupId, userId, points) {
@@ -1999,8 +2015,7 @@ function refresh() {
 function updateBadges() {
     if (!me || !db) return;
     var incomingRequests = db.req.filter(r => r.t === me && !r.seen);
-    var groupJoinRequests = (db.groupInvites || []).filter(r => r.to === me && (r.status === 'pending_join' || r.status === 'pending') && !r.seen);
-    var requestCount = incomingRequests.length + groupJoinRequests.length;
+    var requestCount = incomingRequests.length;
     var reqBadge = document.getElementById('requestCount');
     if (reqBadge) {
         reqBadge.textContent = requestCount > 0 ? requestCount : '';
@@ -2526,6 +2541,29 @@ function requestJoinGroupFromProfile(groupId, userId) {
     }
 }
 
+function acceptJoinRequest(index) {
+    var r = db.groupInvites[index];
+    if (!r) return;
+    var g = db.groups.find(x=>x.id===r.groupId);
+    if (!g || g.owner !== me) return;
+    g.members = g.members || [];
+    if (!g.members.includes(r.from)) g.members.push(r.from);
+    g.joinDates = g.joinDates || {};
+    g.joinDates[r.from] = Date.now();
+    g.memberActivity = g.memberActivity || {}; g.memberActivity[r.from]=0;
+    autoUpdateMemberRank(g,r.from);
+    var u=db.users[r.from]||{};
+    addGroupSystemMessage(g.id, 'အသင်းဝင်အသစ်ဖြစ်ပါသည်။ '+(u.name||r.from)+' ကို ကြိုဆိုကြပါ 🐝');
+    r.status='accepted'; save(); renderGroupDetail();
+}
+
+function makeGroupAdmin(groupId,userId){
+ var g=db.groups.find(x=>x.id===groupId); if(!g||g.owner!==me)return;
+ g.memberRanks=g.memberRanks||{}; g.memberRanks[userId]=4;
+ var u=db.users[userId]||{}; addGroupSystemMessage(groupId,'🛡️ အုပ်ချုပ်သူခန့်အပ်လိုက်ပါပြီ - '+(u.name||userId));
+ save(); renderGroupDetail();
+}
+
 function acceptFriendFromProfile(id) { accept(id); renderUserProfile(id); }
 function declineFriendFromProfile(id) { decline(id); renderUserProfile(id); }
 
@@ -2576,6 +2614,7 @@ function renderChat() {
     var lastDate = '';
     msgs.forEach(function(m, idx) {
         var u = db.users[m.f] || {};
+        if (m.f === 'system') { html += '<div style="text-align:center;padding:8px;color:#777;">🐝 '+esc(m.t)+'</div>'; return; }
         var isMe = (m.f === me);
         var avatarHtml = getUserAvatar(u);
         var nameDisplay = esc(u.name || m.f || 'Unknown');
@@ -2748,7 +2787,6 @@ function renderInbox() {
     if (!me || !db) return;
     var list = document.getElementById('inboxList'), req = document.getElementById('inboxRequests');
     if (!list || !req) return;
-    renderGroupJoinRequests();
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id) && !db.users[id]?.isSuspended);
     list.innerHTML = '';
     if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
@@ -2967,13 +3005,8 @@ function renderNotifications() {
     if (!list || !me || !db) return;
     var incoming = db.req.filter(r => r.t === me && !isBlocked(r.f));
     var friendIds = db.friends.filter(x => x.a === me || x.b === me).map(x => x.a === me ? x.b : x.a).filter(id => !isBlocked(id));
-    var groupRequests = (db.groupInvites || []).filter(i => i.to === me && (i.status === 'pending_join' || i.status === 'pending'));
     var items = [];
     incoming.forEach(r => { var u = db.users[r.f]; if (u) items.push('🐝 ' + esc(u.name) + ' က Friend Request ပို့ထားပါတယ်'); });
-    groupRequests.forEach(r => {
-        var u = db.users[r.from], g = db.groups.find(x => x.id === r.groupId);
-        if (u && g) items.push('🏆 ' + esc(u.name) + ' က ' + esc(g.name) + ' အသင်းသို့ ဝင်ခွင့်တောင်းထားပါတယ်');
-    });
     friendIds.forEach(id => { var u = db.users[id]; var key = [me, id].sort().join('_'); var msgs = db.messages[key] || []; var last = msgs[msgs.length - 1]; if (u && last) items.push('🐝 ' + esc(u.name) + ' နှင့် Chat ရှိပါတယ်'); });
     list.innerHTML = items.length ? items.map(x => '<div class="list">' + x + '</div>').join('') : '<div class="small">အသိပေးချက် မရှိသေးပါ။</div>';
 }
@@ -3071,141 +3104,11 @@ function renderMyGroups() {
 }
 
 function viewPublicGroup(groupId) {
-    if (!me) { alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ။'); return; }
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
-    if (g.owner === me || (g.members && g.members.includes(me))) { openGroup(groupId); return; }
-    if (g.members && g.members.length >= 20) {
-        alert('အသင်းပြည့်နေပါပြီ။');
-        return;
-    }
-
-    if (!db.groupInvites) db.groupInvites = [];
-
-    var existing = db.groupInvites.find(i =>
-        i.groupId === g.id &&
-        i.from === me &&
-        (i.status === 'pending_join' || i.status === 'pending')
-    );
-    if (existing) {
-        alert('ဤအသင်းသို့ ဝင်ခွင့်တောင်းထားပြီးသားပါ။ အသင်းပိုင်ရှင်/အုပ်ချုပ်သူ၏ ခွင့်ပြုချက်ကို စောင့်ပါ။');
-        return;
-    }
-
-    if (confirm('"' + g.name + '" အသင်းသို့ ဝင်ခွင့်တောင်းမလား?\n\nID: ' + g.id + '\nအသင်းဝင်: ' + (g.members ? g.members.length : 0) + ' ယောက်\n\nတောင်းဆိုချက်ကို အသင်းပိုင်ရှင်/အုပ်ချုပ်သူက လက်ခံမှ အသင်းဝင်ဖြစ်ပါမည်။')) {
-        db.groupInvites.push({
-            id: 'JI' + Date.now() + Math.random().toString(36).slice(2,7),
-            groupId: g.id,
-            from: me,
-            to: g.owner,
-            status: 'pending_join',
-            time: Date.now(),
-            message: me + ' သည် ' + g.name + ' အသင်းသို့ ဝင်ရောက်လိုပါသည်။'
-        });
-        save();
-        beeNotify('📨 ' + g.name + ' အသင်းသို့ ဝင်ခွင့်တောင်းဆိုမှု ပို့ပြီးပါပြီ 🐝');
-        renderAllGroups();
-        renderMyGroups();
-    }
-}
-
-function renderGroupJoinRequests() {
-    if (!me || !db) return;
-    var requests = db.groupInvites.filter(i =>
-        i.to === me &&
-        (i.status === 'pending_join' || i.status === 'pending')
-    );
-
-    var existingBox = document.getElementById('groupJoinRequestsBox');
-    if (existingBox) existingBox.remove();
-
-    if (!requests.length) return;
-
-    var box = document.createElement('div');
-    box.id = 'groupJoinRequestsBox';
-    box.className = 'card';
-    box.innerHTML = '<h3>🏆 အသင်းဝင်ခွင့် တောင်းဆိုချက် <span class="badge" style="display:inline-block;">' + requests.length + '</span></h3>';
-
-    requests.forEach(function(r) {
-        var g = db.groups.find(x => x.id === r.groupId);
-        var u = db.users[r.from];
-        if (!g || !u) return;
-
-        var item = document.createElement('div');
-        item.className = 'list';
-        item.innerHTML =
-            '<div style="display:flex;align-items:center;gap:10px;">' +
-                '<div class="friend-avatar">' + getUserAvatar(u) + '</div>' +
-                '<div style="flex:1;">' +
-                    '<b>' + esc(u.name || r.from) + '</b> <span class="small">' + esc(r.from) + '</span>' +
-                    '<div class="small">🏆 ' + esc(g.name) + ' သို့ ဝင်ခွင့်တောင်းထားပါတယ်</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="friend-actions">' +
-                '<button class="btn green" onclick="approveGroupJoin(\'' + r.id + '\')">✅ လက်ခံမည်</button>' +
-                '<button class="btn red" onclick="rejectGroupJoin(\'' + r.id + '\')">❌ ငြင်းမည်</button>' +
-                '<button class="btn outline small" onclick="viewUserProfile(\'' + r.from + '\')">👤 Profile</button>' +
-            '</div>';
-        box.appendChild(item);
-    });
-
-    var inbox = document.getElementById('inbox');
-    if (inbox) inbox.insertBefore(box, inbox.firstElementChild);
-}
-
-function approveGroupJoin(requestId) {
-    if (!me || !db) return;
-    var r = db.groupInvites.find(i => i.id === requestId);
-    if (!r || r.to !== me || (r.status !== 'pending_join' && r.status !== 'pending')) {
-        alert('တောင်းဆိုချက် မရှိတော့ပါ။');
-        return;
-    }
-    var g = db.groups.find(x => x.id === r.groupId);
-    if (!g) { r.status = 'rejected'; save(); renderGroupJoinRequests(); return; }
-    if (g.owner !== me) { alert('အသင်းပိုင်ရှင်သာ ဝင်ခွင့်တောင်းဆိုချက်ကို လက်ခံနိုင်ပါသည်။'); return; }
-    if (g.members && g.members.length >= 20) {
-        alert('အသင်းပြည့်နေပါပြီ။');
-        return;
-    }
-
-    if (!g.members) g.members = [];
-    if (!g.members.includes(r.from)) {
-        g.members.push(r.from);
-        if (!g.memberActivity) g.memberActivity = {};
-        if (!g.memberRanks) g.memberRanks = {};
-        g.memberActivity[r.from] = 0;
-        if (!g.memberRanks[r.from]) g.memberRanks[r.from] = 1;
-    }
-    r.status = 'accepted';
-    r.respondedAt = Date.now();
-    r.respondedBy = me;
-    save();
-    beeNotify('✅ ' + (db.users[r.from]?.name || r.from) + ' ကို ' + g.name + ' အသင်းဝင်အဖြစ် လက်ခံပြီးပါပြီ 🐝');
-    renderGroupJoinRequests();
-    renderAllGroups();
-    renderMyGroups();
-    updateBadges();
-}
-
-function rejectGroupJoin(requestId) {
-    if (!me || !db) return;
-    var r = db.groupInvites.find(i => i.id === requestId);
-    if (!r || r.to !== me || (r.status !== 'pending_join' && r.status !== 'pending')) {
-        alert('တောင်းဆိုချက် မရှိတော့ပါ။');
-        return;
-    }
-    var g = db.groups.find(x => x.id === r.groupId);
-    if (!g) { r.status = 'rejected'; save(); renderGroupJoinRequests(); return; }
-    if (g.owner !== me) { alert('အသင်းပိုင်ရှင်သာ ဝင်ခွင့်တောင်းဆိုချက်ကို ငြင်းနိုင်ပါသည်။'); return; }
-
-    if (confirm((db.users[r.from]?.name || r.from) + ' ကို ' + g.name + ' အသင်းဝင်ခွင့် ငြင်းမလား?')) {
-        r.status = 'rejected';
-        r.respondedAt = Date.now();
-        r.respondedBy = me;
-        save();
-        beeNotify('❌ အသင်းဝင်ခွင့်တောင်းဆိုချက်ကို ငြင်းပြီးပါပြီ 🐝');
-        renderGroupJoinRequests();
-        updateBadges();
+    if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
+    if (confirm('ဒီအသင်းသို့ ပါဝင်ခွင့်တောင်းမလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်\n\nOK = ပါဝင်ခွင့်တောင်းမယ်\nCancel = မပါဝင်တော့ပါ')) {
+        requestJoinGroupFromProfile(groupId, me);
     }
 }
 
@@ -3405,6 +3308,7 @@ function renderGroupChat() {
     var lastDate = '';
     msgs.forEach(function(m, idx) {
         var u = db.users[m.f] || {};
+        if (m.f === 'system') { html += '<div style="text-align:center;padding:8px;color:#777;">🐝 '+esc(m.t)+'</div>'; return; }
         var isMe = (m.f === me);
         var rank = getMemberRank(g, m.f);
         var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
