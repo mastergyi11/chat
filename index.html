@@ -2660,38 +2660,29 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 
+
+<!-- BeeChat Community LV Extension -->
 <script>
-// BeeChat Community System additions
-// Safe extension: keeps existing Firebase/login/group logic untouched.
-
-function addGroupSystemMessage(groupId, kind, userId, text) {
-    try {
-        if (!db) return;
-        db.groupMessages = db.groupMessages || {};
-        db.groupMessages[groupId] = db.groupMessages[groupId] || [];
-        db.groupMessages[groupId].push({
-            type: "system",
-            systemType: kind,
-            userId: userId || "",
-            t: text,
-            time: Date.now()
-        });
-        if (typeof save === "function") save();
-    } catch(e) { console.error(e); }
-}
-
-function showMemberWelcomeSystem(user) {
-    if (!user) return "🎉 အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံး ကြိုဆိုကြပါ";
-    return "🎉 " + (user.name || user.id) + " သည် အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံး ကြိုဆိုကြပါ";
-}
-
-function showMemberLeaveSystem(name) {
-    return "👋 " + name + " သည် အသင်းမှ ထွက်သွားပါသည်။";
-}
-
-function showPromotionSystem(name, role) {
-    return "👑 " + name + " သည် " + role + " အဖြစ် ခန့်အပ်ခံရပါသည်။";
-}
+(function(){
+window.BeeChatCommunityLV = {
+ addSystemMessage:function(groupId,text,kind){
+  if(typeof db==='undefined') return;
+  db.groupMessages=db.groupMessages||{};
+  db.groupMessages[groupId]=db.groupMessages[groupId]||[];
+  db.groupMessages[groupId].push({type:'system',kind:kind||'info',t:text,time:Date.now()});
+  if(typeof save==='function') save();
+ },
+ welcomeMember:function(groupId,user){
+  this.addSystemMessage(groupId,'🎉 '+user+' သည် အသင်းဝင်အသစ်ဖြစ်ပါသည်။ အသင်းဝင်များအားလုံး ကြိုဆိုကြပါ။','join');
+ },
+ leaveMember:function(groupId,user){
+  this.addSystemMessage(groupId,'👋 '+user+' သည် အသင်းမှ ထွက်သွားပါသည်။','leave');
+ },
+ promoteMember:function(groupId,user,rank){
+  this.addSystemMessage(groupId,'👑 '+user+' သည် '+rank+' အဖြစ် ခန့်အပ်ခံရပါသည်။','rank');
+ }
+};
+})();
 </script>
 </body>
                         </html>
