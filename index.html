@@ -254,7 +254,7 @@
             <div id="systemMsgBox" class="system-msg-box">
                 <span class="sys-title">📢 Bee Chat Admin</span>
                 <span class="sys-time" id="sysTimeDisplay"></span>
-                <div id="systemMsgContent" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
+                <div id="systemMsgContent" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
             </div>
             
             <div class="searchbar">🔎 <input id="onboardSearch" placeholder="သူငယ်ချင်းရှာရန် (အမည်/ID)" oninput="searchOnboardUsers()"></div>
@@ -480,7 +480,7 @@
         <div id="systemMsgBoxInbox" class="system-msg-box" style="margin-bottom:10px;">
             <span class="sys-title">📢 Bee Chat Admin</span>
             <span class="sys-time" id="sysTimeDisplayInbox"></span>
-            <div id="systemMsgContentInbox" class="sys-msg-text">ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!</div>
+            <div id="systemMsgContentInbox" class="sys-msg-text">ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။</div>
         </div>
         <div class="card"><h3>💬 Inbox <span id="inboxCount" class="badge">0</span></h3><div id="inboxList"></div></div>
         <div class="card"><h3>📨 Friend Requests <span id="requestCount" class="badge">0</span></h3><div id="inboxRequests"></div></div>
@@ -612,8 +612,8 @@
     var tempProfileGroupAvatar = null;
     var selectedSticker = '😊';
     
-    // System message like screenshot 2
-    var systemMessage = 'ກາງສິ່ງປີຫມົນ! Bee Chat ຖືວ່ງຂຶ້ນຮຽນຄູ່ລະບຸກັບຄູ່ອຍດູ່ອຍຕ້ອງສູ່ວຍທີ່ມີ!';
+    // System message
+    var systemMessage = 'ကြိုဆိုပါတယ်! Bee Chat ကို သင့်သူငယ်ချင်းများနဲ့ ပျော်ရွှင်စွာ အသုံးပြုပါ။';
     var systemMessageTime = Date.now();
 
     var deviceInfo = {};
@@ -820,23 +820,6 @@
         save();
     }
 
-    var originalSendGroupMessage = window.sendGroupMessage;
-    window.sendGroupMessage = function() {
-        var id = window.currentGroupChat;
-        var g = db.groups.find(function(x) { return x.id === id; });
-        if (!g || !(g.members && g.members.includes(me))) { alert('အသင်းဝင်မဟုတ်ပါ'); return; }
-        var input = document.getElementById('groupMsg');
-        var t = input.value.trim();
-        if (!t) return;
-        db.groupMessages = db.groupMessages || {};
-        db.groupMessages[id] = db.groupMessages[id] || [];
-        db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
-        addGroupActivity(id, me, 1);
-        input.value = '';
-        save();
-        renderGroupChat();
-    };
-
     // ===== UPDATE SYSTEM MESSAGE =====
     function updateSystemMessage(msg, time) {
         systemMessage = msg || systemMessage;
@@ -863,10 +846,8 @@
     // ===== STICKER FUNCTIONS =====
     function selectSticker(sticker) {
         selectedSticker = sticker;
-        // Update display
         var display = document.getElementById('currentStickerDisplay');
         if (display) display.textContent = sticker;
-        // Highlight selected
         document.querySelectorAll('.sticker-btn').forEach(function(btn) {
             btn.classList.toggle('selected', btn.textContent === sticker);
         });
@@ -885,7 +866,6 @@
         if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
         var msgs = db.messages[chatKey] || [];
         if (msgIndex >= 0 && msgIndex < msgs.length) {
-            // Only allow deleting own messages or group messages (for group, we handle separately)
             if (msgs[msgIndex].f === me) {
                 msgs.splice(msgIndex, 1);
                 db.messages[chatKey] = msgs;
@@ -1332,7 +1312,6 @@
             bubbleDiv.appendChild(seenSpan);
             d.appendChild(avatarDiv);
             d.appendChild(bubbleDiv);
-            // Delete button for own messages
             if (isMe) {
                 var delBtn = document.createElement('button');
                 delBtn.className = 'delete-msg-btn';
@@ -2485,7 +2464,8 @@
                     '<span class="member-rank">#' + rank + '</span>' +
                     '<span class="member-name">' + esc(u.name) + '</span>' +
                     badgeHtml +
-                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="transferGroup(\''+g.id+'\',\''+u.id+'\')">လွှဲမည်</button>' : '') +
+                    (isOwner && u.id !== me ? ' <button class="btn small gold" onclick="assignAdmin(\''+g.id+'\',\''+u.id+'\')">⚙️ အုပ်ချုပ်သူခန့်</button>' : '') +
+                    (isOwner && u.id !== me ? ' <button class="btn small red" onclick="removeMember(\''+g.id+'\',\''+u.id+'\')">🚫 ထုတ်ပယ်</button>' : '') +
                     '</div>';
             });
         } else {
@@ -2506,17 +2486,32 @@
         }
     }
 
-    function transferGroup(groupId, userId) {
+    function assignAdmin(groupId, userId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
-        if (!g || g.owner !== me) { alert('သင်သည် ပိုင်ရှင်မဟုတ်ပါ'); return; }
-        if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင်မဟုတ်ပါ'); return; }
-        if (confirm('ဒီသုံးစွဲသူကို အသင်းပိုင်ရှင်လွှဲပြောင်းမှာလား?')) {
-            g.owner = userId;
-            g.memberRanks[userId] = 5;
-            save();
-            renderGroupDetail();
-            alert('✅ အသင်းပိုင်ရှင် လွှဲပြောင်းပြီးပါပြီ');
-        }
+        if (!g || g.owner !== me) { alert('သင်သည် အသင်းပိုင်ရှင် မဟုတ်ပါ'); return; }
+        if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင် မဟုတ်ပါ'); return; }
+        if (g.memberRanks && g.memberRanks[userId] === 4) { alert('ဒီသူကို အုပ်ချုပ်သူအဖြစ် ထပ်ခန့်စရာ မလိုပါ'); return; }
+        if (!g.memberRanks) g.memberRanks = {};
+        g.memberRanks[userId] = 4;
+        addGroupSystemMessage(g.id, '⚙️ အုပ်ချုပ်သူ ခန့်အပ်သည်: ' + (db.users[userId].name || userId) + ' ကို အုပ်ချုပ်သူအဖြစ် ခန့်အပ်လိုက်ပါသည်။');
+        save();
+        renderGroupDetail();
+        alert('✅ အုပ်ချုပ်သူ (Admin) အဖြစ် ခန့်အပ်ပြီးပါပြီ');
+    }
+
+    function removeMember(groupId, userId) {
+        var g = db.groups.find(function(x) { return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('သင်သည် အသင်းပိုင်ရှင် မဟုတ်ပါ'); return; }
+        if (!g.members || !g.members.includes(userId)) { alert('ဒီသူသည် အသင်းဝင် မဟုတ်ပါ'); return; }
+        if (userId === me) { alert('သင့်ကိုယ်ကို ထုတ်ပယ်နိုင်ပါသည်'); return; }
+        if (g.owner === userId) { alert('အသင်းပိုင်ရှင်ကို ထုတ်ပယ်နိုင်ပါသည်'); return; }
+        g.members = g.members.filter(function(id) { return id !== userId; });
+        delete g.memberRanks[userId];
+        delete g.memberActivity[userId];
+        addGroupSystemMessage(g.id, '🚫 ထုတ်ပယ်သည်: ' + (db.users[userId].name || userId) + ' ကို အသင်းမှ ထုတ်ပယ်လိုက်ပါသည်။');
+        save();
+        renderGroupDetail();
+        alert('✅ အသင်းဝင်ကို ထုတ်ပယ်ပြီးပါပြီ');
     }
 
     function leaveGroup(groupId) {
@@ -2528,6 +2523,7 @@
             g.members = g.members.filter(function(id) { return id !== me; });
             delete g.memberRanks[me];
             delete g.memberActivity[me];
+            addGroupSystemMessage(g.id, '🚪 အသင်းမှ ထွက်ခွာသည်: ' + (db.users[me].name || me) + ' သည် အသင်းမှ ထွက်သွားပါသည်။');
             save();
             show('home');
             alert('✅ အသင်းမှထွက်ပြီးပါပြီ');
@@ -2600,12 +2596,13 @@
             '<div id="groupChatBox" class="chat" style="height:40vh;">';
         msgs.forEach(function(m, idx) {
             var u = db.users[m.f] || {};
+            var isMe = (m.f === me);
             var rank = getMemberRank(g, m.f);
             var rankLabel = m.f === g.owner ? 'ပါမောခ' : getRankLabel(rank);
             var rankClass = m.f === g.owner ? 'badge-owner' : getRankBadgeClass(rank);
-            var isMe = (m.f === me);
             html += '<div class="msg ' + (isMe ? 'me' : '') + '" style="position:relative;">' +
-                '<div class="bubble"><b>' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div>';
+                '<div class="bubble">' +
+                '<b class="name" onclick="viewUserProfile(\'' + m.f + '\')">' + esc(u.name || m.f) + ' <span class="member-badge ' + rankClass + '">' + rankLabel + '</span></b><br>' + esc(m.t) + '</div>';
             if (isMe) {
                 html += '<button class="delete-msg-btn" onclick="deleteGroupMessage(\'' + id + '\',' + idx + ')" style="position:absolute;top:2px;right:2px;background:rgba(220,53,69,0.8);color:#fff;border:0;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>';
             }
@@ -2636,6 +2633,19 @@
         renderGroupChat();
     }
 
+    function deleteGroupMessage(groupId, msgIndex) {
+        if (!me) return;
+        if (!confirm('ဒီစာကို ဖျက်မှာလား?')) return;
+        var msgs = db.groupMessages[groupId] || [];
+        if (msgIndex >= 0 && msgIndex < msgs.length && msgs[msgIndex].f === me) {
+            msgs.splice(msgIndex, 1);
+            db.groupMessages[groupId] = msgs;
+            save();
+            renderGroupChat();
+            alert('✅ စာကို ဖျက်ပြီးပါပြီ');
+        }
+    }
+
     function grant() {
         var id = document.getElementById('target').value.trim().toUpperCase();
         var n = Number(document.getElementById('plimit').value);
@@ -2660,4 +2670,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-                                             </html>
+            </html>
