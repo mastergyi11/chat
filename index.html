@@ -2553,14 +2553,14 @@ function acceptJoinRequest(index) {
     g.memberActivity = g.memberActivity || {}; g.memberActivity[r.from]=0;
     autoUpdateMemberRank(g,r.from);
     var u=db.users[r.from]||{};
-    addGroupSystemMessage(g.id, 'အသင်းဝင်အသစ်ဖြစ်ပါသည်။ '+(u.name||r.from)+' ကို ကြိုဆိုကြပါ 🐝');
+    addGroupSystemMessage(g.id, '🎉 အသင်းဝင်အသစ်ဖြစ်ပါသည် 👤 '+(u.name||r.from)+' ကြိုဆိုကြပါ 🐝');
     r.status='accepted'; save(); renderGroupDetail();
 }
 
 function makeGroupAdmin(groupId,userId){
  var g=db.groups.find(x=>x.id===groupId); if(!g||g.owner!==me)return;
  g.memberRanks=g.memberRanks||{}; g.memberRanks[userId]=4;
- var u=db.users[userId]||{}; addGroupSystemMessage(groupId,'🛡️ အုပ်ချုပ်သူခန့်အပ်လိုက်ပါပြီ - '+(u.name||userId));
+ var u=db.users[userId]||{}; addGroupSystemMessage(groupId,'🛡️ အုပ်ချုပ်သူ ခန့်အပ်လိုက်ပါပြီ 👤 '+(u.name||userId));
  save(); renderGroupDetail();
 }
 
@@ -3107,7 +3107,8 @@ function viewPublicGroup(groupId) {
     var g = db.groups.find(x => x.id === groupId);
     if (!g) { alert('အသင်းမရှိပါ'); return; }
     if (g.members && g.members.includes(me)) { openGroup(groupId); return; }
-    if (confirm('ဒီအသင်းသို့ ပါဝင်ခွင့်တောင်းမလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်\n\nOK = ပါဝင်ခွင့်တောင်းမယ်\nCancel = မပါဝင်တော့ပါ')) {
+    var ok = confirm('ဒီအသင်းသို့ ပါဝင်ခွင့်တောင်းမလား?\n\n'+esc(g.name)+'\nID: '+esc(g.id)+'\nအသင်းဝင်: '+(g.members ? g.members.length : 0)+' ယောက်\n\nOK = ပါဝင်ခွင့်တောင်းမယ်\nCancel = မပါဝင်တော့ပါ');
+    if (ok) {
         requestJoinGroupFromProfile(groupId, me);
     }
 }
