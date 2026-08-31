@@ -580,7 +580,7 @@
     <section id="guestHelp" class="screen">
         <div class="card help-card">
             <h2>🆘 အကူညီရယူရန်</h2>
-            <div class="help-note">BeeChat အသုံးပြုရာတွင် အကောင့်ဝင်ရန်၊ စာပို့ရန်၊ အသင်းအသုံးပြုရန် သို့မဟုတ် အခြားပြဿနာများရှိပါက အောက်တွင် ရေးပို့နိုင်ပါသည်။ အကောင့်ဝင်မရခြင်း သို့မဟုတ် BeeChat ပြဿနာများရှိပါက Admin ထံ စာပို့နိုင်ပါသည်။</div>
+            <div class="help-note">BeeChat အသုံးပြုရာတွင် အကောင့်ဝင်ရန်၊ စာပို့ရန်၊ အသင်းအသုံးပြုရန် သို့မဟုတ် အခြားပြဿနာများရှိပါက အောက်တွင် ရေးပို့နိုင်ပါသည်။ ဤစာမျက်နှာသည် လက်ရှိတွင် ပုံကြမ်းအဖြစ် ထည့်ထားခြင်းဖြစ်ပြီး နောက်ပိုင်း Admin စနစ်နှင့် ချိတ်ဆက်နိုင်ပါမည်။</div>
             <select id="helpTopic" class="help-topic">
                 <option value="အကောင့်">အကောင့်နှင့်ပတ်သက်သော အကူအညီ</option>
                 <option value="စာပို့ခြင်း">စာပို့ခြင်းနှင့်ပတ်သက်သော အကူအညီ</option>
@@ -742,8 +742,6 @@
     <section id="admin" class="screen">
         <div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div>
     </section>
-
-    <input id="groupAvatarEditUpload" type="file" accept="image/*" class="hidden" onchange="saveGroupAvatar(event)">
 
     <!-- CAMERA BACKDROPS -->
     <div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center">
@@ -1890,8 +1888,8 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        if (id === 'login' || id === 'guestHelp') {
-            // Login မဝင်ရသေးခင် Help page ကိုလည်း ဖွင့်ခွင့်ပေးသည်
+        if (id === 'login') {
+            // Always allow showing login
         } else if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             return;
@@ -3038,6 +3036,18 @@
         db.groupNotifications.push(Object.assign({id:'GN'+Date.now()+Math.random().toString(36).slice(2,7), seen:false}, item, {to:userId}));
     }
 
+
+    // Group membership limit: total 3 groups. If user owns a group, only 2 other groups allowed.
+    function canJoinMoreGroups(userId) {
+        var groups = db.groups.filter(function(g){ return g.members && g.members.includes(userId); });
+        var owned = groups.filter(function(g){ return g.owner === userId; }).length;
+        var joinedOthers = groups.filter(function(g){ return g.owner !== userId; }).length;
+        if (owned > 0) {
+            return joinedOthers < 2;
+        }
+        return joinedOthers < 3;
+    }
+
     function requestJoinGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g || !me) return;
@@ -3049,6 +3059,7 @@
             return;
         }
         if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
+        if (!canJoinMoreGroups(me)) { alert('အသင်းဝင်ခွင့် အများဆုံး ၃ သင်းအထိသာ ခွင့်ပြုပါသည်'); return; }
         if (g.joinRequests.includes(me)) {
             alert('⏳ အသင်းဝင်ခွင့်တောင်းထားပြီးပါပြီ။ ပိုင်ရှင်/အုပ်ချုပ်သူ လက်ခံပေးရန် စောင့်ပါ။');
             renderGroupDetail();
@@ -3068,6 +3079,7 @@
         g.members = Array.isArray(g.members) ? g.members : [];
         g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
         if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
+        if (!canJoinMoreGroups(userId)) { alert('ဒီ User သည် အသင်းဝင်ခွင့် အများဆုံး ၃ သင်း ပြည့်နေပါပြီ'); return; }
         var u = db.users[userId];
         if (!u) return;
         if (!g.members.includes(userId)) {
@@ -3154,34 +3166,6 @@
         renderGroupDetail();
     }
 
-    var editingGroupAvatarId = null;
-
-    function openGroupAvatarUpload(groupId) {
-        var g = db.groups.find(function(x){ return x.id === groupId; });
-        if (!g || g.owner !== me) { alert('ပိုင်ရှင်သာ အသင်းပုံပြောင်းနိုင်ပါသည်'); return; }
-        editingGroupAvatarId = groupId;
-        var input = document.getElementById('groupAvatarEditUpload');
-        if (input) input.click();
-    }
-
-    function saveGroupAvatar(e) {
-        var f = e.target.files && e.target.files[0];
-        if (!f || !editingGroupAvatarId) return;
-        var r = new FileReader();
-        r.onload = function(){
-            var g = db.groups.find(function(x){ return x.id === editingGroupAvatarId; });
-            if (g && g.owner === me) {
-                g.avatar = r.result;
-                save();
-                renderGroupDetail();
-                alert('✅ အသင်းပုံတင်ပြီးပါပြီ');
-            }
-            editingGroupAvatarId = null;
-            e.target.value = '';
-        };
-        r.readAsDataURL(f);
-    }
-
     function renderGroupDetail() {
         var box = document.getElementById('groupDetailBox');
         if (!box) return;
@@ -3211,7 +3195,6 @@
 
         html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 0;">';
         if (isOwner) {
-            html += '<button class="menu-item" onclick="openGroupAvatarUpload(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📷 အသင်းပုံပြောင်းရန်</button>';
             html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
             html += '<button class="menu-item" onclick="chooseAdminMember(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">🛡️ အုပ်ချုပ်သူခန့်/ဖြုတ်</button>';
             html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
