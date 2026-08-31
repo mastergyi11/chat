@@ -2359,6 +2359,18 @@
         return base || 'User';
     }
 
+    function beeRegisterInput(title, callback) {
+        var old=document.getElementById('beeRegisterModal');
+        if(old) old.remove();
+        var d=document.createElement('div');
+        d.id='beeRegisterModal';
+        d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+        d.innerHTML='<div style="background:white;border-radius:22px;padding:24px;width:100%;max-width:360px;text-align:center"><div style="font-size:55px">🐝</div><h2 style="margin:8px">Bee Chat</h2><p>'+title+'</p><input id="beeRegInput" style="width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;font-size:16px;box-sizing:border-box"><button id="beeRegOk" style="margin-top:14px;width:100%;padding:14px;border:0;border-radius:14px;background:#eab31f;font-size:17px;font-weight:bold">အတည်ပြု</button></div>';
+        document.body.appendChild(d);
+        document.getElementById('beeRegInput').focus();
+        document.getElementById('beeRegOk').onclick=function(){var v=document.getElementById('beeRegInput').value; d.remove(); callback(v);};
+    }
+
     async function register() {
         if (firebaseInitPromise) await firebaseInitPromise;
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
@@ -2366,8 +2378,8 @@
             alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
             return;
         }
-        var n = prompt('အသုံးပြုမည့်အမည် ထည့်ပါ');
-        if (n === null) return;
+        var n = await new Promise(function(resolve){ beeRegisterInput('အသုံးပြုမည့်အမည် ထည့်ပါ', resolve); });
+        if (!n) return;
         var name = n.trim();
         if (!name) { alert('အမည်ထည့်ပါ'); return; }
         
@@ -2376,8 +2388,8 @@
             return;
         }
         
-        var p = prompt('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)');
-        if (p === null) return;
+        var p = await new Promise(function(resolve){ beeRegisterInput('Password ထည့်ပါ (အနည်းဆုံး 6 လုံး)', resolve); });
+        if (!p) return;
         if (p.length < 6) { alert('Password အနည်းဆုံး 6 လုံးထည့်ပါ'); return; }
         var base = makeBaseName(name);
         var num = 1;
@@ -3036,18 +3048,6 @@
         db.groupNotifications.push(Object.assign({id:'GN'+Date.now()+Math.random().toString(36).slice(2,7), seen:false}, item, {to:userId}));
     }
 
-
-    // Group membership limit: total 3 groups. If user owns a group, only 2 other groups allowed.
-    function canJoinMoreGroups(userId) {
-        var groups = db.groups.filter(function(g){ return g.members && g.members.includes(userId); });
-        var owned = groups.filter(function(g){ return g.owner === userId; }).length;
-        var joinedOthers = groups.filter(function(g){ return g.owner !== userId; }).length;
-        if (owned > 0) {
-            return joinedOthers < 2;
-        }
-        return joinedOthers < 3;
-    }
-
     function requestJoinGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g || !me) return;
@@ -3059,7 +3059,6 @@
             return;
         }
         if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
-        if (!canJoinMoreGroups(me)) { alert('အသင်းဝင်ခွင့် အများဆုံး ၃ သင်းအထိသာ ခွင့်ပြုပါသည်'); return; }
         if (g.joinRequests.includes(me)) {
             alert('⏳ အသင်းဝင်ခွင့်တောင်းထားပြီးပါပြီ။ ပိုင်ရှင်/အုပ်ချုပ်သူ လက်ခံပေးရန် စောင့်ပါ။');
             renderGroupDetail();
@@ -3079,7 +3078,6 @@
         g.members = Array.isArray(g.members) ? g.members : [];
         g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
         if (g.members.length >= 20) { alert('အသင်းပြည့်နေပါပြီ'); return; }
-        if (!canJoinMoreGroups(userId)) { alert('ဒီ User သည် အသင်းဝင်ခွင့် အများဆုံး ၃ သင်း ပြည့်နေပါပြီ'); return; }
         var u = db.users[userId];
         if (!u) return;
         if (!g.members.includes(userId)) {
