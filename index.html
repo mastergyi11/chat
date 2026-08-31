@@ -388,6 +388,18 @@
         .dark-mode .group-detail-avatar { background:#292929; }
         .group-system-message { text-align:center; padding:8px 12px; margin:8px auto; border-radius:12px; background:#fff8df; color:#6d5600; font-size:13px; max-width:90%; }
         .dark-mode .group-system-message { background:#3b321b; color:#ffe082; }
+
+        .guest-help-btn { border:0; background:transparent; color:#222; font-size:16px; padding:8px 6px; cursor:pointer; font-weight:500; }
+        .guest-help-btn:active { opacity:.65; }
+        .help-card { max-width:620px; margin:18px auto; }
+        .help-topic { width:100%; min-height:48px; border:1px solid #e0e0e0; border-radius:12px; background:#fff; padding:12px 14px; font-size:15px; box-sizing:border-box; margin-bottom:10px; }
+        .help-textarea { width:100%; min-height:130px; border:1px solid #e0e0e0; border-radius:12px; padding:12px 14px; font-size:15px; box-sizing:border-box; resize:vertical; }
+        .help-note { background:#fff8df; border:1px solid #f1d778; border-radius:12px; padding:12px 14px; margin-bottom:14px; line-height:1.6; }
+        .help-success { display:none; margin-top:12px; background:#eaf8ee; color:#1f6b36; border:1px solid #b9e2c5; border-radius:12px; padding:12px 14px; text-align:center; font-weight:700; }
+        .dark-mode .guest-help-btn { color:#eee; }
+        .dark-mode .help-topic,.dark-mode .help-textarea { background:#242424; color:#eee; border-color:#555; }
+        .dark-mode .help-note { background:#3b321b; color:#ffe082; border-color:#6b5a20; }
+        .dark-mode .help-success { background:#183522; color:#b8e8c4; border-color:#2f6b40; }
     </style>
 </head>
 <body>
@@ -396,7 +408,7 @@
     <header>
         <button id="menuBtn" class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
         <div id="pageTitle" class="header-title">Bee Chat</div>
-        <span id="head">Guest</span>
+        <button id="head" class="guest-help-btn" type="button" onclick="openGuestHelp()">အကူညီရယူရန်</button>
     </header>
 
     <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
@@ -560,6 +572,24 @@
                     <div id="profileMyGroupCard" style="background:#f8f9fa; padding:10px; border-radius:8px; margin-top:6px; cursor:pointer;" onclick="openMyGroupFromProfile()"></div>
                 </div>
             </div>
+        </div>
+    </section>
+
+
+    <!-- GUEST HELP -->
+    <section id="guestHelp" class="screen">
+        <div class="card help-card">
+            <h2>🆘 အကူညီရယူရန်</h2>
+            <div class="help-note">BeeChat အသုံးပြုရာတွင် အကောင့်ဝင်ရန်၊ စာပို့ရန်၊ အသင်းအသုံးပြုရန် သို့မဟုတ် အခြားပြဿနာများရှိပါက အောက်တွင် ရေးပို့နိုင်ပါသည်။ ဤစာမျက်နှာသည် လက်ရှိတွင် ပုံကြမ်းအဖြစ် ထည့်ထားခြင်းဖြစ်ပြီး နောက်ပိုင်း Admin စနစ်နှင့် ချိတ်ဆက်နိုင်ပါမည်။</div>
+            <select id="helpTopic" class="help-topic">
+                <option value="အကောင့်">အကောင့်နှင့်ပတ်သက်သော အကူအညီ</option>
+                <option value="စာပို့ခြင်း">စာပို့ခြင်းနှင့်ပတ်သက်သော အကူအညီ</option>
+                <option value="အသင်း">အသင်းနှင့်ပတ်သက်သော အကူအညီ</option>
+                <option value="အခြား">အခြားပြဿနာ</option>
+            </select>
+            <textarea id="helpText" class="help-textarea" placeholder="အကူအညီလိုသောအကြောင်းအရာကို ရေးပါ..."></textarea>
+            <button class="btn gold" type="button" onclick="submitGuestHelp()">📨 အကူညီတောင်းမည်</button>
+            <div id="guestHelpSuccess" class="help-success">✅ အကူအညီတောင်းခံချက် လက်ခံရရှိပါသည်</div>
         </div>
     </section>
 
@@ -1243,7 +1273,26 @@
     }
 
     // ===== NAVIGATION =====
+    function openGuestHelp() {
+        show('guestHelp');
+        closeMenu();
+        var pt = document.getElementById('pageTitle');
+        if (pt) pt.textContent = 'အကူညီရယူရန်';
+    }
+
+    function submitGuestHelp() {
+        var text = (document.getElementById('helpText') || {}).value || '';
+        text = text.trim();
+        if (!text) { alert('အကူအညီလိုသော အကြောင်းအရာကို ရေးပါ။'); return; }
+        var ok = document.getElementById('guestHelpSuccess');
+        if (ok) { ok.style.display = 'block'; setTimeout(function(){ ok.style.display = 'none'; }, 2500); }
+        var input = document.getElementById('helpText');
+        if (input) input.value = '';
+        // Prototype only: Admin/Firebase connection can be added later.
+    }
+
     function navGo(id) {
+        if (id === 'guestHelp') { openGuestHelp(); return; }
         if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             show('login');
@@ -1260,7 +1309,7 @@
         if (el) el.classList.add('active-nav');
         var titles = {
             onboarding:'Location', home:'Home', friends:'Friends', inbox:'Chats', profile:'My Profile',
-            settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account',
+            settings:'Setting', blockedUsers:'Blocked Users', myAccount:'My Account', guestHelp:'အကူညီရယူရန်',
             notifications:'Notifications', feedback:'Feedback / Report', groups:'Groups',
             groupDetail:'Group', chat:'Chat', userProfile:'User Profile', groupSearch:'အသင်းရှာရန်', myGroups:'My Groups'
         };
@@ -1599,32 +1648,43 @@
         var t = normalizeSafetyText(value);
         if (!t) return null;
         var rules = [
-            { category: 'အလွန်ရိုင်းပြသော / ဆဲဆိုသောအကြောင်းအရာ', words: [
+            { category: 'အလွန်ရိုင်းပြသော / ဆဲဆိုသောအကြောင်းအရာ', severity: 'warn', words: [
                 'fuck','fucker','motherfucker','bitch','asshole','shit','cunt','dick','pussy','whore','slut',
                 'ဆဲဆို','စော်ကား','ရိုင်းပြ'
             ]},
-            { category: 'လိမ်လည်မှု / အန္တရာယ်ရှိသော လင့်ခ်', words: [
-                'scam','phishing','otp code','verification code','password','give me your password','login code',
+            { category: 'လိမ်လည်မှု / အန္တရာယ်ရှိသော လင့်ခ်', severity: 'block', words: [
+                'scam','phishing','otp code','verification code','give me your password','login code',
                 'ငွေလွှဲ','လိမ်လည်','လှည့်စား'
             ]},
-            { category: 'Hacking / Account ခိုးယူရန် အကြောင်းအရာ', words: [
+            { category: 'Hacking / Account ခိုးယူရန် အကြောင်းအရာ', severity: 'block', words: [
                 'hack your account','hack account','steal account','steal password','malware','keylogger','ransomware',
                 'ဖောက်ထွင်း','အကောင့်ခိုး','စကားဝှက်ခိုး'
             ]},
-            { category: 'လိင်ပိုင်းဆိုင်ရာ မသင့်လျော်သောအကြောင်းအရာ', words: [
+            { category: 'လိင်ပိုင်းဆိုင်ရာ မသင့်လျော်သောအကြောင်းအရာ', severity: 'block', words: [
                 'porn','xxx','nude','nudes','sex video','sex chat','sexual','explicit content'
             ]},
-            { category: 'ကလေးသူငယ်အပေါ် လိင်ပိုင်းဆိုင်ရာ အမြတ်ထုတ်မှု', words: [
+            { category: 'ကလေးသူငယ်အပေါ် လိင်ပိုင်းဆိုင်ရာ အမြတ်ထုတ်မှု', severity: 'block', words: [
                 'child sex','minor sex','underage sex','child porn','minor porn','underage nude','child nude',
                 'ကလေး လိင်','ကလေးညစ်ညမ်း'
             ]}
         ];
         for (var i = 0; i < rules.length; i++) {
             for (var j = 0; j < rules[i].words.length; j++) {
-                if (t.indexOf(rules[i].words[j]) !== -1) return rules[i].category;
+                if (t.indexOf(rules[i].words[j]) !== -1) return { category: rules[i].category, severity: rules[i].severity };
             }
         }
         return null;
+    }
+
+    function showSafetyWarning() {
+        var old = document.getElementById('beeSafetyToast');
+        if (old) old.remove();
+        var el = document.createElement('div');
+        el.id = 'beeSafetyToast';
+        el.textContent = '⚠️ ကျေးဇူးပြု၍ ယဉ်ကျေးစွာ ပြောဆိုပေးပါ';
+        el.style.cssText = 'position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:99999;background:#fff3cd;color:#7a5700;border:1px solid #ffe69c;border-radius:14px;padding:12px 16px;font-size:14px;max-width:88%;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,.15);';
+        document.body.appendChild(el);
+        setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 2200);
     }
 
     function showSafetyBlocked(category) {
@@ -1655,12 +1715,15 @@
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
         var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
-        var blockedCategory = checkMessageSafety(t);
-        if (blockedCategory) {
+        var safetyResult = checkMessageSafety(t);
+        if (safetyResult && safetyResult.severity === 'block') {
             i.value = '';
-            showSafetyBlocked(blockedCategory);
-            recordSafetyBlock(blockedCategory, 'private', chatWith);
+            showSafetyBlocked(safetyResult.category);
+            recordSafetyBlock(safetyResult.category, 'private', chatWith);
             return;
+        }
+        if (safetyResult && safetyResult.severity === 'warn') {
+            showSafetyWarning();
         }
         var key = ck();
         if (!db.messages[key]) db.messages[key] = [];
@@ -1929,7 +1992,7 @@
         u.gender = u.gender || '';
         if (u.region === undefined) u.region = '';
         if (u.sticker === undefined) u.sticker = '';
-        document.getElementById('head').textContent = u.name;
+        var head = document.getElementById('head'); if (head) { head.textContent = u.name || me; head.onclick = function(){}; }
         var mun = document.getElementById('menuUserName');
         if (mun) mun.textContent = u.name || 'User';
         var muid = document.getElementById('menuUserId');
@@ -2413,12 +2476,14 @@
         try { localStorage.removeItem('beechat_logged_in'); } catch (e) {}
         me = null; chatWith = null;
         document.getElementById('nav').classList.add('hidden');
-        document.getElementById('head').textContent = 'Guest';
+        var head = document.getElementById('head'); if (head) { head.textContent = 'အကူညီရယူရန်'; head.onclick = openGuestHelp; }
         closeMenu();
         show('login');
     }
 
     function toggleMenu() {
+        // Guest users cannot open the account menu. Help remains available from the top-right button.
+        if (!me) return;
         var d = document.getElementById('menuDrawer'), o = document.getElementById('menuOverlay');
         if (d) d.classList.toggle('open');
         if (o) o.classList.toggle('open');
@@ -3347,6 +3412,16 @@
         var input = document.getElementById('groupMsg');
         var t = input.value.trim();
         if (!t) return;
+        var safetyResult = checkMessageSafety(t);
+        if (safetyResult && safetyResult.severity === 'block') {
+            input.value = '';
+            showSafetyBlocked(safetyResult.category);
+            recordSafetyBlock(safetyResult.category, 'group', id);
+            return;
+        }
+        if (safetyResult && safetyResult.severity === 'warn') {
+            showSafetyWarning();
+        }
         db.groupMessages = db.groupMessages || {};
         db.groupMessages[id] = db.groupMessages[id] || [];
         db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
