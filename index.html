@@ -1904,8 +1904,8 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        if (id === 'login') {
-            // Always allow showing login
+        if (id === 'login' || id === 'guestHelp') {
+            // Login page and guest help are available without an account
         } else if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             return;
