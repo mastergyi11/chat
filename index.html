@@ -2344,7 +2344,7 @@
         window.friendToastTimer=setTimeout(function(){t.style.display='none';},1800);
     }
 
-    async function requestFriend(id) {
+    async async function requestFriend(id) {
         if (!me || !db) return;
         if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
 
@@ -2731,4 +2731,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-                        </html>
+    </html>
