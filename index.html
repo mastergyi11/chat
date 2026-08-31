@@ -2322,6 +2322,28 @@
     }
 
     // ===== FRIEND REQUEST: update only the clicked user, do NOT full-refresh/navigation =====
+    function showFriendToast(msg){
+        var t=document.getElementById('friendToast');
+        if(!t){
+            t=document.createElement('div');
+            t.id='friendToast';
+            t.style.position='fixed';
+            t.style.left='50%';
+            t.style.bottom='90px';
+            t.style.transform='translateX(-50%)';
+            t.style.background='#222';
+            t.style.color='#fff';
+            t.style.padding='12px 18px';
+            t.style.borderRadius='12px';
+            t.style.zIndex='99999';
+            document.body.appendChild(t);
+        }
+        t.textContent=msg;
+        t.style.display='block';
+        clearTimeout(window.friendToastTimer);
+        window.friendToastTimer=setTimeout(function(){t.style.display='none';},1800);
+    }
+
     async function requestFriend(id) {
         if (!me || !db) return;
         if (isBlocked(id)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
@@ -2351,7 +2373,7 @@
 
         // Update counters/notifications without rebuilding the current screen.
         try { updateBadges(); } catch (e) {}
-        alert('Friend request ပို့ပြီးပါပြီ');
+        showFriendToast('Friend request ပို့ပြီးပါပြီ');
     }
 
     function accept(id) {
@@ -2709,4 +2731,4 @@
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
 </body>
-                                                                                                          </html>
+                        </html>
