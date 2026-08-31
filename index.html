@@ -580,7 +580,7 @@
     <section id="guestHelp" class="screen">
         <div class="card help-card">
             <h2>🆘 အကူညီရယူရန်</h2>
-            <div class="help-note">BeeChat အသုံးပြုရာတွင် အကောင့်ဝင်ရန်၊ စာပို့ရန်၊ အသင်းအသုံးပြုရန် သို့မဟုတ် အခြားပြဿနာများရှိပါက အောက်တွင် ရေးပို့နိုင်ပါသည်။ ဤစာမျက်နှာသည် လက်ရှိတွင် ပုံကြမ်းအဖြစ် ထည့်ထားခြင်းဖြစ်ပြီး နောက်ပိုင်း Admin စနစ်နှင့် ချိတ်ဆက်နိုင်ပါမည်။</div>
+            <div class="help-note">BeeChat အသုံးပြုရာတွင် အကောင့်ဝင်ရန်၊ စာပို့ရန်၊ အသင်းအသုံးပြုရန် သို့မဟုတ် အခြားပြဿနာများရှိပါက အောက်တွင် ရေးပို့နိုင်ပါသည်။ အကောင့်ဝင်မရခြင်း သို့မဟုတ် BeeChat ပြဿနာများရှိပါက Admin ထံ စာပို့နိုင်ပါသည်။</div>
             <select id="helpTopic" class="help-topic">
                 <option value="အကောင့်">အကောင့်နှင့်ပတ်သက်သော အကူအညီ</option>
                 <option value="စာပို့ခြင်း">စာပို့ခြင်းနှင့်ပတ်သက်သော အကူအညီ</option>
@@ -1890,8 +1890,8 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        if (id === 'login') {
-            // Always allow showing login
+        if (id === 'login' || id === 'guestHelp') {
+            // Login မဝင်ရသေးခင် Help page ကိုလည်း ဖွင့်ခွင့်ပေးသည်
         } else if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             return;
