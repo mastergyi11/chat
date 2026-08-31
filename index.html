@@ -743,6 +743,8 @@
         <div class="card"><h3>🛠️ Demo Admin</h3><p class="small">Production မှာ Firebase Authentication + Security Rules လိုအပ်ပါတယ်။</p><input id="target" placeholder="Account ID"><select id="plimit"><option>4</option><option>8</option><option>12</option><option>16</option></select><button class="btn gold" onclick="grant()">Photo Limit သတ်မှတ်မည်</button><div id="result" class="status"></div></div>
     </section>
 
+    <input id="groupAvatarEditUpload" type="file" accept="image/*" class="hidden" onchange="saveGroupAvatar(event)">
+
     <!-- CAMERA BACKDROPS -->
     <div id="cameraBackdrop" class="photo-choice-backdrop" style="display:none;align-items:center">
         <div class="photo-choice" style="border-radius:18px;max-width:520px">
@@ -3152,6 +3154,34 @@
         renderGroupDetail();
     }
 
+    var editingGroupAvatarId = null;
+
+    function openGroupAvatarUpload(groupId) {
+        var g = db.groups.find(function(x){ return x.id === groupId; });
+        if (!g || g.owner !== me) { alert('ပိုင်ရှင်သာ အသင်းပုံပြောင်းနိုင်ပါသည်'); return; }
+        editingGroupAvatarId = groupId;
+        var input = document.getElementById('groupAvatarEditUpload');
+        if (input) input.click();
+    }
+
+    function saveGroupAvatar(e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f || !editingGroupAvatarId) return;
+        var r = new FileReader();
+        r.onload = function(){
+            var g = db.groups.find(function(x){ return x.id === editingGroupAvatarId; });
+            if (g && g.owner === me) {
+                g.avatar = r.result;
+                save();
+                renderGroupDetail();
+                alert('✅ အသင်းပုံတင်ပြီးပါပြီ');
+            }
+            editingGroupAvatarId = null;
+            e.target.value = '';
+        };
+        r.readAsDataURL(f);
+    }
+
     function renderGroupDetail() {
         var box = document.getElementById('groupDetailBox');
         if (!box) return;
@@ -3181,6 +3211,7 @@
 
         html += '<div id="groupSettingsMenu" style="display:none; background:#f8f9fa; border-radius:8px; padding:8px; margin:8px 0;">';
         if (isOwner) {
+            html += '<button class="menu-item" onclick="openGroupAvatarUpload(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📷 အသင်းပုံပြောင်းရန်</button>';
             html += '<button class="menu-item" onclick="inviteFriendToGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">📨 သူငယ်ချင်းဖိတ်ရန်</button>';
             html += '<button class="menu-item" onclick="chooseAdminMember(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;">🛡️ အုပ်ချုပ်သူခန့်/ဖြုတ်</button>';
             html += '<button class="menu-item danger" onclick="deleteGroup(\''+g.id+'\')" style="border:0;background:transparent;padding:8px;color:#dc3545;">🗑️ အသင်းဖျက်မည်</button>';
