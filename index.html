@@ -175,8 +175,8 @@
         .group-chat-actions button { border:0;background:transparent;font-size:28px;padding:5px;cursor:pointer;color:#222; }
         .group-chat-messages { flex:1;min-height:0;overflow-y:auto;background:#fff;padding:14px 12px 10px; }
         .group-chat-messages .msg { max-width:84%; }
-        .group-chat-input { margin:0 !important;border:0 !important;border-top:1px solid #eee !important;border-radius:0 !important;
-            padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;min-height:58px;background:#fff; }
+        .group-chat-input { position:sticky; bottom:0; margin:0 !important;border:0 !important;border-top:1px solid #eee !important;border-radius:0 !important;
+            padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;min-height:58px;background:#fff;z-index:5; }
         .group-chat-input input { margin:0 !important;background:#f5f5f5 !important;border:0 !important;border-radius:24px !important;padding:11px 14px !important;font-size:16px; }
         .group-chat-back { width:40px;height:44px;border:0;background:transparent;font-size:40px;line-height:36px;padding:0;cursor:pointer; }
         @media (min-width:901px) {
@@ -485,10 +485,6 @@
                 <div onclick="showFollowList('followers')" style="cursor:pointer" title="Followers စာရင်းကြည့်ရန်"><b id="followersCount">0</b><span>Followers</span></div>
             </div>
             <div class="profile-decoration-area">
-                <div class="profile-decoration-row">
-                    <label>😊 သင့်စတစ်ကာ</label>
-                    <input id="profileStickerInput" class="profile-sticker-input" type="text" maxlength="8" placeholder="စတစ်ကာထည့်ပါ" autocomplete="off">
-                </div>
                 <div class="profile-decoration-row">
                     <label>🎨 အလှဆင်စာသား</label>
                     <textarea id="profileDecorationInput" maxlength="120" placeholder="သင်ကြိုက်တဲ့စာသား/emoji များထည့်ပြီး အလှဆင်ပါ"></textarea>
@@ -1460,7 +1456,8 @@
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + ' <span style="font-size:28px;">' + sticker + '</span></div>';
+        html += '<div class="name">' + esc(u.name || '-') + '</div>';
+        html += '<div class="profile-sticker-view" style="font-size:28px;">' + esc(sticker) + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
         html += '<div class="stats">' +
