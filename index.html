@@ -209,7 +209,37 @@
         .blocked-users-list .list { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         .blocked-users-list .list .unblock-btn { background: #dc3545; color: #fff; border: 0; border-radius: 8px; padding: 4px 14px; cursor: pointer; font-size: 12px; }
         .hidden { display: none !important; }
-        .status { margin-top: 8px; padding: 10px; border-radius: 8px; background: #e9ecef; color: #333; }
+        .status { margin-top: 8px; padding: 12px 10px; border-radius: 10px; background: #e9ecef; color: #333; text-align: center; }
+        .status.connecting { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+        .connection-spinner { width:30px; height:30px; border:4px solid #e3e3e3; border-top-color:#e7ad21; border-right-color:#f4b400; border-radius:50%; animation: beeSpin .8s linear infinite; }
+        @keyframes beeSpin { to { transform:rotate(360deg); } }
+        .dob-picker-backdrop { position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.48); display:none; align-items:center; justify-content:center; padding:16px; }
+        .dob-picker-backdrop.open { display:flex; }
+        .dob-picker { width:min(420px,100%); max-height:88vh; overflow:auto; background:#fff; border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.25); padding:18px; }
+        .dob-picker-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+        .dob-picker-title { font-size:18px; font-weight:700; }
+        .dob-picker-close { border:0; background:#f3f3f3; border-radius:50%; width:36px; height:36px; font-size:20px; cursor:pointer; }
+        .dob-year-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+        .dob-year-row label { font-size:13px; color:#666; white-space:nowrap; }
+        .dob-year-select { flex:1; margin:0 !important; border:1px solid #ddd !important; border-radius:10px !important; padding:10px !important; font-size:16px !important; text-align:center !important; background:#fff !important; }
+        .dob-month-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0 12px; }
+        .dob-month-btn { border:0; background:#fff8e1; color:#8a6500; border-radius:10px; width:42px; height:40px; font-size:24px; cursor:pointer; }
+        .dob-month-name { font-weight:700; font-size:17px; text-align:center; flex:1; }
+        .dob-weekdays,.dob-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+        .dob-weekdays div { text-align:center; font-size:12px; color:#888; padding:6px 0; font-weight:600; }
+        .dob-day { border:0; background:#fff; min-height:40px; border-radius:9px; font-size:14px; cursor:pointer; }
+        .dob-day:hover { background:#fff8e1; }
+        .dob-day.selected { background:#e7ad21; color:#172130; font-weight:700; }
+        .dob-day.empty { cursor:default; background:transparent; }
+        .dob-picker-footer { margin-top:12px; display:flex; gap:8px; }
+        .dob-picker-footer button { flex:1; border:0; border-radius:10px; padding:11px; font-weight:700; cursor:pointer; }
+        .dob-today { background:#f3f3f3; color:#444; }
+        .dob-cancel { background:#e7ad21; color:#172130; }
+        .dark-mode .dob-picker { background:#1d1d1d; color:#eee; }
+        .dark-mode .dob-year-select { background:#242424 !important; color:#eee !important; border-color:#555 !important; }
+        .dark-mode .dob-day { background:#1d1d1d; color:#eee; }
+        .dark-mode .dob-day:hover { background:#3b321b; }
+        .dark-mode .dob-month-btn { background:#3b321b; color:#ffe082; }
         .menu-drawer { position: fixed; top: 58px; left: 0; width: min(300px, 80vw); height: calc(100vh - 58px); background: #fff; color: #333; z-index: 50; transform: translateX(-105%); transition: transform .2s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.1); padding: 12px 10px 90px; overflow: auto; }
         .menu-drawer.open { transform: translateX(0); }
         .menu-overlay { position: fixed; inset: 58px 0 0; background: rgba(0,0,0,0.3); z-index: 49; display: none; }
@@ -358,7 +388,7 @@
             <button id="loginBtn" type="button" class="btn gold" onclick="login()">ဝင်မည်</button>
             <button id="registerBtn" type="button" class="btn green" onclick="register()">အကောင့်အသစ်ဖွင့်မည်</button>
             <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
-            <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
+            <div id="loginStatus" class="status connecting"><span class="connection-spinner" aria-hidden="true"></span><span class="status-text">ချိတ်ဆက်နေပါသည်</span></div>
         </div>
     </section>
 
@@ -472,7 +502,7 @@
                 <div class="profile-row"><label>အမည်</label><input id="profileName" type="text" placeholder="သင့်အမည်"></div>
                 <div class="profile-row"><label>Account ဖွင့်အမည်</label><div id="accountNameView" class="profile-value">-</div></div>
                 <div class="profile-row"><label>My ID</label><div id="pid" class="profile-value">-</div></div>
-                <div class="profile-row"><label>မွေးနေ့</label><input id="profileDob" type="date"></div>
+                <div class="profile-row"><label>မွေးနေ့</label><input id="profileDob" type="text" readonly placeholder="မွေးနေ့ရွေးပါ" onclick="openDobPicker()" onfocus="openDobPicker()" aria-label="မွေးနေ့ရွေးရန်"></div>
                 <div class="profile-row"><label>What's Up</label><textarea id="bio" placeholder="Looking for friends!"></textarea></div>
                 <div class="profile-row"><label>Gender</label><select id="profileGender"><option value="">ရွေးပါ</option><option value="Male">♂️ အမျိုးသား</option><option value="Female">♀️ အမျိုးသမီး</option><option value="Other">⚧️ အခြား</option></select></div>
                 <div class="profile-row"><label>အသက်</label><div id="profileAge" class="profile-value">-</div></div>
@@ -828,7 +858,91 @@
         return saveQueue;
     }
 
-    function setStatus(t) { var el = document.getElementById('loginStatus'); if (el) el.textContent = t; }
+    function setStatus(t) {
+        var el = document.getElementById('loginStatus');
+        if (!el) return;
+        var text = el.querySelector('.status-text');
+        var connecting = String(t || '').indexOf('ချိတ်ဆက်နေပါသည်') === 0;
+        if (connecting) {
+            el.classList.add('connecting');
+            if (!text) { el.innerHTML = '<span class="connection-spinner" aria-hidden="true"></span><span class="status-text"></span>'; text = el.querySelector('.status-text'); }
+        } else {
+            el.classList.remove('connecting');
+            if (!text) { el.innerHTML = '<span class="status-text"></span>'; text = el.querySelector('.status-text'); }
+        }
+        text.textContent = t;
+    }
+
+    // ===== Clean DOB calendar picker =====
+    var dobPickerDate = new Date();
+    var dobMonthNames = ['ဇန်နဝါရီ','ဖေဖော်ဝါရီ','မတ်','ဧပြီ','မေ','ဇွန်','ဇူလိုင်','ဩဂုတ်','စက်တင်ဘာ','အောက်တိုဘာ','နိုဝင်ဘာ','ဒီဇင်ဘာ'];
+    function openDobPicker() {
+        var input = document.getElementById('profileDob');
+        if (!input) return;
+        var v = input.value || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+            var parts = v.split('-').map(Number);
+            dobPickerDate = new Date(parts[0], parts[1]-1, parts[2]);
+        } else {
+            dobPickerDate = new Date();
+            dobPickerDate.setHours(0,0,0,0);
+        }
+        renderDobPicker();
+        var back = document.getElementById('dobPickerBackdrop');
+        if (back) back.classList.add('open');
+    }
+    function closeDobPicker() {
+        var back = document.getElementById('dobPickerBackdrop');
+        if (back) back.classList.remove('open');
+    }
+    function renderDobPicker() {
+        var y = dobPickerDate.getFullYear(), m = dobPickerDate.getMonth();
+        var ys = document.getElementById('dobYearSelect');
+        if (ys) {
+            var current = new Date().getFullYear();
+            var html='';
+            for (var yr=current; yr>=1900; yr--) html += '<option value="'+yr+'">'+yr+'</option>';
+            ys.innerHTML=html;
+            ys.value=String(y);
+        }
+        var mn=document.getElementById('dobMonthName');
+        if(mn) mn.textContent=dobMonthNames[m]+' '+y;
+        var days=document.getElementById('dobDays');
+        if(!days) return;
+        var first=new Date(y,m,1).getDay();
+        var count=new Date(y,m+1,0).getDate();
+        var selected='';
+        var input=document.getElementById('profileDob');
+        if(input && /^\d{4}-\d{2}-\d{2}$/.test(input.value)) selected=input.value;
+        var out='';
+        for(var i=0;i<first;i++) out+='<button class="dob-day empty" type="button" tabindex="-1"></button>';
+        for(var d=1;d<=count;d++){
+            var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+            out+='<button class="dob-day '+(ds===selected?'selected':'')+'" type="button" onclick="selectDobDay('+y+','+(m+1)+','+d+')">'+d+'</button>';
+        }
+        days.innerHTML=out;
+    }
+    function dobPickerYearChanged(y) {
+        var month=dobPickerDate.getMonth(), day=dobPickerDate.getDate();
+        var max=new Date(Number(y),month+1,0).getDate();
+        dobPickerDate=new Date(Number(y),month,Math.min(day,max));
+        renderDobPicker();
+    }
+    function dobPickerMonth(delta) {
+        var d=new Date(dobPickerDate); d.setDate(1); d.setMonth(d.getMonth()+delta);
+        dobPickerDate=d; renderDobPicker();
+    }
+    function selectDobDay(y,m,d) {
+        var iso=y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        var input=document.getElementById('profileDob');
+        if(input) input.value=iso;
+        closeDobPicker();
+        var age=document.getElementById('profileAge');
+        if(age && typeof calcAge==='function') age.textContent=calcAge(iso)||'-';
+    }
+    function dobPickerToday() {
+        var t=new Date(); selectDobDay(t.getFullYear(),t.getMonth()+1,t.getDate());
+    }
 
     async function initFirebase() {
         db = localLoad();
@@ -3122,5 +3236,15 @@
 
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
+<div id="dobPickerBackdrop" class="dob-picker-backdrop" onclick="if(event.target===this) closeDobPicker()">
+    <div class="dob-picker" role="dialog" aria-modal="true" aria-label="မွေးနေ့ရွေးရန်">
+        <div class="dob-picker-head"><div class="dob-picker-title">📅 မွေးနေ့ရွေးပါ</div><button class="dob-picker-close" type="button" onclick="closeDobPicker()">×</button></div>
+        <div class="dob-year-row"><label>ခုနှစ်</label><select id="dobYearSelect" class="dob-year-select" onchange="dobPickerYearChanged(this.value)"></select></div>
+        <div class="dob-month-row"><button class="dob-month-btn" type="button" onclick="dobPickerMonth(-1)">‹</button><div id="dobMonthName" class="dob-month-name"></div><button class="dob-month-btn" type="button" onclick="dobPickerMonth(1)">›</button></div>
+        <div class="dob-weekdays"><div>တနင်္ဂနွေ</div><div>တနင်္လာ</div><div>အင်္ဂါ</div><div>ဗုဒ္ဓဟူး</div><div>ကြာသပတေး</div><div>သောကြာ</div><div>စနေ</div></div>
+        <div id="dobDays" class="dob-days"></div>
+        <div class="dob-picker-footer"><button class="dob-today" type="button" onclick="dobPickerToday()">ယနေ့</button><button class="dob-cancel" type="button" onclick="closeDobPicker()">ပိတ်မည်</button></div>
+    </div>
+</div>
 </body>
-                    </html>
+    </html>
