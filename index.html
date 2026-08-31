@@ -194,6 +194,10 @@
             }
         }
         .group-chat-input input { margin:0 !important;background:#f5f5f5 !important;border:0 !important;border-radius:24px !important;padding:11px 14px !important;font-size:16px; }
+        /* Extra fix: group message typing bar stays at bottom */
+        .group-chat-full .group-chat-messages { flex:1; min-height:0; overflow-y:auto; }
+        .group-chat-full .group-chat-input { margin-top:auto !important; position:relative !important; }
+
         /* Group chat keyboard handling only */
         .group-chat-full { min-height:0; }
         #groupDetail.group-chat-active.active { height:100dvh; }
@@ -699,6 +703,7 @@
             </div>
             <div id="chatMenu" class="chat-menu-modern">
                 <button class="menu-item" onclick="openContextReport('user', chatWith); toggleChatMenu();">🚩 Report</button>
+                 <button class="menu-item" onclick="shareChatProfile()">📤 Share</button>
                  <button class="menu-item danger" onclick="blockCurrentUser()">🚫 ဘလော့လုပ်မည်</button>
             </div>
             <div id="chatbox" class="chat chat-modern-box"></div>
@@ -1277,6 +1282,17 @@
     }
 
     // ===== NAVIGATION =====
+    function shareChatProfile() {
+        var user = window.chatWith || {};
+        var name = user.name || user.username || 'BeeChat User';
+        var text = 'BeeChat Profile: ' + name;
+        if (navigator.share) {
+            navigator.share({title:'BeeChat Profile', text:text});
+        } else {
+            alert(text);
+        }
+    }
+
     function openGuestHelp() {
         show('guestHelp');
         closeMenu();
