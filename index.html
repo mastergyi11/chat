@@ -594,8 +594,14 @@
             <textarea id="helpText" class="help-textarea" placeholder="အကူအညီလိုသောအကြောင်းအရာကို ရေးပါ..."></textarea>
             <button class="btn gold" type="button" onclick="submitGuestHelp()">📨 အကူညီတောင်းမည်</button>
             <div id="guestHelpSuccess" class="help-success">✅ အကူအညီတောင်းခံချက် လက်ခံရရှိပါသည်</div>
+            <div style="text-align:center; margin-top:12px;">
+                <button class="btn" type="button" onclick="openAccountGuide()">📖 အကောင့်အသစ်လျှောက်နည်း</button>
+            </div>
         </div>
     </section>
+
+    <!-- ACCOUNT REGISTRATION GUIDE (BLANK PAGE) -->
+    <section id="accountGuide" class="screen"></section>
 
     <!-- SETTINGS -->
     <section id="settings" class="screen">
@@ -1298,6 +1304,13 @@
         closeMenu();
         var pt = document.getElementById('pageTitle');
         if (pt) pt.textContent = 'အကူညီရယူရန်';
+    }
+
+    function openAccountGuide() {
+        show('accountGuide');
+        closeMenu();
+        var pt = document.getElementById('pageTitle');
+        if (pt) pt.textContent = 'အကောင့်အသစ်လျှောက်နည်း';
     }
 
     function submitGuestHelp() {
@@ -3513,4 +3526,4 @@
     </div>
 </div>
 </body>
-</html>
+    </html>
