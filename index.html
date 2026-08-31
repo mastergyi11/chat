@@ -1106,6 +1106,13 @@
         var input = document.getElementById('groupMsg');
         var t = input.value.trim();
         if (!t) return;
+        var blockedCategory = checkMessageSafety(t);
+        if (blockedCategory) {
+            input.value = '';
+            showSafetyBlocked(blockedCategory);
+            recordSafetyBlock(blockedCategory, 'group', id);
+            return;
+        }
         db.groupMessages = db.groupMessages || {};
         db.groupMessages[id] = db.groupMessages[id] || [];
         db.groupMessages[id].push({ f: me, t: t, time: Date.now() });
@@ -1578,11 +1585,83 @@
         if (b) b.textContent = b.textContent === '★' ? '☆' : '★';
     }
 
+    // ===== BeeChat Auto Content Safety Filter =====
+    // Blocks clearly prohibited text before it is saved/sent. No automatic account punishment.
+    function normalizeSafetyText(value) {
+        return String(value || '')
+            .toLowerCase()
+            .replace(/[\u200b-\u200f\u202a-\u202e]/g, '')
+            .replace(/[\s\u00a0]+/g, ' ')
+            .trim();
+    }
+
+    function checkMessageSafety(value) {
+        var t = normalizeSafetyText(value);
+        if (!t) return null;
+        var rules = [
+            { category: 'အလွန်ရိုင်းပြသော / ဆဲဆိုသောအကြောင်းအရာ', words: [
+                'fuck','fucker','motherfucker','bitch','asshole','shit','cunt','dick','pussy','whore','slut',
+                'ဆဲဆို','စော်ကား','ရိုင်းပြ'
+            ]},
+            { category: 'လိမ်လည်မှု / အန္တရာယ်ရှိသော လင့်ခ်', words: [
+                'scam','phishing','otp code','verification code','password','give me your password','login code',
+                'ငွေလွှဲ','လိမ်လည်','လှည့်စား'
+            ]},
+            { category: 'Hacking / Account ခိုးယူရန် အကြောင်းအရာ', words: [
+                'hack your account','hack account','steal account','steal password','malware','keylogger','ransomware',
+                'ဖောက်ထွင်း','အကောင့်ခိုး','စကားဝှက်ခိုး'
+            ]},
+            { category: 'လိင်ပိုင်းဆိုင်ရာ မသင့်လျော်သောအကြောင်းအရာ', words: [
+                'porn','xxx','nude','nudes','sex video','sex chat','sexual','explicit content'
+            ]},
+            { category: 'ကလေးသူငယ်အပေါ် လိင်ပိုင်းဆိုင်ရာ အမြတ်ထုတ်မှု', words: [
+                'child sex','minor sex','underage sex','child porn','minor porn','underage nude','child nude',
+                'ကလေး လိင်','ကလေးညစ်ညမ်း'
+            ]}
+        ];
+        for (var i = 0; i < rules.length; i++) {
+            for (var j = 0; j < rules[i].words.length; j++) {
+                if (t.indexOf(rules[i].words[j]) !== -1) return rules[i].category;
+            }
+        }
+        return null;
+    }
+
+    function showSafetyBlocked(category) {
+        var old = document.getElementById('beeSafetyToast');
+        if (old) old.remove();
+        var el = document.createElement('div');
+        el.id = 'beeSafetyToast';
+        el.textContent = '⚠️ ဤစာသည် BeeChat စည်းကမ်းနှင့် မကိုက်ညီသောကြောင့် မပို့နိုင်ပါ';
+        el.style.cssText = 'position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:99999;background:#fff3cd;color:#7a5700;border:1px solid #ffe69c;border-radius:14px;padding:12px 16px;font-size:14px;max-width:88%;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,.15);';
+        document.body.appendChild(el);
+        setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 2200);
+    }
+
+    async function recordSafetyBlock(category, channel, targetId) {
+        if (!me || !db) return;
+        db.safetyNotices = Array.isArray(db.safetyNotices) ? db.safetyNotices : [];
+        var notice = { to: me, category: category, channel: channel || '', targetId: targetId || '', createdAt: Date.now(), seen: false };
+        db.safetyNotices.push(notice);
+        // Keep local app data for the user's notice history; send only moderation metadata to Firebase.
+        if (fbReady && firebaseDB) {
+            try { await firebaseDB.ref('safetyBlocks/' + me).push(notice); } catch (e) { console.error('Safety log:', e); }
+        }
+        await save();
+    }
+
     function send() {
         if (!chatWith) { alert('Friend တစ်ယောက်ကို Chat ဖွင့်ပါ'); return; }
         if (isBlocked(chatWith)) { alert('ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return; }
         var i = document.getElementById('msg'), t = i.value.trim();
         if (!t) return;
+        var blockedCategory = checkMessageSafety(t);
+        if (blockedCategory) {
+            i.value = '';
+            showSafetyBlocked(blockedCategory);
+            recordSafetyBlock(blockedCategory, 'private', chatWith);
+            return;
+        }
         var key = ck();
         if (!db.messages[key]) db.messages[key] = [];
         db.messages[key].push({ f: me, t: t, seen: false, time: Date.now(), senderName: db.users[me].name, senderPhoto: (db.users[me].photos || [])[0] || '', image: null });
@@ -2402,6 +2481,8 @@
         var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
         var friendIds = db.friends.filter(function(x) { return x.a === me || x.b === me; }).map(function(x) { return x.a === me ? x.b : x.a; }).filter(function(id) { return !isBlocked(id); });
         var items = [];
+        db.safetyNotices = Array.isArray(db.safetyNotices) ? db.safetyNotices : [];
+        db.safetyNotices.filter(function(n){return n.to===me;}).forEach(function(n){ items.push('⚠️ BeeChat စည်းကမ်းနှင့် မကိုက်ညီသော စာကို ပို့၍မရပါ'); n.seen=true; });
         db.groupNotifications = Array.isArray(db.groupNotifications) ? db.groupNotifications : [];
         db.groupNotifications.filter(function(n){return n.to===me;}).forEach(function(n){
             var g=db.groups.find(function(x){return x.id===n.groupId;}); var u=db.users[n.from]||{};
