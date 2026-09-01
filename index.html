@@ -395,6 +395,110 @@
         .group-system-message { text-align:center; padding:8px 12px; margin:8px auto; border-radius:12px; background:#fff8df; color:#6d5600; font-size:13px; max-width:90%; }
         .dark-mode .group-system-message { background:#3b321b; color:#ffe082; }
 
+        /* ===== Stable Followers / Following full-page list ===== */
+        .follow-list-sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 12000;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            background: #fff;
+            overflow: hidden;
+        }
+        .follow-list-panel {
+            width: min(900px, 100%);
+            height: 100dvh;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            color: #222;
+        }
+        .follow-list-head {
+            min-height: 64px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #f4b400;
+            border-bottom: 1px solid #e0a800;
+            box-shadow: 0 1px 5px rgba(0,0,0,.08);
+            flex-shrink: 0;
+        }
+        .follow-list-head h3 {
+            flex: 1;
+            font-size: 19px;
+            font-weight: 700;
+        }
+        .follow-list-head .btn {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+        #followListItems {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 14px calc(24px + env(safe-area-inset-bottom));
+            background: #fff;
+        }
+        .follow-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 72px;
+            padding: 10px 4px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            background: #fff;
+        }
+        .follow-user:active { background: #f8f9fa; }
+        .follow-user img,
+        .follow-user .fu-avatar {
+            width: 50px;
+            height: 50px;
+            flex: 0 0 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            object-fit: cover;
+        }
+        .follow-user > div:last-child {
+            min-width: 0;
+            flex: 1;
+        }
+        .follow-user b {
+            display: block;
+            font-size: 16px;
+            line-height: 1.35;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .follow-user .small {
+            margin-top: 3px;
+            line-height: 1.35;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .dark-mode .follow-list-sheet,
+        .dark-mode .follow-list-panel,
+        .dark-mode #followListItems,
+        .dark-mode .follow-user {
+            background: #1d1d1d !important;
+            color: #eee !important;
+        }
+        .dark-mode .follow-user { border-color: #333; }
+        .dark-mode .follow-user:active { background: #242424 !important; }
+
+
         .guest-help-btn { border:0; background:transparent; color:#222; font-size:16px; padding:8px 6px; cursor:pointer; font-weight:500; }
         .guest-help-btn:active { opacity:.65; }
         .help-card { max-width:620px; margin:18px auto; }
@@ -3534,4 +3638,4 @@
     </div>
 </div>
 </body>
-                </html>
+                                         </html>
