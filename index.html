@@ -14,6 +14,8 @@
         #head { font-size: 14px; }
         .screen { display: none; padding: 15px; background: #fff; }
         .screen.active { display: block; }
+        .account-guide-title { text-align:center; margin: 8px 0 18px; font-size: 24px; font-weight: 700; }
+        .account-guide-blank { min-height: 620px; background:#fff; border:1px dashed #e0e0e0; border-radius:10px; }
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; }
         .btn { border: 0; border-radius: 10px; padding: 10px 16px; background: #e7ad21; color: #172130; font-weight: bold; margin: 3px; cursor: pointer; }
@@ -600,8 +602,13 @@
         </div>
     </section>
 
-    <!-- ACCOUNT REGISTRATION GUIDE (BLANK PAGE) -->
-    <section id="accountGuide" class="screen"></section>
+    <!-- ACCOUNT REGISTRATION GUIDE (ADMIN CONTENT AREA) -->
+    <section id="accountGuide" class="screen">
+        <div class="card account-guide-page">
+            <h2 class="account-guide-title">📖 အကောင့်အသစ်ဖွင့်နည်း</h2>
+            <div class="account-guide-blank" aria-label="Admin account registration guide content area"></div>
+        </div>
+    </section>
 
     <!-- SETTINGS -->
     <section id="settings" class="screen">
@@ -1310,7 +1317,8 @@
         show('accountGuide');
         closeMenu();
         var pt = document.getElementById('pageTitle');
-        if (pt) pt.textContent = 'အကောင့်အသစ်လျှောက်နည်း';
+        // Keep the yellow header title unchanged; the guide title is shown inside the page.
+        if (pt) pt.textContent = 'အကူညီရယူရန်';
     }
 
     function submitGuestHelp() {
@@ -1917,8 +1925,8 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        if (id === 'login' || id === 'guestHelp') {
-            // Login page and guest help are available without an account
+        if (id === 'login' || id === 'guestHelp' || id === 'accountGuide') {
+            // Login, guest help, and account registration guide are available without an account
         } else if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             return;
