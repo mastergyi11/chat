@@ -14,6 +14,8 @@
         #head { font-size: 14px; }
         .screen { display: none; padding: 15px; background: #fff; }
         .screen.active { display: block; }
+        .account-guide-title { text-align:center; margin: 8px 0 18px; font-size: 24px; font-weight: 700; }
+        .account-guide-blank { min-height: 620px; background:#fff; border:1px dashed #e0e0e0; border-radius:10px; }
         .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         input, textarea, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #222; }
         .btn { border: 0; border-radius: 10px; padding: 10px 16px; background: #e7ad21; color: #172130; font-weight: bold; margin: 3px; cursor: pointer; }
@@ -594,6 +596,17 @@
             <textarea id="helpText" class="help-textarea" placeholder="အကူအညီလိုသောအကြောင်းအရာကို ရေးပါ..."></textarea>
             <button class="btn gold" type="button" onclick="submitGuestHelp()">📨 အကူညီတောင်းမည်</button>
             <div id="guestHelpSuccess" class="help-success">✅ အကူအညီတောင်းခံချက် လက်ခံရရှိပါသည်</div>
+            <div style="text-align:center; margin-top:12px;">
+                <button class="btn" type="button" onclick="openAccountGuide()">📖 အကောင့်အသစ်လျှောက်နည်း</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACCOUNT REGISTRATION GUIDE (ADMIN CONTENT AREA) -->
+    <section id="accountGuide" class="screen">
+        <div class="card account-guide-page">
+            <h2 class="account-guide-title">📖 အကောင့်အသစ်ဖွင့်နည်း</h2>
+            <div class="account-guide-blank" aria-label="Admin account registration guide content area"></div>
         </div>
     </section>
 
@@ -1300,6 +1313,14 @@
         if (pt) pt.textContent = 'အကူညီရယူရန်';
     }
 
+    function openAccountGuide() {
+        show('accountGuide');
+        closeMenu();
+        var pt = document.getElementById('pageTitle');
+        // Keep the yellow header title unchanged; the guide title is shown inside the page.
+        if (pt) pt.textContent = 'အကူညီရယူရန်';
+    }
+
     function submitGuestHelp() {
         var text = (document.getElementById('helpText') || {}).value || '';
         text = text.trim();
@@ -1904,8 +1925,8 @@
     function ck() { return [me, chatWith].sort().join('_'); }
 
     function show(id) {
-        if (id === 'login' || id === 'guestHelp') {
-            // Login page and guest help are available without an account
+        if (id === 'login' || id === 'guestHelp' || id === 'accountGuide') {
+            // Login, guest help, and account registration guide are available without an account
         } else if (!me) {
             alert('ကျေးဇူးပြုပြီး အကောင့်ဝင်ပါ သို့မဟုတ် အကောင့်အသစ်ဖွင့်ပါ။');
             return;
@@ -3513,4 +3534,4 @@
     </div>
 </div>
 </body>
-</html>
+                </html>
