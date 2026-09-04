@@ -541,6 +541,49 @@
     padding-bottom: 20px !important;
 }
 </style>
+
+<style>
+/* Final UI positioning fixes — layout/logic/account screens untouched */
+.nav {
+    bottom: 38px !important;
+    padding-bottom: 6px !important;
+}
+.nav button {
+    min-height: 52px !important;
+    padding: 3px 0 !important;
+    justify-content: center !important;
+    gap: 1px !important;
+}
+.nav button span:first-child { font-size: 20px !important; line-height: 22px !important; }
+.nav button span:last-child { font-size: 10px !important; line-height: 14px !important; display: block !important; }
+
+/* Friend 1-to-1 chat: lift the typing bar a little from the bottom. */
+.chat-input-modern {
+    margin-bottom: 12px !important;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Group chat: keep the typing bar firmly at the bottom of the chat viewport. */
+.group-chat-full {
+    height: 100% !important;
+    min-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+.group-chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+}
+.group-chat-input {
+    margin-top: auto !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    transform: none !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1417,8 +1460,9 @@
         var total = requestCount + unreadCount + groupNoticeCount;
         var inboxBadge = document.getElementById('inboxBadge');
         if (inboxBadge) {
-            inboxBadge.textContent = total > 0 ? total : '';
-            inboxBadge.style.display = total > 0 ? 'inline-block' : 'none';
+            // Keep the Chats icon fixed; do not replace it with the unread count.
+            inboxBadge.textContent = '💬';
+            inboxBadge.style.display = 'inline-block';
         }
 
         var inboxCount = document.getElementById('inboxCount');
@@ -3668,4 +3712,4 @@
     </div>
 </div>
 </body>
-    </html>
+                </html>
