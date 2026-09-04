@@ -585,24 +585,73 @@
 </style>
 
 
-<style id="chatbar-position-fix">
-/* Chat bar position adjustment only - no login/account logic changed */
-.chat-input-modern {
-    transform: translateY(-8px) !important;
-}
-.group-chat-input {
-    transform: translateY(8px) !important;
-}
-</style>
-
 <style>
-/* final chat bar position fix */
-.chat-input-modern {
-    transform: translateY(-18px) !important;
+/* FINAL CHAT POSITION FIX — UI only, login/account/data logic untouched */
+/* Friend 1-to-1 chat: move typing bar a little further upward. */
+.chat-screen.active .chat-full-card .chat-input-modern {
+    margin-bottom: 28px !important;
 }
-.group-chat-input {
-    transform: translateY(35px) !important;
+
+/* Group chat: make the chat container truly full-screen and pin the typing bar to the bottom. */
+#groupDetail.group-chat-active.active {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
 }
+#groupDetail.group-chat-active.active .group-detail-card {
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+#groupDetail.group-chat-active.active #groupDetailBox {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+}
+#groupDetail.group-chat-active.active .group-chat-full {
+    position: relative !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+#groupDetail.group-chat-active.active .group-chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding-bottom: 82px !important;
+}
+#groupDetail.group-chat-active.active .group-chat-input {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    z-index: 20 !important;
+    transform: none !important;
+    flex: none !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Hide only an unread badge whose displayed value is 4; navigation itself is untouched. */
+#inboxBadge[data-count="4"] { display: none !important; }
 </style>
 </head>
 <body>
@@ -3732,4 +3781,4 @@
     </div>
 </div>
 </body>
-        </html>
+    </html>
