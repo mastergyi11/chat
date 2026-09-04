@@ -153,8 +153,8 @@
         .chat-modern-box .msg { max-width: 82%; box-shadow:none; }
         .chat-input-modern {
             margin:0 !important; border:0 !important; border-top:1px solid #eee !important;
-            border-radius:0 !important; padding:12px 10px calc(12px + env(safe-area-inset-bottom)) !important;
-            min-height:58px; background:#fff; gap:12px; flex-shrink:0;
+            border-radius:0 !important; padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+            min-height:58px; background:#fff; gap:7px; flex-shrink:0;
         }
         .chat-input-modern input { margin:0 !important; padding:11px 14px !important; background:#f5f5f5 !important;
             border:0 !important; border-radius:24px !important; font-size:16px; min-width:0; }
@@ -186,7 +186,7 @@
         }
         .group-chat-input {
             flex-shrink: 0;
-            transform: translateY(12px);
+            transform: translateY(0);
         }
         @media (max-height: 500px) {
             .group-chat-input {
@@ -584,6 +584,16 @@
 }
 </style>
 
+
+<style id="chatbar-position-fix">
+/* Chat bar position adjustment only - no login/account logic changed */
+.chat-input-modern {
+    transform: translateY(-8px) !important;
+}
+.group-chat-input {
+    transform: translateY(8px) !important;
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3712,4 +3722,4 @@
     </div>
 </div>
 </body>
-                </html>
+    </html>
