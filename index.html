@@ -518,6 +518,29 @@
 .nav button { min-width: 0 !important; margin: 0 !important; padding: 2px 0 !important; font-size: 10px !important; white-space: nowrap !important; overflow: hidden !important; }
 .nav button span { font-size: 20px !important; }
 </style>
+
+<style>
+/* BeeChat bottom controls position adjustment */
+.nav {
+    bottom: 18px !important;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+}
+
+/* 1-to-1 chat typing bar: move slightly upward */
+.chat-input-modern {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Group chat typing bar: move slightly upward without changing logic */
+.group-chat-input {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Keep message area clear above moved input */
+.group-chat-messages {
+    padding-bottom: 20px !important;
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -3645,4 +3668,4 @@
     </div>
 </div>
 </body>
-                </html>
+    </html>
