@@ -700,74 +700,6 @@
             color: #666;
         }
 
-        /* Bee Register Overlay */
-        #beeRegisterOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 300;
-            padding: 20px;
-        }
-        #beeRegisterBox {
-            background: #fff;
-            border-radius: 28px;
-            max-width: 420px;
-            width: 100%;
-            padding: 24px 20px 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-            text-align: center;
-            position: relative;
-        }
-        body.dark-mode #beeRegisterBox {
-            background: #16213e;
-            color: #eee;
-        }
-        #beeRegisterBox .bee-icon {
-            font-size: 64px;
-            margin-bottom: 6px;
-        }
-        #beeRegisterBox h2 {
-            color: #e7ad21;
-            margin-bottom: 16px;
-            font-size: 22px;
-        }
-        #beeRegisterBox input {
-            margin: 8px 0;
-            padding: 12px 16px;
-            border-radius: 16px;
-            border: 1px solid #ddd;
-            width: 100%;
-            font-size: 16px;
-            background: #f8f9fa;
-        }
-        body.dark-mode #beeRegisterBox input {
-            background: #1a1a2e;
-            color: #eee;
-            border-color: #0f3460;
-        }
-        #beeRegisterBox .btn {
-            width: 100%;
-            margin: 6px 0;
-            padding: 14px;
-            font-size: 16px;
-            border-radius: 16px;
-        }
-        #beeRegisterBox .btn-cancel {
-            background: transparent;
-            color: #888;
-            border: 1px solid #ddd;
-        }
-        body.dark-mode #beeRegisterBox .btn-cancel {
-            color: #aaa;
-            border-color: #0f3460;
-        }
-        #beeRegisterBox .small {
-            color: #888;
-            margin-top: 8px;
-        }
     </style>
 </head>
 <body>
@@ -798,15 +730,12 @@
             <div style="font-size:60px;margin-bottom:8px;">🐝</div>
             <h2 style="color:#e7ad21;">BeeChat</h2>
             <p style="color:#888;margin-bottom:16px;">အကောင့်ဝင်ရန်</p>
-            <input id="loginId" placeholder="Account ID ဥပမာ U10001">
-            <input id="loginPassword" type="password" placeholder="Password">
-            <button id="loginBtn" type="button" class="btn gold" onclick="login()" disabled>ဝင်မည်</button>
-            <button id="registerBtn" type="button" class="btn green" onclick="openBeeRegister()" disabled>
-                <span style="display:inline-flex;align-items:center;gap:6px;">
-                    <span>🐝</span> အကောင့်အသစ်ဖွင့်မည်
-                </span>
-            </button>
-            <p class="small">ဝင်ရန်: Account ID + Password ပဲထည့်ပါ။</p>
+            <input id="loginId" inputmode="tel" autocomplete="tel" placeholder="ဖုန်းနံပါတ်အပြည့်အစုံ ထည့်ပါ">
+            <input id="loginPassword" type="password" autocomplete="new-password" placeholder="မိမိကြိုက်နှစ်သက်သည့် စကားဝှက် ၈ လုံးနှင့်အထက် ထည့်ပါ">
+            <p class="small" style="margin:4px 0 10px;">🔒 စကားဝှက်ကို သေချာစွာ မှတ်သားထားပါ။</p>
+            <button id="loginBtn" type="button" class="btn gold" onclick="login()" disabled>🔐 အကောင့်ဝင်မည်</button>
+            <button type="button" class="btn outline" onclick="openBeeTerms()">📋 စည်းကမ်းချက်များ</button>
+            <p class="small" style="margin-top:8px;">ပထမဆုံးဝင်ရောက်သူသည် ဖုန်းနံပါတ် + စကားဝှက်ဖြင့် အကောင့်ရရှိမည်။ SMS ကုဒ် မလိုအပ်ပါ။</p>
             <div id="loginStatus" class="status">ချိတ်ဆက်နေပါသည်</div>
             
             <!-- Admin Message Box (Empty) -->
@@ -1127,19 +1056,6 @@
         </div>
     </div>
 
-    <!-- BEE REGISTER OVERLAY -->
-    <div id="beeRegisterOverlay" onclick="if(event.target===this)closeBeeRegister()">
-        <div id="beeRegisterBox">
-            <div class="bee-icon">🐝</div>
-            <h2>အကောင့်အသစ်ဖွင့်ရန်</h2>
-            <input id="beeRegName" placeholder="အသုံးပြုမည့်အမည်" />
-            <input id="beeRegPass" type="password" placeholder="Password (အနည်းဆုံး 6 လုံး)" />
-            <button class="btn gold" onclick="beeRegister()">🐝 အကောင့်ဖွင့်မည်</button>
-            <button class="btn btn-cancel" onclick="closeBeeRegister()">မလုပ်တော့ပါ</button>
-            <p class="small" id="beeRegStatus">အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။</p>
-        </div>
-    </div>
-
     <!-- NAVIGATION -->
     <div id="nav" class="nav hidden">
         <button id="navLocation" onclick="navGo('onboarding')"><span>📍</span><span>Location</span></button>
@@ -1348,16 +1264,12 @@ function setStatus(t) {
     
     // Enable/disable buttons based on connection status
     var loginBtn = document.getElementById('loginBtn');
-    var registerBtn = document.getElementById('registerBtn');
     
-    // If connected successfully - enable buttons
+    // Enable the single Login button after Firebase/local data is ready.
     if (t.includes('ချိတ်ဆက်ပြီးပါပြီ') || t.includes('✅')) {
         if (loginBtn) loginBtn.disabled = false;
-        if (registerBtn) registerBtn.disabled = false;
     } else {
-        // Still connecting or error - keep buttons disabled
         if (loginBtn) loginBtn.disabled = true;
-        if (registerBtn) registerBtn.disabled = true;
     }
 }
 
@@ -1765,63 +1677,27 @@ function closeMenu() {
 }
 
 // ============================================================
-//  🐝 BEE REGISTER OVERLAY
+//  📋 BEECHAT TERMS
 // ============================================================
-function openBeeRegister() {
-    document.getElementById('beeRegisterOverlay').style.display = 'flex';
-    document.getElementById('beeRegName').value = '';
-    document.getElementById('beeRegPass').value = '';
-    document.getElementById('beeRegStatus').textContent = 'အမည်နှင့် Password ထည့်ပြီး ဖွင့်ပါ။';
+function openBeeTerms() {
+    alert('📋 BeeChat စည်းကမ်းချက်များ\n\n' +
+        '1. BeeChat အကောင့်ပြုလုပ်ရာတွင် မိမိပိုင်ဆိုင်သော ဖုန်းနံပါတ်အမှန်ကိုသာ အသုံးပြုရပါမည်။\n\n' +
+        '2. သူတစ်ပါး၏ ဖုန်းနံပါတ်ကို ခွင့်ပြုချက်မရှိဘဲ အသုံးပြုခြင်း၊ ခိုးယူအသုံးပြုခြင်း သို့မဟုတ် အခြားသူတစ်ဦး၏ အကောင့်အဖြစ် ဟန်ဆောင်အသုံးပြုခြင်းများကို ခွင့်မပြုပါ။\n\n' +
+        '3. ထိုသို့ အသုံးပြုခြင်းကြောင့် ဖြစ်ပေါ်လာသည့် ပြဿနာများအတွက် အသုံးပြုသူကိုယ်တိုင်သာ တာဝန်ရှိပါသည်။ BeeChat မှ တာဝန်ယူမည်မဟုတ်ပါ။\n\n' +
+        '4. မိမိ၏ စကားဝှက်ကို သေချာစွာ မှတ်သားထားပြီး အခြားသူများအား မပေးပါနှင့်။\n\n' +
+        '5. SMS အတည်ပြုကုဒ် မသုံးပါ။ ဖုန်းနံပါတ်သည် အကောင့်ဝင်ရန် အကောင့်အမှတ်အသားအဖြစ် အသုံးပြုပါသည်။');
 }
 
-function closeBeeRegister() {
-    document.getElementById('beeRegisterOverlay').style.display = 'none';
+function normalizeBeePhone(raw) {
+    var v = String(raw || '').trim().replace(/[\s\-()]/g, '');
+    if (v.indexOf('+') === 0) v = v.slice(1);
+    if (v.indexOf('00') === 0) v = v.slice(2);
+    if (v.indexOf('09') === 0) v = '95' + v.slice(1);
+    else if (v.indexOf('95') !== 0 && /^[0-9]+$/.test(v)) v = v;
+    return v;
 }
 
-async function beeRegister() {
-    var name = document.getElementById('beeRegName').value.trim();
-    var p = document.getElementById('beeRegPass').value;
-    var status = document.getElementById('beeRegStatus');
-    if (!name) { status.textContent = '❌ အမည်ထည့်ပါ'; return; }
-    if (p.length < 6) { status.textContent = '❌ Password အနည်းဆုံး 6 လုံးထည့်ပါ'; return; }
-    if (db.usedNames && db.usedNames.includes(name)) {
-        status.textContent = '❌ ဒီအမည်ကို အခြားသုံးစွဲသူတစ်ယောက်က သုံးထားပြီးသားပါ။';
-        return;
-    }
-    var base = makeBaseName(name);
-    var num = 1;
-    var id = '';
-    do { id = base + (1000 + num); num++; } while (db.users[id]);
-    var user = { 
-        id: id, name: name, accountName: name, bio: '', dob: '', gender: '',
-        photos: [], photoLimit: 4, lat: null, lng: null, password: p,
-        region: '', adminPhotos: [], deviceHistory: [], currentDevice: null,
-        joined: new Date().toLocaleDateString('my-MM'), decoration: '',
-        violations: {}, isSuspended: false, suspensionReason: null
-    };
-    try {
-        if (fbReady && firebaseDB) {
-            await firebaseDB.ref('appData/users/' + id).set(user);
-            await firebaseDB.ref('appData/usedNames').push(name);
-        }
-        db.users[id] = user;
-        if (!db.usedNames) db.usedNames = [];
-        db.usedNames.push(name);
-        localSave();
-        me = id;
-        var device = getDeviceInfo();
-        db.users[me].currentDevice = JSON.stringify(device);
-        await save();
-        try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
-        closeBeeRegister();
-        beeNotify('✅ အကောင့်ဖွင့်ပြီးပါပြီ 🐝\nAccount ID: ' + id);
-        enter();
-        setStatus('✅ ' + id + ' အကောင့်ကို သိမ်းပြီးပါပြီ');
-    } catch(e) {
-        console.error('Register:', e);
-        status.textContent = '❌ အကောင့်ဖွင့်မရပါ။ ' + e.message;
-    }
-}
+function validBeePhone(v) { return /^[0-9]{7,15}$/.test(v); }
 
 // ============================================================
 //  LOGIN (unchanged)
@@ -1829,42 +1705,94 @@ async function beeRegister() {
 async function login() {
     if (firebaseInitPromise) await firebaseInitPromise;
     if (!db) { alert('ခဏစောင့်ပါ'); return; }
-    var id = String(val('loginId')).trim().replace(/\s+/g, '');
+    var rawPhone = String(val('loginId')).trim();
+    var phone = normalizeBeePhone(rawPhone);
     var p = String(val('loginPassword'));
-    if (!id) { alert('Account ID ထည့်ပါ'); return; }
-    if (!p) { alert('Password ထည့်ပါ'); return; }
-    var u = null;
+    if (!validBeePhone(phone)) { alert('📱 မှန်ကန်သော ဖုန်းနံပါတ်အပြည့်အစုံ ထည့်ပါ'); return; }
+    if (!p) { alert('🔐 စကားဝှက် ထည့်ပါ'); return; }
+    if (p.length < 8) { alert('🔐 စကားဝှက် အနည်းဆုံး ၈ လုံး ထည့်ပါ'); return; }
+
+    var u = null, id = null, isNew = false;
+    var phoneKey = 'phone_' + phone;
+
+    // Find an existing account by the phone number.
     if (firebaseDB) {
         try {
-            var snap = await firebaseDB.ref('appData/users/' + id).once('value');
-            if (snap.exists()) u = snap.val();
-        } catch(e) { console.warn('Remote account lookup failed', e); }
+            var idxSnap = await firebaseDB.ref('appData/phoneIndex/' + phone).once('value');
+            if (idxSnap.exists()) {
+                id = String(idxSnap.val());
+                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
+                if (snap.exists()) u = snap.val();
+            }
+        } catch(e) { console.warn('Remote phone lookup failed', e); }
     }
-    if (!u && db.users) u = db.users[id];
-    if (!u) { alert('ဒီ Account ID မတွေ့ပါ။'); return; }
-    if (u.password && String(u.password) !== p) { alert('Password မမှန်ပါ'); return; }
-    db.users[id] = u;
-    localSave();
-    me = id;
-    var currentDevice = getDeviceInfo();
-    var deviceKey = JSON.stringify(currentDevice);
-    if (u.currentDevice && u.currentDevice !== deviceKey) {
-        alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။');
-        logout();
-        return;
+    if (!u && db.users) {
+        Object.keys(db.users).some(function(k) {
+            var x = db.users[k];
+            if (x && x.phone && normalizeBeePhone(x.phone) === phone) { id = k; u = x; return true; }
+            return false;
+        });
     }
-    if (u.isSuspended) {
-        alert('🚫 သင့်အကောင့်ကို ပိတ်ထားပါသည်။\n' + (u.suspensionReason || ''));
-        logout();
-        return;
+
+    // First login with this phone creates the account automatically.
+    if (!u) {
+        id = phoneKey;
+        if (db.users && db.users[id]) {
+            u = db.users[id];
+        } else {
+            isNew = true;
+            u = {
+                id: id, name: 'BeeChat User', accountName: 'BeeChat User', phone: phone,
+                bio: '', dob: '', gender: '', photos: [], photoLimit: 4, lat: null, lng: null, password: p,
+                region: '', adminPhotos: [], deviceHistory: [], currentDevice: null,
+                joined: new Date().toLocaleDateString('my-MM'), decoration: '',
+                violations: {}, isSuspended: false, suspensionReason: null
+            };
+        }
     }
-    u.currentDevice = deviceKey;
-    if (!u.deviceHistory) u.deviceHistory = [];
-    u.deviceHistory.push({ device: deviceKey, timestamp: Date.now() });
-    await save();
-    try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
-    enter();
-    setStatus('✅ ' + id + ' ဝင်ထားပါပြီ');
+
+    if (!isNew && u.password && String(u.password) !== p) { alert('❌ စကားဝှက် မမှန်ပါ'); return; }
+    if (!u.password) u.password = p;
+    if (!u.phone) u.phone = phone;
+
+    try {
+        if (firebaseDB) {
+            await firebaseDB.ref('appData/users/' + id).set(u);
+            await firebaseDB.ref('appData/phoneIndex/' + phone).set(id);
+        }
+        db.users[id] = u;
+        localSave();
+        me = id;
+
+        var currentDevice = getDeviceInfo();
+        var deviceKey = JSON.stringify(currentDevice);
+        if (!isNew && u.currentDevice && u.currentDevice !== deviceKey) {
+            alert('⚠️ သင့်အကောင့်ကို အခြားဖုန်းတစ်လုံးမှ ဝင်နေပါသည်။');
+            logout();
+            return;
+        }
+        if (u.isSuspended) {
+            alert('🚫 သင့်အကောင့်ကို ပိတ်ထားပါသည်။\n' + (u.suspensionReason || ''));
+            logout();
+            return;
+        }
+        u.currentDevice = deviceKey;
+        if (!u.deviceHistory) u.deviceHistory = [];
+        u.deviceHistory.push({ device: deviceKey, timestamp: Date.now() });
+        await save();
+        try { localStorage.setItem('beechat_social_logged_in', id); } catch(e) {}
+
+        if (isNew) {
+            beeNotify('✅ BeeChat အကောင့်ဖန်တီးပြီးပါပြီ 🐝\n\n📱 သင့်ဖုန်းနံပါတ်: ' + rawPhone + '\n🔐 သင့်စကားဝှက်ကို သေချာစွာ မှတ်သားထားပါ။\n\nဖုန်းအသစ်ပြောင်းဝင်တဲ့အခါ ဒီဖုန်းနံပါတ်နဲ့ စကားဝှက်ကို အသုံးပြုပြီး သင့်အကောင့်ကို ပြန်ဝင်နိုင်ပါတယ်။');
+        } else {
+            beeNotify('✅ အကောင့်ဝင်ရောက်ပြီးပါပြီ 🐝');
+        }
+        enter();
+        setStatus('✅ ' + rawPhone + ' အကောင့်ဖြင့် ဝင်ထားပါပြီ');
+    } catch(e) {
+        console.error('Login/Create account:', e);
+        alert('❌ အကောင့်ဝင်/ဖန်တီးမရပါ။ ' + (e.message || e));
+    }
 }
 
 function logout() {
@@ -3579,4 +3507,4 @@ console.log('📌 Features: TikTok Style Chat, Group Chat, Dark Mode, Bee Notifi
 })();
 </script>
 </body>
-    </html>
+                                                                                                         </html>
