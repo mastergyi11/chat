@@ -1576,6 +1576,17 @@
         return db.blocked[userId] === true;
     }
 
+    // Admin-deleted accounts remain only as historical IDs in old friends/chats.
+    // They must never be shown as real users; historical chat is displayed as useblock.
+    function isDeletedAccount(userId) {
+        return !!(db && db.deletedUsers && db.deletedUsers[userId]);
+    }
+    function isUnavailableAccount(userId) {
+        return isDeletedAccount(userId) || !!(db && db.renamedUsers && db.renamedUsers[userId]);
+    }
+    function deletedAccountLabel() { return 'useblock'; }
+
+
     function blockUser(userId) {
         if (!me || !db) return;
         if (userId === me) { alert('ကိုယ့်ကိုယ်ကို ဘလော့မလုပ်နိုင်ပါ'); return; }
@@ -1650,6 +1661,7 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
+            if (isUnavailableAccount(u.id)) return false;
             return ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q));
         }).slice(0, 50);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
@@ -1684,16 +1696,17 @@
         if (!friendIds.length) list.innerHTML = '<div class="small">Chat လုပ်ထားတဲ့သူ မရှိသေးပါ။</div>';
         friendIds.forEach(function(id) {
             var u = db.users[id];
-            if (!u) return;
             var key = [me, id].sort().join('_'), msgs = db.messages[key] || [], last = msgs[msgs.length - 1];
             var d = document.createElement('div');
             d.className = 'list';
-            var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
-            d.innerHTML = '<div style="display:flex;align-items:center;cursor:pointer;" onclick="openChat(\''+id+'\')">'+
-                avatarHtml +
-                '<div><b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div>'+
-                '</div>'+
-                '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
+            if (isDeletedAccount(id)) {
+                d.innerHTML = '<div style="display:flex;align-items:center;"><div style="width:30px;height:30px;border-radius:50%;margin-right:8px;display:flex;align-items:center;justify-content:center;background:#eee;">🚫</div><div><b>useblock</b> <span class="small">Account deleted</span></div></div>';
+                d.innerHTML += '<button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#dc3545;border:1px solid #dc3545;">Chat ကြည့်မည်</button>';
+            } else {
+                if (!u) return;
+                var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
+                d.innerHTML = '<div style="display:flex;align-items:center;cursor:pointer;" onclick="openChat(\''+id+'\')">'+avatarHtml+'<div><b>'+esc(u.name)+'</b> <span class="small">'+esc(u.id)+' • '+(last?esc(last.t):'စာမပို့ရသေးပါ')+'</span></div></div><button class="btn" onclick="event.stopPropagation();openChat(\''+id+'\')" style="background:transparent;color:#0d6efd;border:1px solid #0d6efd;">Chat ဖွင့်မည်</button>';
+            }
             list.appendChild(d);
         });
         var incoming = db.req.filter(function(r) { return r.t === me && !isBlocked(r.f); });
@@ -1755,6 +1768,7 @@
 
     // ===== USER PROFILE =====
     function viewUserProfile(id) {
+        if (isDeletedAccount(id)) { alert('useblock — Admin မှ အပြီးဖျက်ထားသောအကောင့်ပါ။'); return; }
         var u = db.users[id];
         if (!u) return;
         if (isBlocked(id) && id !== me) {
@@ -1844,7 +1858,18 @@
     var chatReturnScreen = 'friends';
 
     function openChat(id) {
-        if (!db.users[id]) return;
+        if (!db.users[id] && !isUnavailableAccount(id)) return;
+        if (isDeletedAccount(id)) {
+            chatReturnScreen = 'friends';
+            chatWith = id;
+            var title = document.getElementById('ctitle'); if (title) title.textContent = deletedAccountLabel();
+            var av = document.getElementById('chatPersonAvatar'); if (av) av.innerHTML = '🚫';
+            var st = document.getElementById('chatPersonStatus'); if (st) st.textContent = 'Account deleted';
+            document.body.classList.add('chat-open');
+            show('chat');
+            renderChat();
+            return;
+        }
         if (isBlocked(id)) {
             alert('ဒီသုံးစွဲသူကို သင်ဘလော့လုပ်ထားပါသည်။ စကားမပြောနိုင်ပါ။');
             return;
@@ -1981,6 +2006,12 @@
 
     function renderChat() {
         if (!chatWith) return;
+        if (isDeletedAccount(chatWith)) {
+            var deletedBox = document.getElementById('chatbox');
+            if (deletedBox) deletedBox.innerHTML = '<div class="small" style="text-align:center;padding:24px;color:#dc3545;"><b>useblock</b><br><span>🚫 Admin မှ အပြီးဖျက်ထားသောအကောင့်</span><br><span>ဒီအကောင့်နဲ့ စာပို့ခြင်း မပြုလုပ်နိုင်ပါ။</span></div>';
+            var sendInput = document.getElementById('msg'); if (sendInput) { sendInput.disabled = true; sendInput.placeholder = 'useblock — စာပို့၍မရပါ'; }
+            return;
+        }
         if (isBlocked(chatWith)) {
             document.getElementById('chatbox').innerHTML = '<div class="small" style="text-align:center;padding:20px;color:#dc3545;">🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။</div>';
             return;
@@ -2546,6 +2577,7 @@
             if (!u) return false;
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
+            if (isUnavailableAccount(u.id)) return false;
             if (q && !((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q))) return false;
             if (genderFilter && u.gender !== genderFilter) return false;
             if (ageFilter) {
@@ -3747,4 +3779,4 @@
     </div>
 </div>
 </body>
-        </html>
+    </html>
