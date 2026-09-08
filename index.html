@@ -928,6 +928,23 @@
 
 </div>
 
+<script>
+/* BEECHAT HARD STARTUP FAILSAFE - independent of Firebase */
+(function(){
+  setTimeout(function(){
+    try {
+      var e=document.getElementById('loginStatus');
+      if(e && e.classList.contains('connecting')){
+        e.classList.remove('connecting');
+        var t=e.querySelector('.status-text');
+        if(!t){e.innerHTML='<span class="status-text"></span>';t=e.querySelector('.status-text');}
+        t.textContent='⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — Login ကို ဆက်လုပ်နိုင်ပါသည်';
+      }
+    }catch(x){}
+  },2500);
+})();
+</script>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -2763,15 +2780,20 @@
         if (firebaseDB) {
             try {
                 var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 7000, null);
-            if (!controlSnap) return false;
-                var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
-                controlData.deletedUsers = controlData.deletedUsers || {};
-                controlData.renamedUsers = controlData.renamedUsers || {};
-                if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
-                if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
-                var snap = await withTimeout(firebaseDB.ref('appData/users/' + id).once('value'), 7000, null);
-                if (!snap) throw new Error('Firebase user lookup timeout');
-                if (snap.exists()) u = snap.val();
+            if (!controlSnap) {
+                    remoteError = new Error('Firebase control lookup timeout');
+                } else {
+                    var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
+                    controlData.deletedUsers = controlData.deletedUsers || {};
+                    controlData.renamedUsers = controlData.renamedUsers || {};
+                    if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
+                    if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
+                    var snap = await withTimeout(firebaseDB.ref('appData/users/' + id).once('value'), 7000, null);
+                    if (!snap) throw new Error('Firebase user lookup timeout');
+                    if (snap.exists()) u = snap.val();
+                }
+                /* remote check unavailable -> safely fall back to local cache */
+                if (u) { /* already loaded remotely */ }
             } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
         }
         if (!u && db.users) u = db.users[id];
@@ -3963,4 +3985,4 @@
     </div>
 </div>
 </body>
-                        </html>
+    </html>
