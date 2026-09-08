@@ -1215,12 +1215,9 @@
         db = localLoad();
         if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
-            try {
-                if (firebaseAuth) {
-                    try { await withTimeout(firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE), 5000, null); } catch (e) {}
-                    if (!firebaseAuth.currentUser) { try { await withTimeout(firebaseAuth.signInAnonymously(), 7000, null); } catch (e) {} }
-                }
-            } catch (e) { console.warn('Auth init:', e); }
+            // Do not block BeeChat startup on Firebase Auth.
+            // Android WebView/content:// can leave anonymous-auth requests pending.
+            // Realtime Database is initialized independently below.
             var ref = firebaseDB.ref('appData');
             var snap = await withTimeout(ref.once('value'), 10000, null);
             if (!snap) { fbReady = false; localSave(); setStatus('⚠️ Firebase ချိတ်ဆက်ချိန်ကြာနေပါသည် — ပြန်စမ်းပါ'); return; }
@@ -1309,6 +1306,16 @@
         return false;
     }
     restoreLogin();
+
+    // Never leave the login status spinning forever.
+    // Firebase continues in the background; this only prevents a stuck UI.
+    setTimeout(function(){
+        var el = document.getElementById('loginStatus');
+        if (el && el.classList.contains('connecting')) {
+            setStatus('⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — App ကို ဆက်သုံးနိုင်ပါသည်');
+        }
+    }, 12000);
+
     firebaseInitPromise = initFirebase();
 
     // ===== RANK SYSTEM =====
