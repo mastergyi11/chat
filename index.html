@@ -928,23 +928,6 @@
 
 </div>
 
-<script>
-/* BEECHAT HARD STARTUP FAILSAFE - independent of Firebase */
-(function(){
-  setTimeout(function(){
-    try {
-      var e=document.getElementById('loginStatus');
-      if(e && e.classList.contains('connecting')){
-        e.classList.remove('connecting');
-        var t=e.querySelector('.status-text');
-        if(!t){e.innerHTML='<span class="status-text"></span>';t=e.querySelector('.status-text');}
-        t.textContent='⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — Login ကို ဆက်လုပ်နိုင်ပါသည်';
-      }
-    }catch(x){}
-  },2500);
-})();
-</script>
-
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1212,8 +1195,7 @@
     async function checkAccountControlNow(id) {
         if (!id || !firebaseDB) return false;
         try {
-            var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 7000, null);
-                if (!controlSnap) throw new Error('Firebase lookup timeout');
+            var controlSnap = await firebaseDB.ref('appData').once('value');
             var remote = controlSnap.exists() ? (controlSnap.val() || {}) : {};
             if (forceDeletedAccountLogout(id, remote)) return true;
             if (remote.deletedUsers && remote.deletedUsers[id]) return true;
@@ -1233,9 +1215,12 @@
         db = localLoad();
         if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
-            // Do not block BeeChat startup on Firebase Auth.
-            // Android WebView/content:// can leave anonymous-auth requests pending.
-            // Realtime Database is initialized independently below.
+            try {
+                if (firebaseAuth) {
+                    try { await withTimeout(firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE), 5000, null); } catch (e) {}
+                    if (!firebaseAuth.currentUser) { try { await withTimeout(firebaseAuth.signInAnonymously(), 7000, null); } catch (e) {} }
+                }
+            } catch (e) { console.warn('Auth init:', e); }
             var ref = firebaseDB.ref('appData');
             var snap = await withTimeout(ref.once('value'), 10000, null);
             if (!snap) { fbReady = false; localSave(); setStatus('⚠️ Firebase ချိတ်ဆက်ချိန်ကြာနေပါသည် — ပြန်စမ်းပါ'); return; }
@@ -1324,15 +1309,6 @@
         return false;
     }
     restoreLogin();
-
-    // Never leave the login status spinning forever. Firebase sync is background-only.
-    setTimeout(function(){
-        var el = document.getElementById('loginStatus');
-        if (el && el.classList.contains('connecting')) {
-            setStatus('⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — Login ကို ဆက်လုပ်နိုင်ပါသည်');
-        }
-    }, 3000);
-
     firebaseInitPromise = initFirebase();
 
     // ===== RANK SYSTEM =====
@@ -2696,8 +2672,7 @@
     }
 
     async function register() {
-        // Firebase sync runs in the background; never block the Register screen on it.
-        if (!db) db = localLoad();
+        if (firebaseInitPromise) await firebaseInitPromise;
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
         if (!fbReady || !firebaseDB) {
             alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
@@ -2766,8 +2741,7 @@
     }
 
     async function login() {
-        // Firebase sync runs in the background; never block the Login screen on it.
-        if (!db) db = localLoad();
+        if (firebaseInitPromise) await firebaseInitPromise;
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
         var id = String(val('loginId')).trim().replace(/\s+/g, '');
         var p = String(val('loginPassword'));
@@ -2779,21 +2753,14 @@
         var remoteError = null;
         if (firebaseDB) {
             try {
-                var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 7000, null);
-            if (!controlSnap) {
-                    remoteError = new Error('Firebase control lookup timeout');
-                } else {
-                    var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
-                    controlData.deletedUsers = controlData.deletedUsers || {};
-                    controlData.renamedUsers = controlData.renamedUsers || {};
-                    if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
-                    if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
-                    var snap = await withTimeout(firebaseDB.ref('appData/users/' + id).once('value'), 7000, null);
-                    if (!snap) throw new Error('Firebase user lookup timeout');
-                    if (snap.exists()) u = snap.val();
-                }
-                /* remote check unavailable -> safely fall back to local cache */
-                if (u) { /* already loaded remotely */ }
+                var controlSnap = await firebaseDB.ref('appData').once('value');
+                var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
+                controlData.deletedUsers = controlData.deletedUsers || {};
+                controlData.renamedUsers = controlData.renamedUsers || {};
+                if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
+                if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
+                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
+                if (snap.exists()) u = snap.val();
             } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
         }
         if (!u && db.users) u = db.users[id];
