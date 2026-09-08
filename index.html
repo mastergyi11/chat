@@ -1195,7 +1195,8 @@
     async function checkAccountControlNow(id) {
         if (!id || !firebaseDB) return false;
         try {
-            var controlSnap = await firebaseDB.ref('appData').once('value');
+            var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 7000, null);
+                if (!controlSnap) throw new Error('Firebase lookup timeout');
             var remote = controlSnap.exists() ? (controlSnap.val() || {}) : {};
             if (forceDeletedAccountLogout(id, remote)) return true;
             if (remote.deletedUsers && remote.deletedUsers[id]) return true;
@@ -1307,14 +1308,13 @@
     }
     restoreLogin();
 
-    // Never leave the login status spinning forever.
-    // Firebase continues in the background; this only prevents a stuck UI.
+    // Never leave the login status spinning forever. Firebase sync is background-only.
     setTimeout(function(){
         var el = document.getElementById('loginStatus');
         if (el && el.classList.contains('connecting')) {
-            setStatus('⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — App ကို ဆက်သုံးနိုင်ပါသည်');
+            setStatus('⚠️ Firebase ချိတ်ဆက်မှု နှေးနေပါသည် — Login ကို ဆက်လုပ်နိုင်ပါသည်');
         }
-    }, 12000);
+    }, 3000);
 
     firebaseInitPromise = initFirebase();
 
@@ -2679,7 +2679,8 @@
     }
 
     async function register() {
-        if (firebaseInitPromise) await firebaseInitPromise;
+        // Firebase sync runs in the background; never block the Register screen on it.
+        if (!db) db = localLoad();
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
         if (!fbReady || !firebaseDB) {
             alert('⚠️ အကောင့်အသစ်ကို Server မှာ မသိမ်းနိုင်သေးပါ။ Internet / Firebase Database Rules ကိုစစ်ပြီး ပြန်ဖွင့်ပါ။');
@@ -2748,7 +2749,8 @@
     }
 
     async function login() {
-        if (firebaseInitPromise) await firebaseInitPromise;
+        // Firebase sync runs in the background; never block the Login screen on it.
+        if (!db) db = localLoad();
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
         var id = String(val('loginId')).trim().replace(/\s+/g, '');
         var p = String(val('loginPassword'));
@@ -2760,13 +2762,15 @@
         var remoteError = null;
         if (firebaseDB) {
             try {
-                var controlSnap = await firebaseDB.ref('appData').once('value');
+                var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 7000, null);
+            if (!controlSnap) return false;
                 var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
                 controlData.deletedUsers = controlData.deletedUsers || {};
                 controlData.renamedUsers = controlData.renamedUsers || {};
                 if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
                 if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
-                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
+                var snap = await withTimeout(firebaseDB.ref('appData/users/' + id).once('value'), 7000, null);
+                if (!snap) throw new Error('Firebase user lookup timeout');
                 if (snap.exists()) u = snap.val();
             } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
         }
@@ -3959,4 +3963,4 @@
     </div>
 </div>
 </body>
-    </html>
+                        </html>
