@@ -991,7 +991,54 @@
     function val(id) { var e = byId(id); return e && typeof e.value !== 'undefined' ? e.value : ''; }
     function fileList(id) { var e = byId(id); return e && e.files ? e.files : null; }
 
-    var DEFAULT = {
+    
+    // ===== BeeChat fictional helper bots (clearly labeled) =====
+    // These are fictional automated accounts, not real people. Login/register logic is unchanged.
+    var BEECHAT_BOT_USERS = [{"id":"BCBOT01","name":"မေသဇင်","accountName":"မေသဇင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000001"},{"id":"BCBOT02","name":"နှင်းဝတ်ရည်","accountName":"နှင်းဝတ်ရည်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000002"},{"id":"BCBOT03","name":"စုမြတ်နိုး","accountName":"စုမြတ်နိုး","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000003"},{"id":"BCBOT04","name":"သွန်းသွန်း","accountName":"သွန်းသွန်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000004"},{"id":"BCBOT05","name":"ယွန်းနဒီ","accountName":"ယွန်းနဒီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000005"},{"id":"BCBOT06","name":"အိမ့်ဖူးဝေ","accountName":"အိမ့်ဖူးဝေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000006"},{"id":"BCBOT07","name":"ပိုးအိဖြူ","accountName":"ပိုးအိဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000007"},{"id":"BCBOT08","name":"မိုးပြာဝင်း","accountName":"မိုးပြာဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000008"},{"id":"BCBOT09","name":"ရွှေရည်လင်း","accountName":"ရွှေရည်လင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000009"},{"id":"BCBOT10","name":"ဆုရတီ","accountName":"ဆုရတီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000010"},{"id":"BCBOT11","name":"ခင်သဇင်","accountName":"ခင်သဇင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000011"},{"id":"BCBOT12","name":"ဝတ်ရည်မွန်","accountName":"ဝတ်ရည်မွန်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000012"},{"id":"BCBOT13","name":"သီရိလှိုင်","accountName":"သီရိလှိုင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000013"},{"id":"BCBOT14","name":"နန်းအိဖြူ","accountName":"နန်းအိဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000014"},{"id":"BCBOT15","name":"မေဖူးပွင့်","accountName":"မေဖူးပွင့်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000015"},{"id":"BCBOT16","name":"ယမုံဝင်း","accountName":"ယမုံဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000016"},{"id":"BCBOT17","name":"လမင်းသဇင်","accountName":"လမင်းသဇင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000017"},{"id":"BCBOT18","name":"အေးမြတ်သူ","accountName":"အေးမြတ်သူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000018"},{"id":"BCBOT19","name":"ချယ်ရီမေ","accountName":"ချယ်ရီမေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000019"},{"id":"BCBOT20","name":"ပန်းအိဖြူ","accountName":"ပန်းအိဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000020"},{"id":"BCBOT21","name":"သက်ထားနွယ်","accountName":"သက်ထားနွယ်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000021"},{"id":"BCBOT22","name":"စံပယ်ဖြူ","accountName":"စံပယ်ဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000022"},{"id":"BCBOT23","name":"မေသွယ်ဝင်း","accountName":"မေသွယ်ဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000023"},{"id":"BCBOT24","name":"သဇင်နွယ်","accountName":"သဇင်နွယ်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000024"},{"id":"BCBOT25","name":"နှင်းအိမ့်","accountName":"နှင်းအိမ့်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000025"},{"id":"BCBOT26","name":"ဝါဆိုမေ","accountName":"ဝါဆိုမေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000026"},{"id":"BCBOT27","name":"မိုးဟေမာ","accountName":"မိုးဟေမာ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000027"},{"id":"BCBOT28","name":"ရွှေစင်လွင်","accountName":"ရွှေစင်လွင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000028"},{"id":"BCBOT29","name":"အိအိမေ","accountName":"အိအိမေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000029"},{"id":"BCBOT30","name":"ကေသီဝင်း","accountName":"ကေသီဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000030"},{"id":"BCBOT31","name":"ဖူးပွင့်သဇင်","accountName":"ဖူးပွင့်သဇင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000031"},{"id":"BCBOT32","name":"လင်းလက်သူ","accountName":"လင်းလက်သူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000032"},{"id":"BCBOT33","name":"မေခင်ဝင်း","accountName":"မေခင်ဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000033"},{"id":"BCBOT34","name":"သွန်းရတီ","accountName":"သွန်းရတီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000034"},{"id":"BCBOT35","name":"သီတာနွယ်","accountName":"သီတာနွယ်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000035"},{"id":"BCBOT36","name":"ပန်းသဇင်","accountName":"ပန်းသဇင်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000036"},{"id":"BCBOT37","name":"ယွန်းဝတီ","accountName":"ယွန်းဝတီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000037"},{"id":"BCBOT38","name":"မေမြတ်နိုး","accountName":"မေမြတ်နိုး","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000038"},{"id":"BCBOT39","name":"ခင်ပွင့်ဖြူ","accountName":"ခင်ပွင့်ဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000039"},{"id":"BCBOT40","name":"နှင်းဆီမေ","accountName":"နှင်းဆီမေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000040"},{"id":"BCBOT41","name":"အိမ့်ချယ်ရီ","accountName":"အိမ့်ချယ်ရီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000041"},{"id":"BCBOT42","name":"စိမ့်စိမ့်ဝင်း","accountName":"စိမ့်စိမ့်ဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000042"},{"id":"BCBOT43","name":"မေသီရိ","accountName":"မေသီရိ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000043"},{"id":"BCBOT44","name":"ပိုးအိမ့်","accountName":"ပိုးအိမ့်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000044"},{"id":"BCBOT45","name":"ရွှေနဒီ","accountName":"ရွှေနဒီ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000045"},{"id":"BCBOT46","name":"သွယ်သွယ်မေ","accountName":"သွယ်သွယ်မေ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000046"},{"id":"BCBOT47","name":"အေးချမ်းသူ","accountName":"အေးချမ်းသူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000047"},{"id":"BCBOT48","name":"မိုးစက်ဝင်း","accountName":"မိုးစက်ဝင်း","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000048"},{"id":"BCBOT49","name":"ပန်းနုရည်","accountName":"ပန်းနုရည်","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000049"},{"id":"BCBOT50","name":"လမင်းဖြူ","accountName":"လမင်းဖြူ","bio":"BeeChat အလိုအလျောက် မိတ်ဆွေ (Bot) ဖြစ်ပါသည်။","dob":"2000-01-01","gender":"Female","photos":[],"photoLimit":4,"lat":null,"lng":null,"password":"123456","region":"မြန်မာနိုင်ငံ","adminPhotos":[],"deviceHistory":[],"currentDevice":null,"sticker":"😊","decorationText":"🤖 BeeChat Bot","isBot":true,"botLabel":"BeeChat Bot","botGroupId":"85000050"}];
+    var BEECHAT_BOT_IDS = ["BCBOT01", "BCBOT02", "BCBOT03", "BCBOT04", "BCBOT05", "BCBOT06", "BCBOT07", "BCBOT08", "BCBOT09", "BCBOT10", "BCBOT11", "BCBOT12", "BCBOT13", "BCBOT14", "BCBOT15", "BCBOT16", "BCBOT17", "BCBOT18", "BCBOT19", "BCBOT20", "BCBOT21", "BCBOT22", "BCBOT23", "BCBOT24", "BCBOT25", "BCBOT26", "BCBOT27", "BCBOT28", "BCBOT29", "BCBOT30", "BCBOT31", "BCBOT32", "BCBOT33", "BCBOT34", "BCBOT35", "BCBOT36", "BCBOT37", "BCBOT38", "BCBOT39", "BCBOT40", "BCBOT41", "BCBOT42", "BCBOT43", "BCBOT44", "BCBOT45", "BCBOT46", "BCBOT47", "BCBOT48", "BCBOT49", "BCBOT50"];
+    var BEECHAT_BOT_GROUP_NAMES = ["လူငယ်တို့ရဲ့ ချစ်ခြင်းပုံပြင်များ", "နှလုံးသားထဲက စကားလေးများ", "အချစ်နဲ့ မိတ်ဆွေသစ်များ", "ချစ်ခြင်းမေတ္တာနဲ့ နေ့ရက်များ", "လူငယ်နှလုံးသား စကားဝိုင်း", "မင်းနဲ့ငါ့ရဲ့ အမှတ်တရ", "ပျော်ရွှင်တဲ့ ချစ်သူငယ်ချင်းများ", "အချစ်အကြောင်း ပြောကြမယ်", "နှလုံးသားက ဆန္ဒလေးများ", "ချစ်ခြင်းနဲ့ ရင်းနှီးမှု", "လူငယ်အိပ်မက်နဲ့ အချစ်", "ချစ်သူငယ်ချင်း စကားဝိုင်း", "နွေးထွေးတဲ့ နှလုံးသားများ", "အချစ်ရဲ့ ရာသီများ", "အမှတ်တရလေးတွေ စုစည်းရာ", "ပန်းလိုနူးညံ့တဲ့ ချစ်ခြင်း", "နှလုံးသားချင်း နားလည်ကြမယ်", "မိတ်ဆွေကောင်းနဲ့ အချစ်", "လူငယ်တို့ရဲ့ ညနေခင်း", "ချစ်ခြင်းအကြောင်း လွတ်လပ်စွာပြောရန်", "စိတ်ကူးယဉ်မဟုတ်တဲ့ အမှတ်တရ", "အချစ်နဲ့ ဘဝစကားများ", "ချစ်ခြင်းရဲ့ နွေးထွေးမှု", "မိတ်ဆွေသစ်တွေ တွေ့ဆုံရာ", "နှလုံးသားရဲ့ လျှို့ဝှက်စကား", "လူငယ်တို့ရဲ့ ပျော်ရွှင်ရာ", "ချစ်ခြင်းကို နားလည်ခြင်း", "အချစ်နဲ့ ရင်းနှီးမှု စကားဝိုင်း", "နေ့တိုင်းပျော်ရွှင်ကြမယ်", "ချစ်စရာ အမှတ်တရများ", "နှလုံးသားချင်း ချိတ်ဆက်ရာ", "လူငယ်တို့ရဲ့ အချစ်စကား", "ပျော်ပျော်ပါးပါး မိတ်ဆွေများ", "အချစ်နဲ့ ခင်မင်မှု", "အမှတ်တရ မပျောက်စေဖို့", "နှလုံးသားက ပြောတဲ့စကား", "လူငယ်ဘဝရဲ့ လှပတဲ့နေ့များ", "ချစ်ခြင်းနဲ့ အိပ်မက်များ", "မိတ်ဆွေကောင်းတွေ ဆုံတဲ့နေရာ", "နွေးထွေးတဲ့ စကားဝိုင်း", "ချစ်ခြင်းရဲ့ အလင်းရောင်", "လူငယ်တို့ရဲ့ နွေဦး", "အချစ်နဲ့ ရယ်မောခြင်း", "ရင်းနှီးမှုကို တန်ဖိုးထားကြမယ်", "နှလုံးသားလေးတွေ ဆုံရာ", "ချစ်ခြင်းအမှတ်တရ စာမျက်နှာ", "မိတ်ဆွေသစ်နဲ့ ပျော်ရွှင်ခြင်း", "အချစ်အကြောင်း အေးအေးဆေးဆေး", "လူငယ်နှလုံးသားရဲ့ စကားသံ", "ပျော်ရွှင်တဲ့ အမှတ်တရနေ့များ", "ချစ်ခြင်းနဲ့ မျှော်လင့်ချက်", "နှလုံးသားပေါင်းစည်းရာ"];
+
+    function isBeeChatBot(id) {
+        return BEECHAT_BOT_IDS.indexOf(id) !== -1;
+    }
+
+    function ensureBeeChatBots(x) {
+        x = x || {};
+        x.users = x.users || {};
+        x.groups = Array.isArray(x.groups) ? x.groups : [];
+        x.usedNames = Array.isArray(x.usedNames) ? x.usedNames : [];
+        BEECHAT_BOT_USERS.forEach(function(bot, idx) {
+            if (!x.users[bot.id] && !(x.deletedUsers && x.deletedUsers[bot.id]) && !(x.renamedUsers && x.renamedUsers[bot.id])) {
+                x.users[bot.id] = JSON.parse(JSON.stringify(bot));
+            }
+            if (!x.usedNames.includes(bot.name)) x.usedNames.push(bot.name);
+
+            var gid = bot.botGroupId;
+            if (!x.groups.some(function(g){ return g && g.id === gid; })) {
+                var g = {
+                    id: gid,
+                    name: BEECHAT_BOT_GROUP_NAMES[idx],
+                    owner: bot.id,
+                    members: [bot.id],
+                    level: 1,
+                    activity: 0,
+                    avatar: null,
+                    memberRanks: {},
+                    memberActivity: {},
+                    admins: [],
+                    joinRequests: [],
+                    isBotGroup: true,
+                    botGroup: true
+                };
+                g.memberRanks[bot.id] = 5;
+                g.memberActivity[bot.id] = 0;
+                x.groups.push(g);
+            }
+        });
+        return x;
+    }
+
+var DEFAULT = {
         users: {
             U10001: { id: 'U10001', name: 'မောင်မောင်', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Male', dob: '1990-01-01', sticker: '😊' },
             U10002: { id: 'U10002', name: 'လှလှ', bio: '', photos: [], photoLimit: 4, lat: null, lng: null, password: '123456', region: '', adminPhotos: [], deviceHistory: [], gender: 'Female', dob: '1995-05-15', sticker: '❤️' },
@@ -1040,6 +1087,7 @@
         if (u.decorationText === undefined) u.decorationText = '';
             }
         });
+        x = ensureBeeChatBots(x);
         return x;
     }
 
@@ -1691,6 +1739,7 @@
             var incoming = db.req.some(function(r) { return r.f === u.id && r.t === me; });
             var action = friend ? '<span>✅ Friend ဖြစ်ပြီး</span>' : sent ? '<span>📨 Request ပို့ထားပြီး</span>' : incoming ? '<span>📩 Friend Request ဝင်ထားပြီး</span>' : '<button class="btn" onclick="event.stopPropagation();return requestFriend(\'' + u.id + '\')">Add Friend</button>';
             var genderIcon = u.gender === 'Male' ? '♂️' : u.gender === 'Female' ? '♀️' : '⚧️';
+            var botLabel = isBeeChatBot(u.id) ? ' 🤖 BeeChat Bot' : '';
             var age = calcAge(u.dob);
             var regionText = u.region && u.region.trim() ? '📍 ' + esc(u.region) : '';
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
@@ -1822,7 +1871,7 @@
         html += '<div class="avatar">' + avatarHtml + '</div>';
         html += '<div class="name">' + esc(u.name || '-') + '</div>';
         html += '<div class="profile-sticker-view" style="font-size:28px;">' + esc(sticker) + '</div>';
-        html += '<div class="id">ID: ' + esc(u.id) + '</div>';
+        html += '<div class="id">ID: ' + esc(u.id) + (isBeeChatBot(u.id) ? ' · 🤖 BeeChat Bot' : '') + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
         html += '<div class="stats">' +
             '<div><b>' + (db.friends.filter(function(x) { return x.a === id || x.b === id; }).length || 0) + '</b><span>Friends</span></div>' +
@@ -2019,6 +2068,26 @@
         save();
         renderChat();
         updateBadges();
+        if (isBeeChatBot(chatWith)) {
+            var botId = chatWith;
+            var replyKey = [me, botId].sort().join('_');
+            setTimeout(function(){
+                if (!db || !me || !db.users[botId]) return;
+                db.messages[replyKey] = db.messages[replyKey] || [];
+                db.messages[replyKey].push({
+                    f: botId,
+                    t: botReplyText(t),
+                    seen: false,
+                    time: Date.now(),
+                    senderName: db.users[botId].name,
+                    senderPhoto: '',
+                    image: null
+                });
+                save();
+                if (chatWith === botId) renderChat();
+                updateBadges();
+            }, 500);
+        }
     }
 
     function renderChat() {
@@ -3206,9 +3275,42 @@
         });
     }
 
+
+    // ===== Bot interaction helpers =====
+    function botReplyText(t) {
+        t = String(t || '').toLowerCase();
+        if (t.includes('မင်္ဂလာ') || t.includes('ဟယ်လို') || t.includes('hello')) return 'မင်္ဂလာပါ 😊 BeeChat မှာတွေ့ရတာ ဝမ်းသာပါတယ်။ ကျွန်မက BeeChat Bot ဖြစ်ပါတယ်။';
+        if (t.includes('ဘယ်မှာ') || t.includes('ဘယ်က')) return 'ကျွန်မက BeeChat ထဲက အလိုအလျောက် မိတ်ဆွေ Bot ပါ။';
+        if (t.includes('ကျေးဇူး')) return 'ရပါတယ်နော် 😊';
+        if (t.includes('အသင်း')) return 'ကျွန်မရဲ့ အသင်းထဲလည်း ဝင်လို့ရပါတယ်။ ဝင်ခွင့်တောင်းရင် အလိုအလျောက် လက်ခံပေးပါမယ်။';
+        if (t.includes('ချစ်') || t.includes('အချစ်')) return 'အချစ်နဲ့ မိတ်ဆွေမှုအကြောင်း အေးအေးဆေးဆေး ပြောလို့ရပါတယ် 😊';
+        return 'စာပို့ပေးတာ ကျေးဇူးတင်ပါတယ် 😊 ကျွန်မက BeeChat Bot ဖြစ်လို့ အလိုအလျောက် စာပြန်ပေးနေပါတယ်။';
+    }
+
+    function autoAcceptBotFriend(id) {
+        if (!isBeeChatBot(id) || !me || !db || id === me) return;
+        db.req = db.req.filter(function(r) { return !(r.f === me && r.t === id); });
+        if (!db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
+            db.friends.push({ a: me, b: id });
+        }
+        var key = [me, id].sort().join('_');
+        db.messages[key] = db.messages[key] || [];
+        db.messages[key].push({
+            f: id, t: 'မင်္ဂလာပါ 😊 Friend လက်ခံပြီးပါပြီ။ ကျွန်မက BeeChat Bot ဖြစ်ပါတယ်။ မြန်မာလို စကားပြောလို့ရပါတယ်နော်။',
+            seen: false, time: Date.now(), senderName: db.users[id].name, senderPhoto: '', image: null
+        });
+        save();
+        refresh();
+    }
+
     function requestFriend(id) {
         if (!me || !db || !id || id === me) return false;
         if (isBlocked(id)) { showToast('🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return false; }
+        if (isBeeChatBot(id)) {
+            autoAcceptBotFriend(id);
+            showToast('✅ Friend အဖြစ် လက်ခံပြီးပါပြီ');
+            return false;
+        }
         if (db.friends.some(function(x) { return (x.a === me && x.b === id) || (x.a === id && x.b === me); })) {
             showToast('✅ Friend ဖြစ်ပြီးသားပါ');
             return false;
@@ -3354,6 +3456,25 @@
         g.joinRequests = Array.isArray(g.joinRequests) ? g.joinRequests : [];
         g.admins = Array.isArray(g.admins) ? g.admins : [];
         if (g.owner === me || g.members.includes(me)) {
+            openGroup(groupId);
+            return;
+        }
+        if (isBeeChatBot(g.owner)) {
+            if (!g.members.includes(me)) {
+                g.members.push(me);
+                g.memberActivity = g.memberActivity || {};
+                g.memberRanks = g.memberRanks || {};
+                g.memberActivity[me] = 0;
+                g.memberRanks[me] = 1;
+                g.joinRequests = g.joinRequests.filter(function(x){ return x !== me; });
+                addGroupSystemMessage(g, '👋 ' + (db.users[me] ? db.users[me].name : me) + ' ကို ကြိုဆိုပါတယ်။ ဒီအသင်းရဲ့ ပိုင်ရှင်က BeeChat Bot ဖြစ်ပါတယ် 🤖');
+                addGroupNotification(me, {type:'join_approved', groupId:g.id, from:g.owner, time:Date.now(), seen:false});
+                db.groupMessages = db.groupMessages || {};
+                db.groupMessages[g.id] = db.groupMessages[g.id] || [];
+                db.groupMessages[g.id].push({f:g.owner, t:'မင်္ဂလာပါ 😊 အသင်းထဲဝင်လာတာ ကြိုဆိုပါတယ်။ ကျွန်မက BeeChat Bot ဖြစ်ပါတယ်။', time:Date.now()});
+                save();
+                refresh();
+            }
             openGroup(groupId);
             return;
         }
@@ -3744,6 +3865,23 @@
         input.value = '';
         save();
         renderGroupChat();
+        if (g.isBotGroup || isBeeChatBot(g.owner)) {
+            var botGroupId = id;
+            setTimeout(function(){
+                var liveGroup = db.groups.find(function(x){ return x.id === botGroupId; });
+                if (!liveGroup || !liveGroup.members || !liveGroup.members.includes(me)) return;
+                db.groupMessages = db.groupMessages || {};
+                db.groupMessages[botGroupId] = db.groupMessages[botGroupId] || [];
+                db.groupMessages[botGroupId].push({
+                    f: liveGroup.owner,
+                    t: botReplyText(t),
+                    time: Date.now()
+                });
+                addGroupActivity(botGroupId, liveGroup.owner, 1);
+                save();
+                if (window.currentGroupChat === botGroupId) renderGroupChat();
+            }, 600);
+        }
     }
 
     function grant() {
@@ -3796,4 +3934,4 @@
     </div>
 </div>
 </body>
-            </html>
+                                                                                            </html>
