@@ -1204,18 +1204,35 @@
         return false;
     }
 
+    function withTimeout(promise, ms, fallbackValue) {
+        return Promise.race([
+            Promise.resolve(promise),
+            new Promise(function(resolve){ setTimeout(function(){ resolve(fallbackValue); }, ms); })
+        ]);
+    }
+
     async function initFirebase() {
         db = localLoad();
         if (!firebaseDB) { fbReady = false; setStatus('⚠️ Firebase SDK မတက်ပါ'); return; }
         try {
+            // Android WebView/content:// တွင် Anonymous Auth က အကြာကြီး pending ဖြစ်နိုင်သဖြင့်
+            // Firebase ချိတ်ဆက်မှုတစ်ခုလုံးကို မပိတ်မိစေရန် timeout ထားထားသည်။
             try {
                 if (firebaseAuth) {
-                    try { await firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE); } catch (e) {}
-                    if (!firebaseAuth.currentUser) { try { await firebaseAuth.signInAnonymously(); } catch (e) {} }
+                    try { await withTimeout(firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.NONE), 5000, null); } catch (e) {}
+                    if (!firebaseAuth.currentUser) {
+                        try { await withTimeout(firebaseAuth.signInAnonymously(), 7000, null); } catch (e) {}
+                    }
                 }
             } catch (e) { console.warn('Auth init:', e); }
             var ref = firebaseDB.ref('appData');
-            var snap = await ref.once('value');
+            var snap = await withTimeout(ref.once('value'), 10000, null);
+            if (!snap) {
+                fbReady = false;
+                localSave();
+                setStatus('⚠️ Firebase ချိတ်ဆက်ချိန်ကြာနေပါသည် — ပြန်စမ်းပါ');
+                return;
+            }
             if (snap.exists()) {
                 var remote = normalize(snap.val());
                 remote.deletedUsers = remote.deletedUsers || {};
@@ -1227,12 +1244,9 @@
                 remote.blocked = remote.blocked || {};
                 if (forceDeletedAccountLogout(me, remote)) return;
                 db = remote;
-                if (ensureVirtualUsers() || ensureVirtualGroups()) { try { await ref.set(db); } catch(e) { console.warn('Virtual users/groups seed:',e); } }
                 try { localSave(); } catch(e) {}
             } else {
                 db = normalize(db);
-                ensureVirtualUsers();
-                ensureVirtualGroups();
                 await ref.set(db);
             }
             fbReady = true;
@@ -1253,7 +1267,6 @@
                     if (incoming.deletedUsers[id] || incoming.renamedUsers[id]) delete incoming.users[id];
                 });
                 db = incoming;
-                if (ensureVirtualUsers() || ensureVirtualGroups()) { try { await ref.set(db); } catch(e) {} }
                 localSave();
                 if (me && db.users[me]) refresh();
             });
@@ -1267,8 +1280,6 @@
     }
 
     db = localLoad();
-    ensureVirtualUsers();
-    ensureVirtualGroups();
 
     function restoreLogin() {
         try {
@@ -1668,7 +1679,6 @@
             if (u.id === me) return false;
             if (isBlocked(u.id)) return false;
             if (isUnavailableAccount(u.id)) return false;
-            if (!virtualUsersEnabled() && isVirtualUser(u.id)) return false;
             return ((u.name || '').toLowerCase().includes(q) || (u.id || '').toLowerCase().includes(q));
         }).slice(0, 50);
         if (!found.length) { b.innerHTML = '<div class="small">ရှာတွေ့သူ မရှိပါ။</div>'; return; }
@@ -1686,7 +1696,7 @@
             var avatarHtml = (u.photos && u.photos[0]) ? '<img src="'+u.photos[0]+'" style="width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover;">' : '';
             d.innerHTML = '<div onclick="viewUserProfile(\'' + u.id + '\')" style="cursor:pointer;display:flex;align-items:center;">'+
                 avatarHtml +
-                '<div><b>' + esc(u.name) + '</b> ' + (u.virtualUser ? '<span class="small" style="color:#9b3d70;">🤖 Virtual</span>' : '') + ' <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span>' +
+                '<div><b>' + esc(u.name) + '</b> <span class="small">ID: ' + esc(u.id) + (regionText ? ' • ' + regionText : '') + '</span>' +
                 '<div class="small">' + genderIcon + ' ' + (u.gender || 'မသိ') + (age ? ' • အသက် ' + age : '') + '</div>' +
                 '</div>'+
                 '</div><br>' + action;
@@ -1810,7 +1820,7 @@
 
         var html = '<div class="user-profile-card">';
         html += '<div class="avatar">' + avatarHtml + '</div>';
-        html += '<div class="name">' + esc(u.name || '-') + (u.virtualUser ? ' <span style="font-size:12px;color:#9b3d70;">🤖 Virtual</span>' : '') + '</div>';
+        html += '<div class="name">' + esc(u.name || '-') + '</div>';
         html += '<div class="profile-sticker-view" style="font-size:28px;">' + esc(sticker) + '</div>';
         html += '<div class="id">ID: ' + esc(u.id) + '</div>';
         html += '<div class="bio">' + esc(u.bio || '') + '</div>';
@@ -2009,19 +2019,6 @@
         save();
         renderChat();
         updateBadges();
-        if (isVirtualUser(chatWith) && virtualUsersEnabled()) {
-            var botId = chatWith;
-            setTimeout(function(){
-                if (!db || !db.users[botId] || !me) return;
-                var key2=[me,botId].sort().join('_');
-                db.messages[key2]=db.messages[key2]||[];
-                var bu=db.users[botId];
-                db.messages[key2].push({f:botId,t:virtualReply(t,bu.name),seen:false,time:Date.now(),senderName:bu.name,senderPhoto:(bu.photos||[])[0]||'',image:null});
-                save();
-                if (chatWith===botId) renderChat();
-                updateBadges();
-            }, 700);
-        }
     }
 
     function renderChat() {
@@ -3209,137 +3206,6 @@
         });
     }
 
-    // ===== VIRTUAL FRIENDS (BeeChat launch support) =====
-    // These accounts are non-login AI companions. Keep them clearly marked as Virtual
-    // in the profile/search UI so they are not mistaken for real people.
-    var VIRTUAL_USERS = [
-        {id:'V10001', name:'မေသဇင်', region:'ရန်ကုန်', gender:'Female', dob:'2002-04-12', bio:'စကားပြောဖော်ရှာနေပါတယ် 😊', sticker:'🌸'},
-        {id:'V10002', name:'သွန်းသွန်း', region:'မန္တလေး', gender:'Female', dob:'2001-08-23', bio:'နေ့တိုင်း စကားလေးတွေ ပြောကြမယ်နော် 💕', sticker:'🌷'},
-        {id:'V10003', name:'နန်းစု', region:'နေပြည်တော်', gender:'Female', dob:'2003-01-17', bio:'မိတ်ဆွေကောင်းတွေ တွေ့ချင်ပါတယ် 🌼', sticker:'😊'},
-        {id:'V10004', name:'စုမြတ်', region:'ပဲခူး', gender:'Female', dob:'2000-11-05', bio:'အားလပ်ချိန်မှာ စကားပြောရတာကြိုက်တယ် 💬', sticker:'🦋'},
-        {id:'V10005', name:'ယမုံ', region:'မော်လမြိုင်', gender:'Female', dob:'2002-06-29', bio:'ပျော်ပျော်ပါးပါး စကားပြောကြမယ် 🌺', sticker:'🌺'},
-        {id:'V10006', name:'ခင်မိုး', region:'တောင်ကြီး', gender:'Female', dob:'2001-12-14', bio:'မိတ်ဆွေသစ်တွေ ကြိုဆိုပါတယ် ☺️', sticker:'💗'}
-    ];
-
-    function virtualUsersEnabled(){
-        return !db || db.virtualUsersEnabled !== false;
-    }
-    function isVirtualUser(id){
-        return String(id || '').indexOf('V100') === 0;
-    }
-    function virtualAvatar(name){
-        var ch = (name || 'V').charAt(0);
-        return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" rx="80" fill="#f3d7e7"/><text x="80" y="103" text-anchor="middle" font-size="72" font-family="sans-serif" fill="#9b3d70">'+ch+'</text></svg>'
-        );
-    }
-    function ensureVirtualUsers(){
-        if (!db || !virtualUsersEnabled()) return false;
-        db.users = db.users || {};
-        var changed = false;
-        VIRTUAL_USERS.forEach(function(v){
-            if (!db.users[v.id]) {
-                db.users[v.id] = {
-                    id:v.id, name:v.name, accountName:v.name, gender:v.gender, dob:v.dob,
-                    region:v.region, bio:v.bio, sticker:v.sticker, photos:[virtualAvatar(v.name)],
-                    joined:'Virtual', virtualUser:true, virtualEnabled:true, password:'', currentDevice:'',
-                    friends:0
-                };
-                changed = true;
-            } else {
-                db.users[v.id].virtualUser = true;
-                db.users[v.id].virtualEnabled = true;
-            }
-        });
-        return changed;
-    }
-    function virtualReply(text, name){
-        var t = String(text || '').toLowerCase();
-        if (/ဟယ်|ဟလို|မင်္ဂလာ|hello|hi/.test(t)) return 'ဟယ်လို 😊 တွေ့ရတာဝမ်းသာပါတယ်။';
-        if (/နေကောင်း|အဆင်ပြေ|နေကောင်းလား/.test(t)) return 'ကောင်းပါတယ် 😊 မေးပေးလို့ကျေးဇူးနော်။ မင်းကော နေကောင်းလား?';
-        if (/နာမည်|ဘယ်သူ|who/.test(t)) return 'ကျွန်မက ' + (name || 'BeeChat') + ' ပါ 😊 စကားပြောဖော်အနေနဲ့ ဒီမှာရှိပါတယ်။';
-        if (/ဘယ်မှာ|နေရာ|ဘယ်က/.test(t)) return 'ကျွန်မက ' + (name || '') + ' ပါ။ BeeChat မှာ စကားပြောနေတာပါ 😊';
-        if (/အသက်|age/.test(t)) return 'အသက်ကိုတော့ profile မှာ ကြည့်လို့ရပါတယ်နော် 😊';
-        if (/ကျေးဇူး|thanks|thank/.test(t)) return 'ရပါတယ်နော် 😊';
-        if (/ချစ်|love|ကြိုက်/.test(t)) return 'ဟားဟား 😊 မိတ်ဆွေကောင်းအနေနဲ့ စကားပြောကြတာပေါ့။';
-        if (/bye|တာတာ|သွားတော့/.test(t)) return 'တာတာနော် 👋 နောက်မှ ပြန်စကားပြောကြမယ်။';
-        var replies = [
-            'အင်း 😊 အဲ့အကြောင်းကို နည်းနည်းထပ်ပြောပြပါဦး။',
-            'ဟုတ်တယ်နော် 😄 မင်းပြောတာ စိတ်ဝင်စားစရာကောင်းတယ်။',
-            'အေးပါ 😊 ဒီနေ့တော့ ဘာတွေလုပ်နေသေးလဲ?',
-            'ဟုတ် 😊 ဆက်ပြောပါဦး၊ ကျွန်မ နားထောင်နေပါတယ်။'
-        ];
-        return replies[Math.floor(Math.random()*replies.length)];
-    }
-
-    // ===== VIRTUAL USER GROUPS =====
-    function ensureVirtualGroups(){
-        if (!db || !virtualUsersEnabled()) return false;
-        db.groups = Array.isArray(db.groups) ? db.groups : [];
-        var changed = false;
-        VIRTUAL_USERS.forEach(function(v, n){
-            var gid = 'VG' + String(n + 1).padStart(4, '0');
-            var g = db.groups.find(function(x){ return x.id === gid; });
-            if (!g) {
-                g = {
-                    id:gid,
-                    name:v.name + ' ရဲ့ မိတ်ဆွေများ',
-                    owner:v.id,
-                    members:[v.id],
-                    level:1,
-                    activity:0,
-                    avatar:virtualAvatar(v.name),
-                    memberRanks:{},
-                    memberActivity:{},
-                    admins:[],
-                    joinRequests:[]
-                };
-                g.memberRanks[v.id]=5;
-                g.memberActivity[v.id]=0;
-                db.groups.push(g);
-                changed = true;
-            } else {
-                g.owner=v.id;
-                g.members=Array.isArray(g.members)?g.members:[v.id];
-                if (!g.members.includes(v.id)) g.members.unshift(v.id);
-                g.memberRanks=g.memberRanks||{};
-                g.memberRanks[v.id]=5;
-            }
-        });
-        return changed;
-    }
-
-    function virtualAcceptGroupJoin(groupId, userId){
-        if (!virtualUsersEnabled() || !isVirtualUser(userId)) return;
-        var g=db.groups.find(function(x){return x.id===groupId;});
-        if (!g || !isVirtualUser(g.owner) || !db.users[userId]) return;
-        g.members=Array.isArray(g.members)?g.members:[];
-        g.joinRequests=Array.isArray(g.joinRequests)?g.joinRequests:[];
-        if (g.members.length>=20) return;
-        if (!g.members.includes(userId)) {
-            g.members.push(userId);
-            g.memberActivity=g.memberActivity||{};
-            g.memberRanks=g.memberRanks||{};
-            g.memberActivity[userId]=0;
-            g.memberRanks[userId]=1;
-            addGroupSystemMessage(g,'👋 '+(db.users[userId].name||userId)+' ကို အသင်းဝင်အဖြစ် လက်ခံလိုက်ပါပြီ။');
-            addGroupNotification(userId,{type:'join_approved',groupId:g.id,from:g.owner,time:Date.now(),seen:false});
-        }
-        g.joinRequests=g.joinRequests.filter(function(x){return x!==userId;});
-    }
-
-    async function virtualAcceptAndReply(id){
-        if (!isVirtualUser(id) || !virtualUsersEnabled() || !db.users[id] || !me) return;
-        db.req = (db.req || []).filter(function(r){ return !(r.f === me && r.t === id); });
-        if (!db.friends.some(function(x){ return (x.a===me&&x.b===id)||(x.a===id&&x.b===me); })) db.friends.push({a:me,b:id});
-        var key=[me,id].sort().join('_');
-        db.messages[key]=db.messages[key]||[];
-        var u=db.users[id];
-        db.messages[key].push({f:id,t:'မိတ်ဆွေဖြစ်ပေးလို့ ကျေးဇူးပါ 😊 စကားပြောလို့ရပါတယ်နော်။',seen:false,time:Date.now(),senderName:u.name,senderPhoto:(u.photos||[])[0]||'',image:null});
-        await save();
-        refresh();
-    }
-
     function requestFriend(id) {
         if (!me || !db || !id || id === me) return false;
         if (isBlocked(id)) { showToast('🚫 ဒီသုံးစွဲသူကို ဘလော့လုပ်ထားပါသည်။'); return false; }
@@ -3359,9 +3225,6 @@
             updateBadges();
             showToast('📨 Friend request ပို့ပြီးပါပြီ');
             save();
-            if (isVirtualUser(id) && virtualUsersEnabled()) {
-                setTimeout(function(){ virtualAcceptAndReply(id); }, 250);
-            }
         } else {
             showToast('📨 Request ပို့ထားပြီးပါပြီ');
         }
@@ -3501,14 +3364,6 @@
             return;
         }
         g.joinRequests.push(me);
-        if (isVirtualUser(g.owner)) {
-            virtualAcceptGroupJoin(g.id, me);
-            save();
-            refresh();
-            renderGroupDetail();
-            updateBadges();
-            return;
-        }
         addGroupNotification(g.owner, {type:'join_request', groupId:g.id, from:me, time:Date.now(), seen:false});
         (g.admins || []).forEach(function(adminId){ addGroupNotification(adminId, {type:'join_request', groupId:g.id, from:me, time:Date.now(), seen:false}); });
         save();
@@ -3941,4 +3796,4 @@
     </div>
 </div>
 </body>
-    </html>
+                </html>
