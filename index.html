@@ -543,28 +543,29 @@
 </style>
 
 <script>
-/* BeeChat AI bridge. Set this to your deployed HTTPS backend URL. */
-window.BEECHAT_AI_ENDPOINT = window.BEECHAT_AI_ENDPOINT || "https://beechat-ai-backend.onrender.com/api/chat";
-
+/* BeeChat AI bridge — backend only; does not alter login/registration or image assets. */
+window.BEECHAT_AI_ENDPOINT = "https://beechat-ai-backend.onrender.com/api/chat";
 async function askBeeChatAI(message) {
-  const endpoint = window.BEECHAT_AI_ENDPOINT;
-  if (!endpoint || endpoint.includes("YOUR-SERVER")) return null;
+  var endpoint = window.BEECHAT_AI_ENDPOINT;
+  if (!endpoint) return null;
+  var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var timer = controller ? setTimeout(function(){ controller.abort(); }, 12000) : null;
   try {
-    const r = await fetch(endpoint, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({message: String(message || "").slice(0, 4000)})
-    });
+    var opts = {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:String(message || '').slice(0,4000)})};
+    if (controller) opts.signal = controller.signal;
+    var r = await fetch(endpoint, opts);
     if (!r.ok) return null;
-    const data = await r.json();
+    var data = await r.json();
     return data && data.reply ? String(data.reply) : null;
-  } catch (e) {
-    console.warn("BeeChat AI unavailable:", e);
-    return null;
-  }
+  } catch(e) { console.warn('BeeChat AI unavailable:', e); return null; }
+  finally { if (timer) clearTimeout(timer); }
+}
+async function getBeeChatBotReply(userText) {
+  var ai = await askBeeChatAI(userText);
+  if (ai) return '🤖 BeeChat Bot\n' + ai;
+  return (typeof botReplyText === 'function') ? botReplyText(userText) : '🤖 BeeChat Bot — အခု AI server ကို မချိတ်နိုင်သေးပါ။';
 }
 </script>
-
 </head>
 <body>
 <div class="app">
@@ -2097,11 +2098,12 @@ var DEFAULT = {
             var replyKey = [me, botId].sort().join('_');
             setTimeout(async function(){
                 if (!db || !me || !db.users[botId]) return;
+                var replyText = await getBeeChatBotReply(t);
+                if (!db || !me || !db.users[botId]) return;
                 db.messages[replyKey] = db.messages[replyKey] || [];
-                var botReply = await getBeeChatBotReply(t);
                 db.messages[replyKey].push({
                     f: botId,
-                    t: botReply,
+                    t: replyText,
                     seen: false,
                     time: Date.now(),
                     senderName: db.users[botId].name,
@@ -3474,80 +3476,7 @@ var DEFAULT = {
         db.groupNotifications.push(Object.assign({id:'GN'+Date.now()+Math.random().toString(36).slice(2,7), seen:false}, item, {to:userId}));
     }
 
-    function botReplyText(t){
-  const q = String(t || '').trim();
-  const s = q.toLowerCase();
-
-  // Clearly identifies itself as a fictional BeeChat Bot.
-  const intro = '🤖 BeeChat Bot ဖြစ်ပါတယ်။ ';
-
-  // Greeting / conversational intents
-  if (/^(ဟယ်လို|ဟလို|မင်္ဂလာပါ|hello|hi|hey|မင်္ဂလာပါ bot|နေကောင်း)/i.test(q) || /နေကောင်းလား|ဘာလုပ်နေလဲ/.test(q)) {
-    return intro + 'မင်္ဂလာပါ 😊 မေးချင်တာကို တိုက်ရိုက်မေးလို့ရပါတယ်။ တတ်နိုင်သလောက် မြန်မာလို ဖြေပေးပါမယ်။';
-  }
-
-  // Basic factual Q&A
-  if (/မြန်မာနိုင်ငံ.*မြို့တော်|မြို့တော်.*မြန်မာ/.test(q)) {
-    return '🤖 BeeChat Bot — မြန်မာနိုင်ငံရဲ့ မြို့တော်က နေပြည်တော် ဖြစ်ပါတယ်။';
-  }
-  if (/အင်္ဂလိပ်.*မြို့တော်|အင်္ဂလန်.*မြို့တော်/.test(q)) {
-    return '🤖 BeeChat Bot — အင်္ဂလန်ရဲ့ မြို့တော်က လန်ဒန် (London) ဖြစ်ပါတယ်။';
-  }
-  if (/ဂျပန်.*မြို့တော်|မြို့တော်.*ဂျပန်/.test(q)) {
-    return '🤖 BeeChat Bot — ဂျပန်နိုင်ငံရဲ့ မြို့တော်က တိုကျို (Tokyo) ဖြစ်ပါတယ်။';
-  }
-  if (/တစ်ပတ်.*ရက်|ရက်.*တစ်ပတ်/.test(q)) {
-    return '🤖 BeeChat Bot — တစ်ပတ်မှာ ၇ ရက် ရှိပါတယ်။';
-  }
-  if (/တစ်နှစ်.*လ|လ.*တစ်နှစ်/.test(q)) {
-    return '🤖 BeeChat Bot — ပုံမှန်ပြက္ခဒိန်အရ တစ်နှစ်မှာ ၁၂ လ ရှိပါတယ်။';
-  }
-
-  // Arithmetic written in Burmese/English digits.
-  const expr = q.replace(/[xX×]/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
-  const m = expr.match(/(-?\d+(?:\.\d+)?)\s*([+\-*/])\s*(-?\d+(?:\.\d+)?)/);
-  if (m) {
-    const a = Number(m[1]), op = m[2], b = Number(m[3]);
-    let ans = null;
-    if (op === '+') ans = a + b;
-    if (op === '-') ans = a - b;
-    if (op === '*') ans = a * b;
-    if (op === '/' && b !== 0) ans = a / b;
-    if (ans !== null && Number.isFinite(ans)) {
-      return '🤖 BeeChat Bot — အဖြေက ' + String(ans) + ' ပါ။';
-    }
-  }
-
-  // Help / app-related intents.
-  if (/friend|သူငယ်ချင်း|မိတ်ဆွေ/.test(s)) {
-    return intro + 'Friend ရှာချင်ရင် Friend/Search နေရာမှာ နာမည် ဒါမှမဟုတ် ID နဲ့ ရှာပြီး Friend request ပို့နိုင်ပါတယ်။';
-  }
-  if (/group|အသင်း|အဖွဲ့/.test(s)) {
-    return intro + 'Group ထဲဝင်ချင်ရင် သက်ဆိုင်ရာ Group ကိုဖွင့်ပြီး Join Request ပို့နိုင်ပါတယ်။ Bot Group ဖြစ်ရင် ဝင်ခွင့်ကို အလိုအလျောက် လက်ခံပေးနိုင်ပါတယ်။';
-  }
-  if (/ကျေးဇူး|thanks|thank you/.test(s)) {
-    return intro + 'ရပါတယ် 😊';
-  }
-  if (/ဘယ်သူ|ဘယ်လို bot|bot ဆိုတာ/.test(s)) {
-    return intro + 'ကျွန်တော်က BeeChat ထဲမှာ ထည့်ထားတဲ့ စိတ်ကူးယဉ် အလိုအလျောက်ကူညီပေးတဲ့ Bot အကောင့်ပါ။ တကယ့်လူတစ်ယောက် မဟုတ်ပါဘူး။';
-
-  // Time/date can be answered locally from the device/browser.
-  if (/အချိန်ဘယ်လောက်|အခုဘယ်နှနာရီ|အချိန်/.test(q)) {
-    const d = new Date();
-    return intro + 'အခု စက်ရဲ့အချိန်အရ ' +
-      d.toLocaleTimeString('my-MM', {hour:'numeric', minute:'2-digit'}) + ' လောက် ရှိပါတယ်။';
-  }
-  if (/ဒီနေ့ဘယ်နေ့|ဒီနေ့.*ရက်|ရက်စွဲ/.test(q)) {
-    const d = new Date();
-    return intro + 'ဒီနေ့က ' +
-      d.toLocaleDateString('my-MM', {year:'numeric', month:'long', day:'numeric'}) + ' ပါ။';
-  }
-
-  // Don't pretend to know an answer we cannot derive.
-  return intro + 'ဒီမေးခွန်းကို အခု offline Bot ရဲ့ သိရှိထားတဲ့အချက်အလက်နဲ့ တိတိကျကျ မဖြေနိုင်သေးပါဘူး။ မေးခွန်းကို နည်းနည်းပိုရှင်းအောင် ရေးပေးရင် ရှာဖွေခွဲခြမ်းပြီး တတ်နိုင်သလောက် ဖြေပေးပါမယ်။';
-}
-
-function requestJoinGroup(groupId) {
+    function requestJoinGroup(groupId) {
         var g = db.groups.find(function(x) { return x.id === groupId; });
         if (!g || !me) return;
         g.members = Array.isArray(g.members) ? g.members : [];
@@ -3968,12 +3897,14 @@ function requestJoinGroup(groupId) {
             setTimeout(async function(){
                 var liveGroup = db.groups.find(function(x){ return x.id === botGroupId; });
                 if (!liveGroup || !liveGroup.members || !liveGroup.members.includes(me)) return;
+                var replyText = await getBeeChatBotReply(t);
+                liveGroup = db.groups.find(function(x){ return x.id === botGroupId; });
+                if (!liveGroup || !liveGroup.members || !liveGroup.members.includes(me)) return;
                 db.groupMessages = db.groupMessages || {};
                 db.groupMessages[botGroupId] = db.groupMessages[botGroupId] || [];
-                var botReply = await getBeeChatBotReply(t);
                 db.groupMessages[botGroupId].push({
                     f: liveGroup.owner,
-                    t: botReply,
+                    t: replyText,
                     time: Date.now()
                 });
                 addGroupActivity(botGroupId, liveGroup.owner, 1);
@@ -4032,20 +3963,5 @@ function requestJoinGroup(groupId) {
         <div class="dob-picker-footer"><button class="dob-today" type="button" onclick="dobPickerToday()">ယနေ့</button><button class="dob-cancel" type="button" onclick="closeDobPicker()">ပိတ်မည်</button></div>
     </div>
 </div>
-
-<script>
-/*
- * AI reply helper for BeeChat bot conversations.
- * Existing offline bot replies remain available when the backend is unavailable.
- */
-async function getBeeChatBotReply(userText) {
-  const ai = await askBeeChatAI(userText);
-  if (ai) return "🤖 BeeChat Bot\n" + ai;
-  return (typeof botReplyText === "function")
-    ? botReplyText(userText)
-    : "🤖 BeeChat Bot — အခု AI server ကို မချိတ်နိုင်သေးပါ။";
-}
-</script>
-
 </body>
-    </html>
+        </html>
