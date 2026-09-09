@@ -528,21 +528,13 @@
 
 /* 1-to-1 chat typing bar: move slightly upward */
 .chat-input-modern {
-    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    position: sticky !important;   /* <-- ဒါက အဓိက */
-    bottom: 0 !important;          /* <-- ဒါက အဓိက */
-    background: #fff !important;
-    z-index: 10 !important;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
 }
-.group-chat-input {
-    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    position: sticky !important;   /* <-- ဒါက အဓိက */
-    bottom: 0 !important;          /* <-- ဒါက အဓိက */
-    background: #fff !important;
-    z-index: 10 !important;
-}
-/* Group chat typing bar: move slightly upward without changing logic */
 
+/* Group chat typing bar: move slightly upward without changing logic */
+.group-chat-input {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+}
 
 /* Keep message area clear above moved input */
 .group-chat-messages {
@@ -3849,18 +3841,13 @@ var DEFAULT = {
             if(ok){ok.style.display='block';setTimeout(function(){ok.style.display='none';},1600);}
         } catch(e){console.error('Context report error:',e);}
     }
-    function adjustGroupChatViewport() {
-    var sec=document.getElementById('groupDetail');
-    if(!sec || !sec.classList.contains('group-chat-active')) return;
-    var cb=document.getElementById('groupChatBox');
-    if(cb) cb.scrollTop = cb.scrollHeight;
-    var input = document.getElementById('groupMsg');
-    if(input) {
-        setTimeout(function() {
-            input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }, 100);
+    function adjustGroupChatViewport(){
+        var sec=document.getElementById('groupDetail'); if(!sec || !sec.classList.contains('group-chat-active')) return;
+        /* Do not write visualViewport.height into the chat section. On Android WebView
+           that makes the composer move/reflow as messages and the keyboard change size. */
+        var cb=document.getElementById('groupChatBox');
+        if(cb) cb.scrollTop=cb.scrollHeight;
     }
-}
 
     function renderGroupChat() {
         var box = document.getElementById('groupDetailBox');
@@ -4002,4 +3989,4 @@ var DEFAULT = {
     </div>
 </div>
 </body>
-    </html>
+                </html>
