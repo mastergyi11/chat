@@ -585,6 +585,79 @@ async function getBeeChatBotReply(userText) {
   return (typeof botReplyText === 'function') ? botReplyText(userText) : '🤖 BeeChat Bot — အခု AI server ကို မချိတ်နိုင်သေးပါ။';
 }
 </script>
+
+<style>
+/* Stable chat input bars + Android WebView keyboard handling */
+.chat-screen.active, #groupDetail.group-chat-active.active {
+  position: fixed !important;
+  inset: 0 !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+.chat-full-card, .group-chat-full {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+.chat-modern-box, .group-chat-messages {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+.chat-input-modern, .group-chat-input {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+  z-index: 20 !important;
+  box-sizing: border-box !important;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+}
+/* Do not let the keyboard resize the bar itself. Android will place the WebView viewport above the IME. */
+html, body {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+</style>
+<script>
+/* Keep the typing bar above the Android keyboard without moving it according to message count. */
+(function(){
+  function keepChatInputVisible(){
+    var ids=['msg','groupMsg'];
+    for(var i=0;i<ids.length;i++){
+      var input=document.getElementById(ids[i]);
+      if(!input || input.offsetParent===null) continue;
+      var bar=input.closest ? input.closest('.chat-input-modern, .group-chat-input') : null;
+      if(!bar) continue;
+      bar.style.transform='none';
+      bar.style.bottom='auto';
+      bar.style.top='auto';
+    }
+  }
+  document.addEventListener('focusin', function(e){
+    if(e.target && (e.target.id==='msg' || e.target.id==='groupMsg')){
+      setTimeout(keepChatInputVisible, 50);
+      setTimeout(keepChatInputVisible, 250);
+    }
+  });
+  document.addEventListener('focusout', function(e){
+    if(e.target && (e.target.id==='msg' || e.target.id==='groupMsg')) setTimeout(keepChatInputVisible, 100);
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(keepChatInputVisible, 0); });
+  }
+  window.addEventListener('resize', function(){ setTimeout(keepChatInputVisible, 0); });
+})();
+</script>
+
 </head>
 <body>
 <div class="app">
@@ -3989,4 +4062,4 @@ var DEFAULT = {
     </div>
 </div>
 </body>
-        </html>
+    </html>
