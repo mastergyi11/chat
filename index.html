@@ -1136,7 +1136,7 @@ var DEFAULT = {
         saveQueue = saveQueue.then(async function() {
             saveInProgress++;
             try {
-                await firebaseDB.ref('appData').set(snapshot);
+                await withTimeout(firebaseDB.ref('appData').set(snapshot), 5000, null);
             } catch (e) {
                 console.error('Firebase save:', e);
             } finally {
@@ -1268,7 +1268,8 @@ var DEFAULT = {
     async function checkAccountControlNow(id) {
         if (!id || !firebaseDB) return false;
         try {
-            var controlSnap = await firebaseDB.ref('appData').once('value');
+            var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 5000, null);
+            if (!controlSnap) return false;
             var remote = controlSnap.exists() ? (controlSnap.val() || {}) : {};
             if (forceDeletedAccountLogout(id, remote)) return true;
             if (remote.deletedUsers && remote.deletedUsers[id]) return true;
@@ -2827,7 +2828,8 @@ var DEFAULT = {
     }
 
     async function login() {
-        if (firebaseInitPromise) await firebaseInitPromise;
+        // Login must never wait for Firebase startup; local data can be used immediately.
+        if (!db) db = localLoad();
         if (!db) { alert('ခဏစောင့်ပါ'); return; }
         var id = String(val('loginId')).trim().replace(/\s+/g, '');
         var p = String(val('loginPassword'));
@@ -2839,13 +2841,15 @@ var DEFAULT = {
         var remoteError = null;
         if (firebaseDB) {
             try {
-                var controlSnap = await firebaseDB.ref('appData').once('value');
+                var controlSnap = await withTimeout(firebaseDB.ref('appData').once('value'), 5000, null);
+                if (!controlSnap) throw new Error('Firebase lookup timeout');
                 var controlData = controlSnap.exists() ? (controlSnap.val() || {}) : {};
                 controlData.deletedUsers = controlData.deletedUsers || {};
                 controlData.renamedUsers = controlData.renamedUsers || {};
                 if (controlData.deletedUsers[id]) { alert('🚫 ဒီ Account ID ကို Admin မှ အပြီးဖျက်ထားပါသည်။'); return; }
                 if (controlData.renamedUsers[id]) { alert('🆔 ဒီ Account ID ကို Admin မှ ပြောင်းထားပါသည်။ ID အသစ်ဖြင့် ဝင်ပါ။'); return; }
-                var snap = await firebaseDB.ref('appData/users/' + id).once('value');
+                var snap = await withTimeout(firebaseDB.ref('appData/users/' + id).once('value'), 5000, null);
+                if (!snap) throw new Error('Firebase user lookup timeout');
                 if (snap.exists()) u = snap.val();
             } catch (e) { remoteError = e; console.warn('Remote account lookup failed', e); }
         }
@@ -3964,4 +3968,4 @@ var DEFAULT = {
     </div>
 </div>
 </body>
-        </html>
+    </html>
