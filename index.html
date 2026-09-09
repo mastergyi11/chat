@@ -607,6 +607,63 @@ html.beechat-keyboard-open #groupDetail.group-chat-active.active {
 }
 </style>
 
+<style id="beechat-viewport-root-fix">
+/* Root cause fix: keep the entire chat viewport tied to the dynamic visual viewport.
+   No JS height calculations; Android/WebView handles keyboard resize naturally. */
+html, body { width:100%; min-height:100%; overflow-x:hidden; }
+html, body { height:100%; }
+body.chat-open, body.group-chat-open { overflow:hidden !important; }
+
+.chat-screen.active, #groupDetail.group-chat-active.active {
+    position:fixed !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100dvh !important;
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:hidden !important;
+}
+
+.chat-full-card, .group-chat-full {
+    height:100% !important;
+    min-height:0 !important;
+    max-height:none !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+}
+
+.chat-modern-box, .group-chat-messages {
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    height:auto !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:14px !important;
+}
+
+.chat-input-modern, .group-chat-input {
+    position:relative !important;
+    inset:auto !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+    transform:none !important;
+}
+
+.chat-input-modern input, .group-chat-input input {
+    font-size:16px !important;
+}
+
+/* Remove the old JS-driven viewport height override completely. */
+html.beechat-keyboard-open .chat-screen.active,
+html.beechat-keyboard-open #groupDetail.group-chat-active.active {
+    height:100dvh !important;
+    max-height:none !important;
+}
+</style>
+
 <script>
 /* BeeChat AI bridge — backend only; does not alter login/registration or image assets. */
 window.BEECHAT_AI_ENDPOINT = "https://beechat-ai-backend.onrender.com/api/chat";
@@ -3889,40 +3946,16 @@ var DEFAULT = {
     }
     /* Android/WebView keyboard controller for both 1-to-1 and group chat.
        It changes only the active chat viewport; login/register/other screens stay untouched. */
+    /* Keyboard-safe chat viewport: let Android/WebView resize the fixed chat screen naturally. */
     var beeChatKeyboardRAF = 0;
-    function isBeeChatOpenScreen() {
-        return document.body.classList.contains('chat-open') || document.body.classList.contains('group-chat-open');
-    }
-    function updateBeeChatKeyboardViewport() {
-        if (!isBeeChatOpenScreen()) {
-            document.documentElement.classList.remove('beechat-keyboard-open');
-            document.documentElement.style.removeProperty('--beechat-vvh');
-            return;
-        }
-        var vv = window.visualViewport;
-        var visibleHeight = vv ? vv.height : window.innerHeight;
-        var layoutHeight = window.innerHeight || visibleHeight;
-        // Only treat a meaningful height reduction as the soft keyboard.
-        var keyboardOpen = visibleHeight < layoutHeight - 80;
-        if (keyboardOpen) {
-            document.documentElement.classList.add('beechat-keyboard-open');
-            document.documentElement.style.setProperty('--beechat-vvh', Math.max(280, Math.round(visibleHeight)) + 'px');
-        } else {
-            document.documentElement.classList.remove('beechat-keyboard-open');
-            document.documentElement.style.removeProperty('--beechat-vvh');
-        }
-        var cb = document.getElementById('chatbox');
-        var gb = document.getElementById('groupChatBox');
-        requestAnimationFrame(function(){
-            if (cb) cb.scrollTop = cb.scrollHeight;
-            if (gb) gb.scrollTop = gb.scrollHeight;
-        });
-    }
     function scheduleBeeChatKeyboardViewport() {
         if (beeChatKeyboardRAF) cancelAnimationFrame(beeChatKeyboardRAF);
         beeChatKeyboardRAF = requestAnimationFrame(function(){
             beeChatKeyboardRAF = 0;
-            updateBeeChatKeyboardViewport();
+            var cb = document.getElementById('chatbox');
+            var gb = document.getElementById('groupChatBox');
+            if (cb) cb.scrollTop = cb.scrollHeight;
+            if (gb) gb.scrollTop = gb.scrollHeight;
         });
     }
 
@@ -4046,15 +4079,15 @@ var DEFAULT = {
         else if (el.id === 'locateBtn' && typeof locate === 'function') locate();
     }, false);
 
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', scheduleBeeChatKeyboardViewport);
-        window.visualViewport.addEventListener('scroll', scheduleBeeChatKeyboardViewport);
-    }
-    window.addEventListener('resize', scheduleBeeChatKeyboardViewport);
+    /* Do not resize/reposition the whole BeeChat screen from visualViewport.
+       Android keyboard resize is handled by the CSS dynamic viewport instead. */
     document.addEventListener('focusin', function(e){
         if (e.target && (e.target.id === 'msg' || e.target.id === 'groupMsg')) {
-            setTimeout(scheduleBeeChatKeyboardViewport, 60);
-            setTimeout(scheduleBeeChatKeyboardViewport, 220);
+            setTimeout(function(){
+                try { e.target.scrollIntoView({block:'nearest', inline:'nearest'}); } catch(_) {}
+                scheduleBeeChatKeyboardViewport();
+            }, 80);
+            setTimeout(scheduleBeeChatKeyboardViewport, 240);
         }
     }, false);
     document.addEventListener('focusout', function(e){
