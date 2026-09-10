@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bee Chat</title>
     <style>
         * { box-sizing: border-box; }
@@ -544,60 +544,21 @@
 
 
 <style id="beechat-stable-chatbar-fix">
-/* Stable chat composer + Android keyboard handling. Only chat layouts are affected. */
+/* Stable chat composer: message count must never push the typing bar downward. */
 html, body { height:100%; }
-.chat-screen.active {
-    height:100vh !important; height:100dvh !important;
-    max-height:100vh !important; max-height:100dvh !important;
-}
-.chat-full-card {
-    height:100% !important; min-height:0 !important; max-height:100% !important;
-    box-sizing:border-box !important; overflow:hidden !important;
-}
-.chat-modern-box {
-    flex:1 1 auto !important; min-height:0 !important; height:auto !important;
-    overflow-y:auto !important; overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-}
-.chat-input-modern {
-    position:relative !important; left:auto !important; right:auto !important;
-    bottom:auto !important; top:auto !important;
-    flex:0 0 auto !important; flex-shrink:0 !important; margin:0 !important;
-    box-sizing:border-box !important;
-}
+.chat-screen.active { height:100vh !important; height:100dvh !important; max-height:100vh !important; max-height:100dvh !important; }
+.chat-full-card { height:100% !important; min-height:0 !important; max-height:100% !important; box-sizing:border-box !important; overflow:hidden !important; }
+.chat-modern-box { flex:1 1 auto !important; min-height:0 !important; height:auto !important; overflow-y:auto !important; overscroll-behavior:contain; }
+.chat-input-modern { position:relative !important; left:auto !important; right:auto !important; bottom:auto !important; top:auto !important; flex:0 0 auto !important; flex-shrink:0 !important; margin:0 !important; box-sizing:border-box !important; }
 .chat-input-modern input { flex:1 1 auto !important; min-width:0 !important; }
 
-#groupDetail.group-chat-active.active {
-    height:100vh !important; height:100dvh !important;
-    max-height:100vh !important; max-height:100dvh !important;
-    overflow:hidden !important;
-}
-#groupDetail.group-chat-active .group-detail-card {
-    height:100% !important; min-height:0 !important; max-height:100% !important;
-    overflow:hidden !important; box-sizing:border-box !important;
-}
-#groupDetail.group-chat-active #groupDetailBox {
-    height:100% !important; min-height:0 !important; max-height:100% !important;
-    overflow:hidden !important;
-}
-.group-chat-full {
-    height:100% !important; min-height:0 !important; max-height:100% !important;
-    overflow:hidden !important; box-sizing:border-box !important;
-}
-.group-chat-messages {
-    flex:1 1 auto !important; min-height:0 !important; height:auto !important;
-    overflow-y:auto !important; overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-    padding-bottom:10px !important;
-}
-.group-chat-input {
-    position:relative !important; left:auto !important; right:auto !important;
-    bottom:auto !important; top:auto !important;
-    flex:0 0 auto !important; flex-shrink:0 !important;
-    margin:0 !important; margin-top:0 !important; box-sizing:border-box !important;
-}
+#groupDetail.group-chat-active.active { height:100vh !important; height:100dvh !important; max-height:100vh !important; max-height:100dvh !important; overflow:hidden !important; }
+#groupDetail.group-chat-active .group-detail-card { height:100% !important; min-height:0 !important; max-height:100% !important; overflow:hidden !important; box-sizing:border-box !important; }
+#groupDetail.group-chat-active #groupDetailBox { height:100% !important; min-height:0 !important; max-height:100% !important; overflow:hidden !important; }
+.group-chat-full { height:100% !important; min-height:0 !important; max-height:100% !important; overflow:hidden !important; box-sizing:border-box !important; }
+.group-chat-messages { flex:1 1 auto !important; min-height:0 !important; height:auto !important; overflow-y:auto !important; overscroll-behavior:contain; }
+.group-chat-input { position:relative !important; left:auto !important; right:auto !important; bottom:auto !important; top:auto !important; flex:0 0 auto !important; flex-shrink:0 !important; margin:0 !important; margin-top:0 !important; box-sizing:border-box !important; }
 .group-chat-input input { flex:1 1 auto !important; min-width:0 !important; }
-
 </style>
 
 <script>
@@ -624,56 +585,31 @@ async function getBeeChatBotReply(userText) {
   return (typeof botReplyText === 'function') ? botReplyText(userText) : '🤖 BeeChat Bot — အခု AI server ကို မချိတ်နိုင်သေးပါ။';
 }
 </script>
-<style id="beechat-keyboard-root-fix">
-/* Root keyboard fix: browser/WebView resizes the layout viewport when the IME opens.
-   Only the two chat layouts are affected. */
-html, body { width:100%; height:100%; min-height:100%; overflow-x:hidden; }
-body.chat-open, body.group-chat-open { overflow:hidden !important; }
 
-.chat-screen.active, #groupDetail.group-chat-active.active {
-    position:fixed !important;
-    top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
-    width:100% !important;
-    height:100% !important;
-    min-height:0 !important;
-    max-height:none !important;
-    overflow:hidden !important;
+<style id="beechat-inputbar-final-fix">
+html, body { height:100%; overflow:hidden; }
+body { min-height:100dvh; }
+.chat-full-card, .group-chat-full, .chat-screen {
+  display:flex !important;
+  flex-direction:column !important;
+  height:100% !important;
+  min-height:0 !important;
 }
-
-.chat-full-card, .group-chat-full {
-    width:100% !important;
-    height:100% !important;
-    min-height:0 !important;
-    max-height:none !important;
-    display:flex !important;
-    flex-direction:column !important;
-    overflow:hidden !important;
+.chatbox, #chatbox {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
 }
-
-.chat-modern-box, .group-chat-messages {
-    flex:1 1 auto !important;
-    min-height:0 !important;
-    height:auto !important;
-    overflow-y:auto !important;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;
+.chat-input-modern, .group-chat-input, .chat-input-area {
+  flex:0 0 auto !important;
+  position:relative !important;
+  bottom:auto !important;
+  margin-top:auto !important;
+  z-index:20 !important;
 }
-
-.chat-input-modern, .group-chat-input {
-    position:relative !important;
-    top:auto !important; right:auto !important; bottom:auto !important; left:auto !important;
-    flex:0 0 auto !important;
-    flex-shrink:0 !important;
-    width:100% !important;
-    margin:0 !important;
-    transform:none !important;
-    box-sizing:border-box !important;
-    z-index:5;
-}
-
-.chat-input-modern input, .group-chat-input input {
-    font-size:16px !important;
-    min-width:0 !important;
+@media (max-width:600px) {
+  input, textarea { font-size:16px !important; }
 }
 </style>
 </head>
@@ -2090,7 +2026,7 @@ var DEFAULT = {
         document.body.classList.add('chat-open');
         show('chat');
         renderChat();
-        setTimeout(function(){ var i=document.getElementById('msg'); if(i) i.focus(); scheduleBeeChatKeyboardViewport(); }, 80);
+        setTimeout(function(){ var i=document.getElementById('msg'); if(i) i.focus(); }, 80);
     }
 
     function closeChatScreen() {
@@ -3932,21 +3868,6 @@ var DEFAULT = {
             if(ok){ok.style.display='block';setTimeout(function(){ok.style.display='none';},1600);}
         } catch(e){console.error('Context report error:',e);}
     }
-    /* Keyboard-safe chat scrolling. The page viewport is resized by the browser/WebView
-       via the interactive-widget=resizes-content viewport policy; JS never changes
-       the chat screen height. */
-    var beeChatKeyboardRAF = 0;
-    function scheduleBeeChatKeyboardViewport() {
-        if (beeChatKeyboardRAF) cancelAnimationFrame(beeChatKeyboardRAF);
-        beeChatKeyboardRAF = requestAnimationFrame(function(){
-            beeChatKeyboardRAF = 0;
-            var cb = document.getElementById('chatbox');
-            var gb = document.getElementById('groupChatBox');
-            if (cb) cb.scrollTop = cb.scrollHeight;
-            if (gb) gb.scrollTop = gb.scrollHeight;
-        });
-    }
-
     function adjustGroupChatViewport(){
         var sec=document.getElementById('groupDetail'); if(!sec || !sec.classList.contains('group-chat-active')) return;
         /* Do not write visualViewport.height into the chat section. On Android WebView
@@ -3997,7 +3918,6 @@ var DEFAULT = {
         var cb = document.getElementById('groupChatBox');
         if (cb) cb.scrollTop = cb.scrollHeight;
         requestAnimationFrame(adjustGroupChatViewport);
-        requestAnimationFrame(scheduleBeeChatKeyboardViewport);
     }
 
     function sendGroupMessage() {
@@ -4067,18 +3987,11 @@ var DEFAULT = {
         else if (el.id === 'locateBtn' && typeof locate === 'function') locate();
     }, false);
 
-    window.addEventListener('resize', scheduleBeeChatKeyboardViewport);
-    document.addEventListener('focusin', function(e){
-        if (e.target && (e.target.id === 'msg' || e.target.id === 'groupMsg')) {
-            setTimeout(scheduleBeeChatKeyboardViewport, 60);
-            setTimeout(scheduleBeeChatKeyboardViewport, 220);
-        }
-    }, false);
-    document.addEventListener('focusout', function(e){
-        if (e.target && (e.target.id === 'msg' || e.target.id === 'groupMsg')) {
-            setTimeout(scheduleBeeChatKeyboardViewport, 120);
-        }
-    }, false);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function(){requestAnimationFrame(adjustGroupChatViewport);});
+        window.visualViewport.addEventListener('scroll', function(){requestAnimationFrame(adjustGroupChatViewport);});
+    }
+    window.addEventListener('resize', function(){requestAnimationFrame(adjustGroupChatViewport);});
 
     window.addEventListener('error', function(e) { console.error('Bee Chat:', e.error || e.message); });
 </script>
@@ -4103,4 +4016,4 @@ var DEFAULT = {
     </div>
 </div>
 </body>
-    </html>
+                                                                                    </html>
