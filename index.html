@@ -157,17 +157,10 @@
             overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
         }
         .chat-modern-box .msg { max-width: 82%; box-shadow:none; }
-        /* Chat composer is viewport-anchored. JS changes --bee-chat-keyboard-bottom
-           when Android keyboard opens, so the bar never gets covered or scrolls away. */
         .chat-input-modern {
-            position:fixed !important;
-            left:0; right:0;
-            bottom:var(--bee-chat-keyboard-bottom, 0px) !important;
-            width:100%; box-sizing:border-box;
             margin:0 !important; border:0 !important; border-top:1px solid #eee !important;
             border-radius:0 !important; padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
             min-height:58px; background:#fff; gap:7px; flex-shrink:0;
-            z-index:1000;
         }
         .chat-input-modern input { margin:0 !important; padding:11px 14px !important; background:#f5f5f5 !important;
             border:0 !important; border-radius:24px !important; font-size:16px; min-width:0; }
@@ -193,14 +186,8 @@
         .group-chat-actions button { border:0;background:transparent;font-size:28px;padding:5px;cursor:pointer;color:#222; }
         .group-chat-messages { flex:1 1 auto;min-height:0;overflow-y:auto;background:#fff;padding:14px 12px 12px;overscroll-behavior:contain;box-sizing:border-box;-webkit-overflow-scrolling:touch; }
         .group-chat-messages .msg { max-width:84%; }
-        .group-chat-input {
-            position:fixed !important;
-            left:0; right:0;
-            bottom:var(--bee-chat-keyboard-bottom, 0px) !important;
-            width:100%; box-sizing:border-box;
-            margin:0 !important;border:0 !important;border-top:1px solid #eee !important;border-radius:0 !important;
-            padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;min-height:58px;background:#fff;z-index:1000;
-        }
+        .group-chat-input { position:sticky; bottom:0; margin:0 !important;border:0 !important;border-top:1px solid #eee !important;border-radius:0 !important;
+            padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;min-height:58px;background:#fff;z-index:5; }
 
         /* Fix group chat typing bar position: keep it lower and stable above keyboard */
         .group-chat-full {
@@ -249,6 +236,45 @@
         }
         .group-chat-input { flex-shrink:0; margin-top:0 !important; }
         @media (max-height:500px) { .group-chat-input { padding:6px 10px !important; min-height:52px; } }
+
+        /* ===== FINAL MOBILE CHAT COMPOSER FIX =====
+           Keep the composer anchored to the visible chat viewport. Messages alone scroll. */
+        .chat-screen.active, #groupDetail.group-chat-active.active {
+            position: fixed !important;
+            left: 0 !important; right: 0 !important; top: 0 !important;
+            bottom: auto !important;
+            height: var(--bee-chat-layout-h, 100vh) !important;
+            max-height: none !important;
+            overflow: hidden !important;
+        }
+        .chat-full-card, #groupDetail.group-chat-active.active .group-detail-card {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: none !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+        }
+        .chat-modern-box, .group-chat-messages {
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            padding-bottom: 86px !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-input-modern, .group-chat-input {
+            position: absolute !important;
+            left: 0 !important; right: 0 !important;
+            bottom: var(--bee-keyboard-bottom, 0px) !important;
+            width: 100% !important;
+            margin: 0 !important;
+            z-index: 200 !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .chat-input-modern { min-height: 58px !important; }
+        .group-chat-input { min-height: 58px !important; }
+        .chat-input-modern input, .group-chat-input input { min-width: 0 !important; }
+
         .context-report-backdrop { position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.45); z-index:250; }
         .context-report-card { width:min(520px,100%); max-height:82vh; overflow:auto; background:#fff; border-radius:18px 18px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow:0 -8px 30px rgba(0,0,0,.2); }
         .context-report-title { font-size:18px; font-weight:700; margin-bottom:14px; }
@@ -3571,35 +3597,25 @@
         if (!chatActive && !groupActive) return;
 
         var vv = window.visualViewport;
-        var visibleHeight = vv ? Math.round(vv.height) : Math.round(window.innerHeight);
-        if (!visibleHeight || visibleHeight < 240) return;
+        var layoutH = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+        var visibleH = vv ? Math.round(vv.height) : layoutH;
+        var offsetTop = vv ? Math.round(vv.offsetTop || 0) : 0;
+        if (!layoutH || layoutH < 240) return;
 
-        /* Support both Android keyboard modes:
-           1) adjustResize: innerHeight itself becomes shorter;
-           2) overlay/visual-viewport: innerHeight stays full and visualViewport shrinks. */
-        var layoutHeight = Math.round(window.innerHeight);
-        var vvOffsetTop = vv ? Math.round(vv.offsetTop || 0) : 0;
-        var keyboardOverlap = Math.max(0, layoutHeight - visibleHeight - vvOffsetTop);
-        var keyboardOpen = keyboardOverlap > 80 || (document.activeElement &&
-            (document.activeElement.id === 'msg' || document.activeElement.id === 'groupMsg') &&
-            visibleHeight < layoutHeight - 80);
+        // If Android resizes the visual viewport, visibleH is already the usable height.
+        // If the keyboard overlays the layout viewport, this calculates the covered part.
+        var keyboardBottom = Math.max(0, layoutH - (visibleH + offsetTop));
+        // Ignore tiny browser/UI changes.
+        if (keyboardBottom < 80) keyboardBottom = 0;
 
-        /* Android system navigation area is normally already outside the WebView;
-           use a small closed-state bottom inset, then replace it with the actual
-           keyboard overlap as soon as the keyboard is detected. */
-        var bottom = keyboardOpen ? (keyboardOverlap + 8) : 0;
-        document.documentElement.style.setProperty('--bee-chat-vh', visibleHeight + 'px');
-        document.documentElement.style.setProperty('--bee-chat-keyboard-bottom', bottom + 'px');
+        document.documentElement.style.setProperty('--bee-chat-layout-h', layoutH + 'px');
+        document.documentElement.style.setProperty('--bee-chat-vh', Math.max(240, visibleH) + 'px');
+        document.documentElement.style.setProperty('--bee-keyboard-bottom', keyboardBottom + 'px');
 
-        var inputBar = chatActive ? document.querySelector('.chat-input-modern') : document.querySelector('.group-chat-input');
-        if (inputBar) inputBar.style.setProperty('bottom', bottom + 'px', 'important');
-
+        var input = chatActive ? document.getElementById('msg') : document.getElementById('groupMsg');
         var box = chatActive ? document.getElementById('chatbox') : document.getElementById('groupChatBox');
         if (box) {
-            /* Reserve room for the fixed composer so the last message is never hidden. */
-            var barH = inputBar ? Math.ceil(inputBar.getBoundingClientRect().height) : 66;
-            box.style.paddingBottom = (barH + (keyboardOpen ? 8 : 12)) + 'px';
-            requestAnimationFrame(function(){ box.scrollTop = box.scrollHeight; });
+            box.style.paddingBottom = '86px';
         }
     }
 
@@ -3701,15 +3717,11 @@
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', function(){requestAnimationFrame(adjustChatKeyboardViewport);});
         window.visualViewport.addEventListener('scroll', function(){requestAnimationFrame(adjustChatKeyboardViewport);});
-        window.visualViewport.addEventListener('geometrychange', function(){requestAnimationFrame(adjustChatKeyboardViewport);});
     }
     window.addEventListener('resize', function(){requestAnimationFrame(adjustChatKeyboardViewport);});
-    window.addEventListener('orientationchange', function(){ setTimeout(adjustChatKeyboardViewport, 120); });
     document.addEventListener('focusin', function(e){
         if (e.target && (e.target.id === 'msg' || e.target.id === 'groupMsg')) {
             setTimeout(function(){ requestAnimationFrame(adjustChatKeyboardViewport); }, 60);
-            setTimeout(adjustChatKeyboardViewport, 180);
-            setTimeout(adjustChatKeyboardViewport, 360);
         }
     });
     document.addEventListener('focusout', function(e){
