@@ -45,7 +45,7 @@
         .seen { font-size: 10px; color: #888; margin-top: 2px; }
         .msg .delete-msg-btn { position: absolute; top: 2px; right: 2px; background: rgba(220,53,69,0.8); color: #fff; border: 0; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1; }
         .msg:hover .delete-msg-btn { display: flex; }
-        .nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #fff; position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(900px, 100%); z-index: 20; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav button { min-height: 56px; margin: 0 2px; border-radius: 10px; background: transparent; color: #555; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 0; }
         .nav button.active-nav { color: #e7ad21; background: #fff8e1; }
         .nav button span { font-size: 22px; }
@@ -371,8 +371,8 @@
         .sticker-section .sticker-grid .sticker-btn:hover { border-color: #e7ad21; transform: scale(1.1); }
         .sticker-section .sticker-grid .sticker-btn.selected { border-color: #e7ad21; background: #fff8e1; }
         .sticker-section .current-sticker-display { text-align: center; font-size: 48px; padding: 8px; background: #f8f9fa; border-radius: 12px; margin: 4px 0; }
-        /* Profile nav alignment */
-        #navProfile { margin-left: 0; }
+        /* Profile nav button slight right shift */
+        #navProfile { margin-left: 4px; }
 
         /* ===== BEECHAT SETTINGS / DARK MODE / LANGUAGE ===== */
         .settings-control { cursor:pointer; }
@@ -395,110 +395,6 @@
         .group-system-message { text-align:center; padding:8px 12px; margin:8px auto; border-radius:12px; background:#fff8df; color:#6d5600; font-size:13px; max-width:90%; }
         .dark-mode .group-system-message { background:#3b321b; color:#ffe082; }
 
-        /* ===== Stable Followers / Following full-page list ===== */
-        .follow-list-sheet {
-            position: fixed;
-            inset: 0;
-            z-index: 12000;
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            background: #fff;
-            overflow: hidden;
-        }
-        .follow-list-panel {
-            width: min(900px, 100%);
-            height: 100dvh;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            color: #222;
-        }
-        .follow-list-head {
-            min-height: 64px;
-            padding: 8px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            background: #f4b400;
-            border-bottom: 1px solid #e0a800;
-            box-shadow: 0 1px 5px rgba(0,0,0,.08);
-            flex-shrink: 0;
-        }
-        .follow-list-head h3 {
-            flex: 1;
-            font-size: 19px;
-            font-weight: 700;
-        }
-        .follow-list-head .btn {
-            flex: 0 0 auto;
-            margin: 0;
-        }
-        #followListItems {
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 0 14px calc(24px + env(safe-area-inset-bottom));
-            background: #fff;
-        }
-        .follow-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-height: 72px;
-            padding: 10px 4px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            background: #fff;
-        }
-        .follow-user:active { background: #f8f9fa; }
-        .follow-user img,
-        .follow-user .fu-avatar {
-            width: 50px;
-            height: 50px;
-            flex: 0 0 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            object-fit: cover;
-        }
-        .follow-user > div:last-child {
-            min-width: 0;
-            flex: 1;
-        }
-        .follow-user b {
-            display: block;
-            font-size: 16px;
-            line-height: 1.35;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .follow-user .small {
-            margin-top: 3px;
-            line-height: 1.35;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .dark-mode .follow-list-sheet,
-        .dark-mode .follow-list-panel,
-        .dark-mode #followListItems,
-        .dark-mode .follow-user {
-            background: #1d1d1d !important;
-            color: #eee !important;
-        }
-        .dark-mode .follow-user { border-color: #333; }
-        .dark-mode .follow-user:active { background: #242424 !important; }
-
-
         .guest-help-btn { border:0; background:transparent; color:#222; font-size:16px; padding:8px 6px; cursor:pointer; font-weight:500; }
         .guest-help-btn:active { opacity:.65; }
         .help-card { max-width:620px; margin:18px auto; }
@@ -511,13 +407,6 @@
         .dark-mode .help-note { background:#3b321b; color:#ffe082; border-color:#6b5a20; }
         .dark-mode .help-success { background:#183522; color:#b8e8c4; border-color:#2f6b40; }
     </style>
-
-<style>
-/* final bottom navigation alignment fix */
-.nav { grid-template-columns: repeat(5, 1fr) !important; padding-left: 2px !important; padding-right: 2px !important; }
-.nav button { min-width: 0 !important; margin: 0 !important; padding: 2px 0 !important; font-size: 10px !important; white-space: nowrap !important; overflow: hidden !important; }
-.nav button span { font-size: 20px !important; }
-</style>
 </head>
 <body>
 <div class="app">
@@ -900,7 +789,7 @@
         <button id="navFriends" onclick="navGo('friends')"><span>♧</span><span>Friends</span></button>
         <button id="navInbox" onclick="navGo('inbox')"><span id="inboxBadge" style="font-size:22px;">💬</span><span>Chats</span></button>
         <button id="navProfile" onclick="navGo('profile')"><span>♙</span><span>Profile</span></button>
-        
+        <button id="navSetting" onclick="navGo('settings')"><span>⚙️</span><span>Setting</span></button>
     </div>
 
 </div>
