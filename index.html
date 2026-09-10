@@ -585,31 +585,6 @@ async function getBeeChatBotReply(userText) {
   return (typeof botReplyText === 'function') ? botReplyText(userText) : '🤖 BeeChat Bot — အခု AI server ကို မချိတ်နိုင်သေးပါ။';
 }
 </script>
-
-<style id="beechat-chat-input-only-fix">
-/* Chat input only fix - does not touch login/profile/AI */
-.chat-screen, .chat-full-card, .group-chat-full {
-  min-height: 0 !important;
-}
-.chat-input-modern,
-.group-chat-input {
-  position: sticky !important;
-  bottom: 0 !important;
-  z-index: 20 !important;
-  flex-shrink: 0 !important;
-}
-.chatbox,
-#chatbox {
-  overflow-y: auto !important;
-  overscroll-behavior: contain !important;
-}
-@media (max-height: 700px) {
-  .chat-input-modern,
-  .group-chat-input {
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
-}
-</style>
 </head>
 <body>
 <div class="app">
@@ -4013,5 +3988,106 @@ var DEFAULT = {
         <div class="dob-picker-footer"><button class="dob-today" type="button" onclick="dobPickerToday()">ယနေ့</button><button class="dob-cancel" type="button" onclick="closeDobPicker()">ပိတ်မည်</button></div>
     </div>
 </div>
+
+<!-- Group chat keyboard-only fix: does not change login, 1-to-1 chat, or other app logic. -->
+<style id="group-chat-keyboard-auto-fix">
+  #groupDetail.group-chat-active.active .group-chat-full {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  #groupDetail.group-chat-active.active .group-chat-input {
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  #groupDetail.group-chat-active.active .group-chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+</style>
+
+<script>
+(function () {
+  // Group-chat only. Login, registration and 1-to-1 chat are untouched.
+  function adjustGroupKeyboard() {
+    var sec = document.getElementById('groupDetail');
+    if (!sec || !sec.classList.contains('group-chat-active')) return;
+
+    var full = sec.querySelector('.group-chat-full');
+    var input = sec.querySelector('.group-chat-input');
+    var box = sec.querySelector('.group-chat-messages');
+    if (!full || !input) return;
+
+    var vv = window.visualViewport;
+    var viewportHeight = vv ? vv.height : window.innerHeight;
+    var viewportTop = vv ? vv.offsetTop : 0;
+
+    // Make the group-chat viewport follow the visible area when Android
+    // resizes/overlays the WebView for the soft keyboard.
+    if (vv && viewportHeight > 0) {
+      sec.style.height = viewportHeight + 'px';
+      sec.style.maxHeight = viewportHeight + 'px';
+    }
+
+    // If the WebView keeps the layout viewport full-size, lift only the
+    // group typing bar by the detected keyboard height.
+    var keyboardHeight = vv
+      ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      : 0;
+
+    input.style.transform = keyboardHeight > 0
+      ? 'translateY(-' + keyboardHeight + 'px)'
+      : 'translateY(0)';
+
+    if (keyboardHeight > 0 && document.activeElement === input.querySelector('input')) {
+      requestAnimationFrame(function () {
+        if (box) box.scrollTop = box.scrollHeight;
+      });
+    }
+  }
+
+  function resetGroupKeyboard() {
+    var sec = document.getElementById('groupDetail');
+    if (!sec) return;
+    var input = sec.querySelector('.group-chat-input');
+    if (input) input.style.transform = 'translateY(0)';
+    sec.style.height = '';
+    sec.style.maxHeight = '';
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustGroupKeyboard);
+    window.visualViewport.addEventListener('scroll', adjustGroupKeyboard);
+  }
+
+  window.addEventListener('resize', adjustGroupKeyboard);
+  window.addEventListener('orientationchange', function () {
+    setTimeout(adjustGroupKeyboard, 100);
+  });
+
+  document.addEventListener('focusin', function (e) {
+    if (e.target && e.target.id === 'groupMsg') {
+      setTimeout(adjustGroupKeyboard, 50);
+      setTimeout(adjustGroupKeyboard, 250);
+      setTimeout(adjustGroupKeyboard, 500);
+    }
+  });
+
+  document.addEventListener('focusout', function (e) {
+    if (e.target && e.target.id === 'groupMsg') {
+      setTimeout(resetGroupKeyboard, 150);
+    }
+  });
+
+  // renderGroupChat() recreates #groupMsg, so this stays delegated and works
+  // after every message render.
+  window.adjustGroupChatKeyboard = adjustGroupKeyboard;
+})();
+</script>
+
 </body>
     </html>
